@@ -2,7 +2,6 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <!-- ✅ iOS/Android：避免“默认缩小”，并兼容刘海屏 -->
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />
   <title>納品書 | 澄和創藝合同会社</title>
 
@@ -36,8 +35,7 @@
     .brand h1{margin:0;font-size:26px;letter-spacing:.5px}
     .brand .sub{color:var(--muted);font-size:13px}
 
-    .actions{display:flex;gap:10px;flex-wrap:wrap}
-
+    .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     button{
       border:1px solid var(--line);
       background:#fff;
@@ -51,10 +49,14 @@
       border-color:var(--accent);
       color:#fff;
     }
+    button:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+    }
     button:active{transform:translateY(1px)}
     .btn-mini{padding:8px 10px;border-radius:12px;font-weight:700;}
+    .hint{font-size:12px;color:var(--muted)}
 
-    /* ✅ 桌面：左窄右宽（稳定） */
     .grid{
       display:grid;
       grid-template-columns: minmax(340px, 420px) 1fr;
@@ -79,7 +81,6 @@
       padding-bottom:10px;margin-bottom:12px;
     }
     .title h2{margin:0;font-size:18px}
-
     .small{font-size:12px;color:var(--muted)}
 
     .row{
@@ -91,7 +92,7 @@
     }
     .row label{color:var(--muted);font-size:13px}
 
-    /* ✅ iOS：输入框字体 <16px 会触发 Safari 自动放大/缩放怪现象，所以统一 16px */
+    /* iOS input zoom対策：16px */
     input, textarea, select{
       width:100%;
       border:1px solid var(--line);
@@ -99,7 +100,7 @@
       padding:10px 12px;
       font-size:16px;
       background:#fff;
-      min-width:0; /* ✅ 关键：防止 flex/table 下溢出撑爆 */
+      min-width:0;
     }
     textarea{min-height:72px;resize:vertical}
 
@@ -110,13 +111,7 @@
       background:#fff;
     }
     .dest-name{font-weight:800}
-    .dest-addr{
-      margin-top:6px;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.6;
-      white-space:pre-line;
-    }
+    .dest-addr{margin-top:6px;color:var(--muted);font-size:13px;line-height:1.6;white-space:pre-line;}
 
     .pill{
       display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;
@@ -128,24 +123,21 @@
     }
     .pill b{color:var(--strong)}
 
-    /* ====== ✅ 桌面/平板：表格（绝不重叠） ====== */
+    /* ===== Table (Desktop/Tablet) ===== */
     .table-wrap{
       border:1px solid var(--line);
       border-radius:14px;
       background:#fff;
-      overflow-x:auto;                 /* ✅ 窄屏时横滚，不挤爆重叠 */
+      overflow-x:auto;
       -webkit-overflow-scrolling:touch;
     }
-
     table{
       width:100%;
       border-collapse:collapse;
       background:#fff;
-      table-layout:fixed;              /* ✅ 列宽稳定 */
-      min-width: 900px;                /* ✅ 给桌面一个安全最小宽度，避免列被压到重叠 */
+      table-layout:fixed;
+      min-width: 860px; /* ✅ 足りないと重なるので安全値 */
     }
-
-    /* ✅ 明确每列宽度：品名列自动吃剩余空间（而且不会被压扁到重叠） */
     col.no{width:50px}
     col.name{width:auto}
     col.unit{width:140px}
@@ -167,36 +159,22 @@
       padding:8px 8px;
       vertical-align:middle;
       font-size:14px;
-      overflow:hidden;                 /* ✅ 防止输入框溢出覆盖到别的列 */
+      overflow:hidden;
     }
     tbody tr:last-child td{border-bottom:none}
 
     .num{ text-align:right; font-variant-numeric: tabular-nums; }
     .center{text-align:center}
 
-    /* ✅ 让“品名/作品名”的输入框在桌面端视觉上更长、更舒服 */
+    /* ✅ 作品名“不要夸张超长”：桌面端就吃满本列即可 */
     td.namecell input.name{
       width:100%;
-      min-width: 420px;                /* ✅ 你要的“作品名一定要足够长” */
+      min-width:0;
     }
+    td.unitcell input, td.qtycell input{width:100%; text-align:right;}
 
-    /* 单价/数量输入框稍微收敛，不抢品名空间 */
-    td.unitcell input,
-    td.qtycell input{
-      width:100%;
-      text-align:right;
-    }
-
-    .table-actions{
-      margin-top:10px;
-      display:flex;
-      justify-content:center;
-    }
-    .table-actions button{
-      padding:12px 16px;
-      border-radius:14px;
-      font-weight:800;
-    }
+    .table-actions{margin-top:10px;display:flex;justify-content:center;}
+    .table-actions button{padding:12px 16px;border-radius:14px;font-weight:800;}
 
     .sum{
       margin-top:12px;
@@ -205,9 +183,7 @@
       gap:12px;
       align-items:start;
     }
-    @media (max-width: 980px){
-      .sum{grid-template-columns:1fr}
-    }
+    @media (max-width: 980px){ .sum{grid-template-columns:1fr} }
 
     .sum-box{
       border:1px solid var(--line);
@@ -217,31 +193,20 @@
     }
     .sum-row{
       display:flex;justify-content:space-between;gap:12px;
-      padding:8px 0;
-      border-bottom:1px solid var(--line);
+      padding:8px 0;border-bottom:1px solid var(--line);
       font-variant-numeric: tabular-nums;
     }
     .sum-row:last-child{border-bottom:none}
     .sum-row .k{color:#111;font-weight:700}
     .sum-row .v{font-weight:800}
 
-    .footer-note{
-      margin-top:12px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.7;
-    }
+    .footer-note{margin-top:12px;color:var(--muted);font-size:12px;line-height:1.7;}
 
-    /* ===== ✅ 手机：明细改“卡片式”（你喜欢的那种） ===== */
+    /* ===== Mobile cards ===== */
     @media (max-width: 600px){
-      table{min-width:0;} /* ✅ 手机不用表格最小宽度 */
-
-      .table-wrap{
-        overflow:visible;
-        border:0;
-        background:transparent;
-      }
-      table, thead, tbody, tr, td{display:block; width:100%;}
+      table{min-width:0;}
+      .table-wrap{overflow:visible;border:0;background:transparent;}
+      table, thead, tbody, tr, td{display:block;width:100%;}
       thead{display:none;}
       table{background:transparent;}
 
@@ -253,27 +218,32 @@
         margin:10px 0;
         box-shadow: 0 8px 22px rgba(0,0,0,.04);
       }
-      tbody td{
-        border-bottom:0;
-        padding:8px 0;
-        overflow:visible;
-      }
+      tbody td{border-bottom:0;padding:8px 0;overflow:visible;}
 
       tbody td:nth-child(1){
         padding-top:0;
         font-weight:800;
+        color:#111;
+        display:flex;
+        justify-content:center;
       }
-      tbody td:nth-child(1)::before{
-        content:"No";
-        display:inline-block;
-        margin-right:10px;
+      tbody td:nth-child(1)::before{content:none;}
+
+      /* ✅ 手机端：品名改成“上下结构”，避免你截图那种横向超长 */
+      tbody td:nth-child(2){
+        display:block;
+      }
+      tbody td:nth-child(2)::before{
+        content:"品名 / 作品名";
+        display:block;
         color:var(--muted);
         font-weight:700;
         font-size:12px;
+        margin-bottom:6px;
       }
+      tbody td:nth-child(2) input{width:100%;}
 
-      /* 标签 + 内容 */
-      tbody td:nth-child(2),
+      /* 单价/数量保持左右结构 */
       tbody td:nth-child(3),
       tbody td:nth-child(4),
       tbody td:nth-child(5),
@@ -283,17 +253,13 @@
         justify-content:space-between;
         gap:12px;
       }
-
-      tbody td:nth-child(2)::before{content:"品名 / 作品名";color:var(--muted);font-weight:700;font-size:12px;flex:0 0 auto;}
       tbody td:nth-child(3)::before{content:"単価";color:var(--muted);font-weight:700;font-size:12px;flex:0 0 auto;}
       tbody td:nth-child(4)::before{content:"数量";color:var(--muted);font-weight:700;font-size:12px;flex:0 0 auto;}
       tbody td:nth-child(5)::before{content:"金額";color:var(--muted);font-weight:700;font-size:12px;flex:0 0 auto;}
       tbody td:nth-child(6)::before{content:"削除";color:var(--muted);font-weight:700;font-size:12px;flex:0 0 auto;}
 
-      /* 手机端输入框宽度优化（不挤） */
-      tbody td:nth-child(2) input{width:72%;}
       tbody td:nth-child(3) input,
-      tbody td:nth-child(4) input{width:56%; text-align:right;}
+      tbody td:nth-child(4) input{width:58%; text-align:right;}
 
       tbody td:nth-child(5){
         padding-top:10px;
@@ -301,17 +267,12 @@
         margin-top:6px;
       }
       .amount{font-weight:900}
-
-      tbody td:nth-child(6) button{
-        padding:10px 14px;
-        border-radius:14px;
-        font-weight:900;
-      }
+      tbody td:nth-child(6) button{padding:10px 14px;border-radius:14px;font-weight:900;}
 
       .sum{grid-template-columns:1fr;}
     }
 
-    /* ===== ✅ 打印/导出 PDF：无论手机/电脑，都强制“传统表格一栏栏(A4)” ===== */
+    /* ===== Print (系统打印) ===== */
     @page { size: A4; margin: 12mm; }
     @media print{
       body{background:#fff}
@@ -319,60 +280,31 @@
       .actions, .pill, .table-actions{display:none !important}
       .card{box-shadow:none;border:0;border-radius:0;padding:0}
       .grid{grid-template-columns:1fr !important;gap:0 !important}
-
-      /* 强制回到 table layout（非常关键：iOS 也能压住卡片式） */
       .table-wrap{border:1px solid #999;border-radius:0; overflow:visible !important; background:#fff !important;}
-      table{
-        display:table !important;
-        width:100% !important;
-        border-collapse:collapse !important;
-        table-layout:fixed !important;
-        min-width:0 !important;
-        background:#fff !important;
-      }
+
+      table{display:table !important; width:100% !important; border-collapse:collapse !important; table-layout:fixed !important; min-width:0 !important;}
       thead{display:table-header-group !important;}
       tbody{display:table-row-group !important;}
       tr{display:table-row !important; page-break-inside:avoid !important;}
       th, td{display:table-cell !important;}
-
-      /* 清掉“卡片式”可能带来的伪元素标签 */
       td::before{content:none !important;}
-
-      /* 清掉卡片的阴影/圆角 */
-      tbody tr{
-        box-shadow:none !important;
-        border:0 !important;
-        border-radius:0 !important;
-        padding:0 !important;
-        margin:0 !important;
-      }
-
-      thead th{
-        background:#eee !important;
-        -webkit-print-color-adjust:exact;
-        print-color-adjust:exact;
-      }
-      tbody td{
-        border:1px solid #999 !important;
-        padding:8px 8px !important;
-        overflow:hidden !important;
-      }
-
-      button{display:none !important}
-      input, textarea, select{
-        border:0 !important;
-        padding:0 !important;
-        font-size:12px !important;
-        background:transparent !important;
-      }
-      textarea{min-height:unset !important;}
-      .row{grid-template-columns:140px 1fr;margin:6px 0}
-      .sum-box{border:1px solid #999;border-radius:0}
+      tbody tr{box-shadow:none !important;border:0 !important;border-radius:0 !important;padding:0 !important;margin:0 !important;}
+      thead th{background:#eee !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      tbody td{border:1px solid #999 !important;padding:8px 8px !important;overflow:hidden !important;}
+      input, textarea, select{border:0 !important;padding:0 !important;font-size:12px !important;background:transparent !important;}
     }
 
     .brandline{display:flex;align-items:center;gap:14px;}
     .logo{height:48px;width:auto;display:block;}
+
+    /* PDF 生成时使用：隐藏不需要的 UI */
+    .pdf-only-hide{display:block;}
   </style>
+
+  <!-- ✅ PDF 生成库（安卓更稳）：html2pdf.js 依赖 html2canvas + jsPDF -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 </head>
 
 <body>
@@ -383,138 +315,147 @@
           <img src="cleon-logo.PNG" alt="Cléon arts & trade" class="logo" />
           <div>
             <h1>納品書</h1>
-            <div class="sub"><b>澄和創藝合同会社</b>　｜　PDFは右の「PDF保存/印刷」から作成できます。</div>
+            <div class="sub"><b>澄和創藝合同会社</b>　｜　PDFは右のボタンから作成できます。</div>
           </div>
         </div>
       </div>
 
       <div class="actions">
         <button type="button" class="btn-mini" id="clearBtn">入力をリセット</button>
-        <button type="button" class="primary btn-mini" id="printBtn">PDF保存 / 印刷</button>
+
+        <!-- ✅ 新：PDFファイルとしてダウンロード（安卓也可） -->
+        <button type="button" class="primary btn-mini" id="pdfBtn">PDFをダウンロード</button>
+
+        <!-- 可选：保留系统打印（桌面更方便） -->
+        <button type="button" class="btn-mini" id="printBtn" title="PCで印刷したい場合">印刷</button>
+        <span class="hint" id="pdfHint"></span>
       </div>
     </div>
 
-    <div class="grid">
-      <!-- LEFT -->
-      <div class="card">
-        <div class="title">
-          <h2>基本情報</h2>
-          <div class="small">作者さまが入力 → PDF保存 → メール/LINE等で送付</div>
-        </div>
+    <!-- ✅ 用于生成PDF的容器：我们会克隆这份内容并强制“表格模式” -->
+    <div id="pdfRoot">
+      <div class="grid">
+        <!-- LEFT -->
+        <div class="card">
+          <div class="title">
+            <h2>基本情報</h2>
+            <div class="small">作者さまが入力 → PDF保存 → メール/LINE等で送付</div>
+          </div>
 
-        <div class="row">
-          <label>宛先</label>
-          <div class="dest-box">
-            <div class="dest-name">澄和創藝合同会社</div>
-            <div class="dest-addr">〒185-0032
+          <div class="row">
+            <label>宛先</label>
+            <div class="dest-box">
+              <div class="dest-name">澄和創藝合同会社</div>
+              <div class="dest-addr">〒185-0032
 東京都国分寺市日吉町2-34-14 2G号室</div>
+            </div>
           </div>
-        </div>
 
-        <div class="row">
-          <label>納品書番号（任意）</label>
-          <input id="docNo" placeholder="例：2026-001" data-ph="例：2026-001" />
-        </div>
+          <div class="row">
+            <label>納品書番号（任意）</label>
+            <input id="docNo" placeholder="例：2026-001" data-ph="例：2026-001" />
+          </div>
 
-        <div class="row">
-          <label>納品日</label>
-          <input id="docDate" type="date" />
-        </div>
+          <div class="row">
+            <label>納品日</label>
+            <input id="docDate" type="date" />
+          </div>
 
-        <div class="row">
-          <label>姓名</label>
-          <input id="authorName" placeholder="例：澄和 花子" data-ph="例：澄和 花子" />
-        </div>
+          <div class="row">
+            <label>姓名</label>
+            <input id="authorName" placeholder="例：澄和 花子" data-ph="例：澄和 花子" />
+          </div>
 
-        <div class="row">
-          <label>屋号</label>
-          <input id="shopName" placeholder="例：atelier ○○" data-ph="例：atelier ○○" />
-        </div>
+          <div class="row">
+            <label>屋号</label>
+            <input id="shopName" placeholder="例：atelier ○○" data-ph="例：atelier ○○" />
+          </div>
 
-        <div class="row">
-          <label>TEL</label>
-          <input id="tel" placeholder="例：090-xxxx-xxxx" data-ph="例：090-xxxx-xxxx" />
-        </div>
+          <div class="row">
+            <label>TEL</label>
+            <input id="tel" placeholder="例：090-xxxx-xxxx" data-ph="例：090-xxxx-xxxx" />
+          </div>
 
-        <div class="row">
-          <label>住所（任意）</label>
-          <textarea id="addr" placeholder="例：〒xxx-xxxx 東京都…" data-ph="例：〒xxx-xxxx 東京都…"></textarea>
-        </div>
+          <div class="row">
+            <label>住所（任意）</label>
+            <textarea id="addr" placeholder="例：〒xxx-xxxx 東京都…" data-ph="例：〒xxx-xxxx 東京都…"></textarea>
+          </div>
 
-        <div class="pill">
-          <span>入力方式：</span>
-          <select id="mode">
-            <option value="taxin" selected>おすすめ：税込（消費税10%込）で入力</option>
-            <option value="taxex">税抜（消費税を別計算）で入力</option>
-          </select>
-          <span class="small">税率：<b>10%</b>（固定）｜端数処理：<b>四捨五入（1円未満）</b></span>
-        </div>
+          <div class="pill">
+            <span>入力方式：</span>
+            <select id="mode">
+              <option value="taxin" selected>おすすめ：税込（消費税10%込）で入力</option>
+              <option value="taxex">税抜（消費税を別計算）で入力</option>
+            </select>
+            <span class="small">税率：<b>10%</b>（固定）｜端数処理：<b>四捨五入（1円未満）</b></span>
+          </div>
 
-        <div class="footer-note">
-          <span class="screenonly">※「税込（10%込）」を選ぶと、作者さまは<b>税込単価</b>だけ入力すればOKです（税額は自動で内訳表示）。</span><br/>
-          当サイトはCléon専用の内部ツールであり、入力情報は厳重に管理され、外部への流出は一切ありません。
-        </div>
-      </div>
-
-      <!-- RIGHT -->
-      <div class="card">
-        <div class="title">
-          <h2>明細</h2>
-          <div class="small">単価 × 数量 → 金額（自動）</div>
-        </div>
-
-        <div class="table-wrap">
-          <table id="itemsTable">
-            <colgroup>
-              <col class="no">
-              <col class="name">
-              <col class="unit">
-              <col class="qty">
-              <col class="amount">
-              <col class="del">
-            </colgroup>
-            <thead>
-              <tr>
-                <th class="center">No</th>
-                <th>品名 / 作品名</th>
-                <th class="num">単価</th>
-                <th class="num">数量</th>
-                <th class="num">金額</th>
-                <th class="center">削除</th>
-              </tr>
-            </thead>
-            <tbody id="tbody"></tbody>
-          </table>
-        </div>
-
-        <div class="table-actions">
-          <button type="button" class="btn-mini" id="addRowBtn">＋ 行を追加</button>
-        </div>
-
-        <div class="sum">
           <div class="footer-note">
-            ※ 金額は自動計算です。PDF化する場合は「PDF保存/印刷」を押してください。<br/>
-            ※ 税込入力時：<b>合計（税込）</b>は入力金額の合算、その内訳として<b>小計（税抜）</b>と<b>消費税</b>を算出します。
-          </div>
-
-          <div class="sum-box">
-            <div class="sum-row">
-              <div class="k">小計</div>
-              <div class="v" id="subTotal">0 円</div>
-            </div>
-            <div class="sum-row">
-              <div class="k">消費税（10%）</div>
-              <div class="v" id="tax">0 円</div>
-            </div>
-            <div class="sum-row">
-              <div class="k">合計</div>
-              <div class="v" id="grandTotal">0 円</div>
-            </div>
+            <span class="screenonly">※「税込（10%込）」を選ぶと、作者さまは<b>税込単価</b>だけ入力すればOKです（税額は自動で内訳表示）。</span><br/>
+            当サイトはCléon専用の内部ツールであり、入力情報は厳重に管理され、外部への流出は一切ありません。
           </div>
         </div>
 
+        <!-- RIGHT -->
+        <div class="card">
+          <div class="title">
+            <h2>明細</h2>
+            <div class="small">単価 × 数量 → 金額（自動）</div>
+          </div>
+
+          <div class="table-wrap">
+            <table id="itemsTable">
+              <colgroup>
+                <col class="no">
+                <col class="name">
+                <col class="unit">
+                <col class="qty">
+                <col class="amount">
+                <col class="del">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th class="center">No</th>
+                  <th>品名 / 作品名</th>
+                  <th class="num">単価</th>
+                  <th class="num">数量</th>
+                  <th class="num">金額</th>
+                  <th class="center">削除</th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+
+          <div class="table-actions pdf-only-hide">
+            <button type="button" class="btn-mini" id="addRowBtn">＋ 行を追加</button>
+          </div>
+
+          <div class="sum">
+            <div class="footer-note">
+              ※ 金額は自動計算です。PDF化する場合は「PDFをダウンロード」を押してください。<br/>
+              ※ 税込入力時：<b>合計（税込）</b>は入力金額の合算、その内訳として<b>小計（税抜）</b>と<b>消費税</b>を算出します。
+            </div>
+
+            <div class="sum-box">
+              <div class="sum-row">
+                <div class="k">小計</div>
+                <div class="v" id="subTotal">0 円</div>
+              </div>
+              <div class="sum-row">
+                <div class="k">消費税（10%）</div>
+                <div class="v" id="tax">0 円</div>
+              </div>
+              <div class="sum-row">
+                <div class="k">合計</div>
+                <div class="v" id="grandTotal">0 円</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
-    </div>
+    </div><!-- /pdfRoot -->
   </div>
 
 <script>
@@ -530,13 +471,13 @@
 
   // ===== placeholder control =====
   const _phBackup = new Map();
-  function clearPlaceholdersForPrint(){
-    document.querySelectorAll("[data-ph], .name").forEach(el=>{
+  function clearPlaceholders(){
+    document.querySelectorAll("[data-ph], .name, .unit, .qty").forEach(el=>{
       _phBackup.set(el, el.getAttribute("placeholder") || "");
       el.setAttribute("placeholder", "");
     });
   }
-  function restorePlaceholdersAfterPrint(){
+  function restorePlaceholders(){
     _phBackup.forEach((val, el)=>{
       try{ el.setAttribute("placeholder", val); }catch(e){}
     });
@@ -548,6 +489,8 @@
   const addRowBtn = document.getElementById("addRowBtn");
   const clearBtn = document.getElementById("clearBtn");
   const printBtn = document.getElementById("printBtn");
+  const pdfBtn = document.getElementById("pdfBtn");
+  const pdfHint = document.getElementById("pdfHint");
   const modeSel = document.getElementById("mode");
 
   const subTotalEl = document.getElementById("subTotal");
@@ -634,23 +577,83 @@
     addRows(6);
   });
 
-  // ✅ 打印/导出PDF：更兼容一些安卓浏览器
-  function safePrint(){
+  modeSel.addEventListener("change", recalc);
+
+  // ===== System print (PC向け) =====
+  printBtn.addEventListener("click", ()=>{
+    clearPlaceholders();
+    window.print();
+    setTimeout(restorePlaceholders, 1200);
+  });
+
+  // ===== ✅ PDF download (安卓/iOS/PC) =====
+  async function downloadPDF(){
+    if(!window.html2pdf){
+      alert("PDF生成ライブラリの読み込みに失敗しました。通信環境をご確認ください。");
+      return;
+    }
+
+    pdfBtn.disabled = true;
+    pdfHint.textContent = "PDFを作成中…";
+
+    // 1) 先に placeholder 消す（PDFに例文を出さない）
+    clearPlaceholders();
+
+    // 2) PDF用にDOMをクローンして、必ず“表形式”に固定
+    const src = document.getElementById("pdfRoot");
+    const clone = src.cloneNode(true);
+
+    // クローン側は「行を追加」ボタン等を消す
+    clone.querySelectorAll(".pdf-only-hide").forEach(el=> el.style.display = "none");
+
+    // クローンを一時的に画面外に設置（レンダリング用）
+    const host = document.createElement("div");
+    host.style.position = "fixed";
+    host.style.left = "-99999px";
+    host.style.top = "0";
+    host.style.width = "1100px"; // ✅ 安定：A4レイアウトに近い幅
+    host.appendChild(clone);
+    document.body.appendChild(host);
+
+    // 3) html2pdf 設定：A4固定、余白、画質
+    const fileName = (() => {
+      const docNo = (document.getElementById("docNo").value || "").trim();
+      const author = (document.getElementById("authorName").value || "").trim();
+      const d = (document.getElementById("docDate").value || "").trim();
+      const base = docNo ? `納品書_${docNo}` : "納品書";
+      const tail = [author, d].filter(Boolean).join("_");
+      return (tail ? `${base}_${tail}` : base) + ".pdf";
+    })();
+
     try{
-      clearPlaceholdersForPrint();
-      window.print();
-      setTimeout(restorePlaceholdersAfterPrint, 1200);
+      await html2pdf()
+        .set({
+          margin: [12, 12, 12, 12], // mm
+          filename: fileName,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: {
+            scale: 2,           // ✅ 清晰
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            scrollY: 0
+          },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+          pagebreak: { mode: ["css", "legacy"] }
+        })
+        .from(clone)
+        .save();
     }catch(e){
-      restorePlaceholdersAfterPrint();
-      alert("このブラウザでは直接PDF保存ができない場合があります。\n別のブラウザ（Chrome/Edge）でお試しください。");
+      alert("PDFの作成に失敗しました。別のブラウザ（Chrome/Edge）でお試しください。");
+    }finally{
+      // cleanup
+      document.body.removeChild(host);
+      restorePlaceholders();
+      pdfBtn.disabled = false;
+      pdfHint.textContent = "";
     }
   }
 
-  printBtn.addEventListener("click", safePrint);
-  window.addEventListener("beforeprint", clearPlaceholdersForPrint);
-  window.addEventListener("afterprint", restorePlaceholdersAfterPrint);
-
-  modeSel.addEventListener("change", recalc);
+  pdfBtn.addEventListener("click", downloadPDF);
 
   // init date
   const d = new Date();
