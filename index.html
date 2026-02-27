@@ -49,10 +49,7 @@
       border-color:var(--accent);
       color:#fff;
     }
-    button:disabled{
-      opacity:.6;
-      cursor:not-allowed;
-    }
+    button:disabled{opacity:.6;cursor:not-allowed;}
     button:active{transform:translateY(1px)}
     .btn-mini{padding:8px 10px;border-radius:12px;font-weight:700;}
     .hint{font-size:12px;color:var(--muted)}
@@ -122,6 +119,18 @@
       margin-top:10px;
     }
     .pill b{color:var(--strong)}
+    .footer-note{margin-top:12px;color:var(--muted);font-size:12px;line-height:1.7;}
+
+    /* ✅ 手机端：基本信息改成“上下布局”，纳品日就不会比例失衡 */
+    @media (max-width: 600px){
+      .row{
+        grid-template-columns: 1fr;
+        gap:6px;
+        align-items:stretch;
+        margin:12px 0;
+      }
+      .row label{font-size:12px}
+    }
 
     /* ===== Table (Desktop/Tablet) ===== */
     .table-wrap{
@@ -136,7 +145,7 @@
       border-collapse:collapse;
       background:#fff;
       table-layout:fixed;
-      min-width: 860px; /* ✅ 足りないと重なるので安全値 */
+      min-width: 860px;
     }
     col.no{width:50px}
     col.name{width:auto}
@@ -166,11 +175,7 @@
     .num{ text-align:right; font-variant-numeric: tabular-nums; }
     .center{text-align:center}
 
-    /* ✅ 作品名“不要夸张超长”：桌面端就吃满本列即可 */
-    td.namecell input.name{
-      width:100%;
-      min-width:0;
-    }
+    td.namecell input.name{width:100%; min-width:0;}
     td.unitcell input, td.qtycell input{width:100%; text-align:right;}
 
     .table-actions{margin-top:10px;display:flex;justify-content:center;}
@@ -200,9 +205,7 @@
     .sum-row .k{color:#111;font-weight:700}
     .sum-row .v{font-weight:800}
 
-    .footer-note{margin-top:12px;color:var(--muted);font-size:12px;line-height:1.7;}
-
-    /* ===== Mobile cards ===== */
+    /* ===== Mobile cards (画面表示用) ===== */
     @media (max-width: 600px){
       table{min-width:0;}
       .table-wrap{overflow:visible;border:0;background:transparent;}
@@ -227,12 +230,8 @@
         display:flex;
         justify-content:center;
       }
-      tbody td:nth-child(1)::before{content:none;}
 
-      /* ✅ 手机端：品名改成“上下结构”，避免你截图那种横向超长 */
-      tbody td:nth-child(2){
-        display:block;
-      }
+      tbody td:nth-child(2){display:block;}
       tbody td:nth-child(2)::before{
         content:"品名 / 作品名";
         display:block;
@@ -243,7 +242,6 @@
       }
       tbody td:nth-child(2) input{width:100%;}
 
-      /* 单价/数量保持左右结构 */
       tbody td:nth-child(3),
       tbody td:nth-child(4),
       tbody td:nth-child(5),
@@ -272,6 +270,74 @@
       .sum{grid-template-columns:1fr;}
     }
 
+    /* ===== ✅ PDF DOWNLOAD MODE：强制和“打印版式”一样（永远表格，不用卡片） ===== */
+    .pdf-mode{
+      background:#fff !important;
+    }
+    .pdf-mode .actions,
+    .pdf-mode .pill,
+    .pdf-mode .table-actions{
+      display:none !important;
+    }
+    .pdf-mode .wrap{
+      max-width:none !important;
+      padding:0 !important;
+    }
+    .pdf-mode .grid{
+      grid-template-columns:1fr !important;
+      gap:0 !important;
+    }
+    .pdf-mode .card{
+      box-shadow:none !important;
+      border:0 !important;
+      border-radius:0 !important;
+      padding:0 !important;
+      background:#fff !important;
+    }
+    .pdf-mode .table-wrap{
+      border:1px solid #999 !important;
+      border-radius:0 !important;
+      overflow:visible !important;
+      background:#fff !important;
+    }
+    .pdf-mode table{
+      display:table !important;
+      width:100% !important;
+      border-collapse:collapse !important;
+      table-layout:fixed !important;
+      min-width:0 !important;
+      background:#fff !important;
+    }
+    .pdf-mode thead{display:table-header-group !important;}
+    .pdf-mode tbody{display:table-row-group !important;}
+    .pdf-mode tr{display:table-row !important; page-break-inside:avoid !important;}
+    .pdf-mode th, .pdf-mode td{display:table-cell !important;}
+    .pdf-mode td::before{content:none !important;}
+    .pdf-mode tbody tr{
+      box-shadow:none !important;
+      border:0 !important;
+      border-radius:0 !important;
+      padding:0 !important;
+      margin:0 !important;
+      background:#fff !important;
+    }
+    .pdf-mode thead th{
+      background:#eee !important;
+      -webkit-print-color-adjust:exact;
+      print-color-adjust:exact;
+    }
+    .pdf-mode tbody td{
+      border:1px solid #999 !important;
+      padding:8px 8px !important;
+      overflow:hidden !important;
+    }
+    .pdf-mode input, .pdf-mode textarea, .pdf-mode select{
+      border:0 !important;
+      padding:0 !important;
+      font-size:12px !important;
+      background:transparent !important;
+    }
+
     /* ===== Print (系统打印) ===== */
     @page { size: A4; margin: 12mm; }
     @media print{
@@ -281,7 +347,6 @@
       .card{box-shadow:none;border:0;border-radius:0;padding:0}
       .grid{grid-template-columns:1fr !important;gap:0 !important}
       .table-wrap{border:1px solid #999;border-radius:0; overflow:visible !important; background:#fff !important;}
-
       table{display:table !important; width:100% !important; border-collapse:collapse !important; table-layout:fixed !important; min-width:0 !important;}
       thead{display:table-header-group !important;}
       tbody{display:table-row-group !important;}
@@ -296,12 +361,9 @@
 
     .brandline{display:flex;align-items:center;gap:14px;}
     .logo{height:48px;width:auto;display:block;}
-
-    /* PDF 生成时使用：隐藏不需要的 UI */
-    .pdf-only-hide{display:block;}
   </style>
 
-  <!-- ✅ PDF 生成库（安卓更稳）：html2pdf.js 依赖 html2canvas + jsPDF -->
+  <!-- PDF生成库 -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
@@ -322,17 +384,12 @@
 
       <div class="actions">
         <button type="button" class="btn-mini" id="clearBtn">入力をリセット</button>
-
-        <!-- ✅ 新：PDFファイルとしてダウンロード（安卓也可） -->
         <button type="button" class="primary btn-mini" id="pdfBtn">PDFをダウンロード</button>
-
-        <!-- 可选：保留系统打印（桌面更方便） -->
         <button type="button" class="btn-mini" id="printBtn" title="PCで印刷したい場合">印刷</button>
         <span class="hint" id="pdfHint"></span>
       </div>
     </div>
 
-    <!-- ✅ 用于生成PDF的容器：我们会克隆这份内容并强制“表格模式” -->
     <div id="pdfRoot">
       <div class="grid">
         <!-- LEFT -->
@@ -427,7 +484,7 @@
             </table>
           </div>
 
-          <div class="table-actions pdf-only-hide">
+          <div class="table-actions">
             <button type="button" class="btn-mini" id="addRowBtn">＋ 行を追加</button>
           </div>
 
@@ -459,7 +516,7 @@
   </div>
 
 <script>
-  // ===== helpers =====
+  // helpers
   const yen = (n)=> (Number.isFinite(n) ? n : 0).toLocaleString("ja-JP") + " 円";
   const toInt = (v)=> {
     if (v === null || v === undefined) return 0;
@@ -469,7 +526,7 @@
   };
   const roundYen = (n)=> Math.round(n);
 
-  // ===== placeholder control =====
+  // placeholder control
   const _phBackup = new Map();
   function clearPlaceholders(){
     document.querySelectorAll("[data-ph], .name, .unit, .qty").forEach(el=>{
@@ -484,7 +541,7 @@
     _phBackup.clear();
   }
 
-  // ===== state =====
+  // state
   const tbody = document.getElementById("tbody");
   const addRowBtn = document.getElementById("addRowBtn");
   const clearBtn = document.getElementById("clearBtn");
@@ -512,9 +569,7 @@
       renumber();
       recalc();
     });
-    tr.querySelectorAll("input").forEach(inp=>{
-      inp.addEventListener("input", recalc);
-    });
+    tr.querySelectorAll("input").forEach(inp=> inp.addEventListener("input", recalc));
     return tr;
   }
 
@@ -526,9 +581,7 @@
 
   function addRows(n){
     const start = tbody.querySelectorAll("tr").length;
-    for(let k=0;k<n;k++){
-      tbody.appendChild(makeRow(start + k + 1));
-    }
+    for(let k=0;k<n;k++) tbody.appendChild(makeRow(start + k + 1));
     recalc();
   }
 
@@ -579,43 +632,43 @@
 
   modeSel.addEventListener("change", recalc);
 
-  // ===== System print (PC向け) =====
+  // print
   printBtn.addEventListener("click", ()=>{
     clearPlaceholders();
     window.print();
     setTimeout(restorePlaceholders, 1200);
   });
 
-  // ===== ✅ PDF download (安卓/iOS/PC) =====
+  // ✅ download PDF：让版式完全等于打印（强制 pdf-mode）
   async function downloadPDF(){
     if(!window.html2pdf){
       alert("PDF生成ライブラリの読み込みに失敗しました。通信環境をご確認ください。");
       return;
     }
-
     pdfBtn.disabled = true;
     pdfHint.textContent = "PDFを作成中…";
 
-    // 1) 先に placeholder 消す（PDFに例文を出さない）
     clearPlaceholders();
 
-    // 2) PDF用にDOMをクローンして、必ず“表形式”に固定
+    // clone + force pdf-mode
     const src = document.getElementById("pdfRoot");
     const clone = src.cloneNode(true);
 
-    // クローン側は「行を追加」ボタン等を消す
-    clone.querySelectorAll(".pdf-only-hide").forEach(el=> el.style.display = "none");
+    // 包一层，打上 pdf-mode，让CSS强制“打印同款表格”
+    const wrapper = document.createElement("div");
+    wrapper.className = "pdf-mode";
+    wrapper.appendChild(clone);
 
-    // クローンを一時的に画面外に設置（レンダリング用）
+    // render host (offscreen)
     const host = document.createElement("div");
     host.style.position = "fixed";
     host.style.left = "-99999px";
     host.style.top = "0";
-    host.style.width = "1100px"; // ✅ 安定：A4レイアウトに近い幅
-    host.appendChild(clone);
+    host.style.width = "1100px";   // ✅ A4 视觉稳定
+    host.style.background = "#fff";
+    host.appendChild(wrapper);
     document.body.appendChild(host);
 
-    // 3) html2pdf 設定：A4固定、余白、画質
     const fileName = (() => {
       const docNo = (document.getElementById("docNo").value || "").trim();
       const author = (document.getElementById("authorName").value || "").trim();
@@ -628,24 +681,24 @@
     try{
       await html2pdf()
         .set({
-          margin: [12, 12, 12, 12], // mm
+          margin: [12, 12, 12, 12],
           filename: fileName,
           image: { type: "jpeg", quality: 0.98 },
           html2canvas: {
-            scale: 2,           // ✅ 清晰
+            scale: 2,
             useCORS: true,
             backgroundColor: "#ffffff",
-            scrollY: 0
+            scrollY: 0,
+            windowWidth: 1100
           },
           jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
           pagebreak: { mode: ["css", "legacy"] }
         })
-        .from(clone)
+        .from(wrapper)
         .save();
     }catch(e){
       alert("PDFの作成に失敗しました。別のブラウザ（Chrome/Edge）でお試しください。");
     }finally{
-      // cleanup
       document.body.removeChild(host);
       restorePlaceholders();
       pdfBtn.disabled = false;
