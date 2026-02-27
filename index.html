@@ -81,7 +81,6 @@
     .sec-title h2{ margin:0; font-size:18px; }
     .small{ font-size:12px; color:var(--muted); }
 
-    /* 基本情報 rows (desktop default) */
     .row{
       display:grid;
       grid-template-columns:150px 1fr;
@@ -91,21 +90,19 @@
     }
     .row label{ color:var(--muted); font-size:13px; }
 
-    /* Inputs */
     input,textarea,select{
       width:100%;
       min-width:0;
       border:1px solid var(--line);
       border-radius:12px;
       padding:10px 12px;
-      font-size:16px; /* iOS zoom防止 */
+      font-size:16px;
       background:#fff;
       color:var(--text);
       font-family:inherit;
     }
     textarea{ min-height:72px; resize:vertical; }
 
-    /* ✅ iOS Safari date input width / appearance normalization */
     input[type="date"]{
       max-width:100%;
       width:100%;
@@ -139,9 +136,6 @@
     }
     .footer-note{ margin-top:12px; color:var(--muted); font-size:12px; line-height:1.7; }
 
-    /* ===========================================================
-       ✅ Desktop Table (always default)
-       =========================================================== */
     .table-wrap{
       border:1px solid var(--line);
       border-radius:14px;
@@ -221,9 +215,7 @@
     .sum-row .k{ color:#111; font-weight:800; }
     .sum-row .v{ font-weight:900; }
 
-    /* ===========================================================
-       ✅ Mobile card layout (JSで body.is-mobile を付与した時だけ)
-       =========================================================== */
+    /* Mobile */
     body.is-mobile .row{
       grid-template-columns:1fr;
       gap:4px;
@@ -306,9 +298,7 @@
       display:block;
     }
 
-    /* ===========================================================
-       Print (A4)
-       =========================================================== */
+    /* Print */
     @page { size:A4; margin:12mm; }
     @media print{
       body{ background:#fff; }
@@ -385,7 +375,6 @@
     }
   </style>
 
-  <!-- ✅ libs: jsPDF (vector) -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 </head>
@@ -529,16 +518,14 @@
 
 <script>
 /* ===========================================================
-  ✅ PDF assets in repo root
+  PDF assets paths (same directory as index.html)
 =========================================================== */
 const FONT_REG_URL  = "./NotoSansJP-Regular.ttf";
 const FONT_BOLD_URL = "./NotoSansJP-Bold.ttf";
 const LOGO_URL      = "./cleon-logo.PNG";
 
-let _pdfAssetsReady = false;
-
 /* ===========================================================
-  Helpers (screen)
+  Helpers
 =========================================================== */
 const yen = n => (Number.isFinite(n) ? n : 0).toLocaleString("ja-JP") + " 円";
 const toInt = v => {
@@ -547,7 +534,6 @@ const toInt = v => {
 };
 const roundY = n => Math.round(n);
 
-/* placeholders remove for print/pdf */
 const _phBackup = new Map();
 function clearPH(){
   document.querySelectorAll("[data-ph], input.name, input.unit, input.qty").forEach(el=>{
@@ -561,7 +547,7 @@ function restorePH(){
 }
 
 /* ===========================================================
-  ✅ Mobile detection (JS-based)
+  Mobile detection
 =========================================================== */
 function checkMobile(){
   if (window.innerWidth <= 620) document.body.classList.add("is-mobile");
@@ -573,14 +559,14 @@ window.addEventListener("resize", checkMobile);
 /* ===========================================================
   DOM refs
 =========================================================== */
-const tbody = document.getElementById("tbody");
-const modeSel = document.getElementById("mode");
+const tbody      = document.getElementById("tbody");
+const modeSel    = document.getElementById("mode");
 const subTotalEl = document.getElementById("subTotal");
-const taxEl = document.getElementById("tax");
+const taxEl      = document.getElementById("tax");
 const grandTotalEl = document.getElementById("grandTotal");
 
 /* ===========================================================
-  Table rows (screen)
+  Table rows
 =========================================================== */
 function makeRow(i){
   const tr = document.createElement("tr");
@@ -650,7 +636,7 @@ document.getElementById("clearBtn").addEventListener("click", ()=>{
 });
 
 /* ===========================================================
-  Print (browser)
+  Print
 =========================================================== */
 document.getElementById("printBtn").addEventListener("click", ()=>{
   clearPH();
@@ -671,7 +657,7 @@ function makeName(){
 }
 
 /* ===========================================================
-  ✅ PDF helpers
+  Helpers
 =========================================================== */
 function formatNumber(n){
   const v = Number(n || 0);
@@ -680,132 +666,137 @@ function formatNumber(n){
 
 async function fetchAsBase64(url){
   const res = await fetch(url, { cache:"force-cache" });
-  if (!res.ok) throw new Error("fetch failed: " + url + " ("+res.status+")");
+  if (!res.ok) throw new Error("fetch failed: " + url + " (" + res.status + ")");
   const buf = await res.arrayBuffer();
   let binary = "";
   const bytes = new Uint8Array(buf);
   const chunk = 0x8000;
-  for (let i=0;i<bytes.length;i+=chunk){
-    binary += String.fromCharCode.apply(null, bytes.subarray(i, i+chunk));
+  for (let i = 0; i < bytes.length; i += chunk){
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
   }
   return btoa(binary);
 }
 
-async function ensurePdfAssets(){
-  if (_pdfAssetsReady) return true;
-  if (!window.jspdf || !window.jspdf.jsPDF) throw new Error("jsPDF not found.");
-
-  // we register fonts into a temp doc (jsPDF font registry becomes available for docs created after)
-  const { jsPDF } = window.jspdf;
-  const tmp = new jsPDF({ unit:"mm", format:"a4" });
-
-  // Regular
-  const regB64 = await fetchAsBase64(FONT_REG_URL);
-  tmp.addFileToVFS("NotoSansJP-Regular.ttf", regB64);
-  tmp.addFont("NotoSansJP-Regular.ttf", "NotoSansJP", "normal", "Identity-H");
-
-  // Bold (optional but you have it)
-  try{
-    const boldB64 = await fetchAsBase64(FONT_BOLD_URL);
-    tmp.addFileToVFS("NotoSansJP-Bold.ttf", boldB64);
-    tmp.addFont("NotoSansJP-Bold.ttf", "NotoSansJP", "bold", "Identity-H");
-  }catch(e){
-    // If bold missing, keep going (normal still works)
-    console.warn("Bold font not available:", e);
-  }
-
-  _pdfAssetsReady = true;
-  return true;
-}
-
-async function tryAddLogo(doc){
-  try{
-    const b64 = await fetchAsBase64(LOGO_URL);
-    const dataUrl = "data:image/png;base64," + b64;
-    doc.addImage(dataUrl, "PNG", 12, 12, 26, 10);
-    return true;
-  }catch(e){
-    console.warn("Logo embed failed:", e);
-    return false;
-  }
-}
-
 function collectPdfData(){
-  const docNo  = (document.getElementById("docNo").value || "").trim();
-  const docDate= (document.getElementById("docDate").value || "").trim();
-  const author = (document.getElementById("authorName").value || "").trim();
-  const shop   = (document.getElementById("shopName").value || "").trim();
-  const tel    = (document.getElementById("tel").value || "").trim();
-  const addr   = (document.getElementById("addr").value || "").trim();
+  const docNo   = (document.getElementById("docNo").value || "").trim();
+  const docDate = (document.getElementById("docDate").value || "").trim();
+  const author  = (document.getElementById("authorName").value || "").trim();
+  const shop    = (document.getElementById("shopName").value || "").trim();
+  const tel     = (document.getElementById("tel").value || "").trim();
+  const addr    = (document.getElementById("addr").value || "").trim();
 
   const rows = [...tbody.querySelectorAll("tr")].map(tr=>({
-    no: tr.querySelector(".no").textContent,
+    no:   tr.querySelector(".no").textContent,
     name: (tr.querySelector(".name").value || "").trim(),
     unit: toInt(tr.querySelector(".unit").value),
-    qty: Math.max(0, toInt(tr.querySelector(".qty").value || 0)),
+    qty:  Math.max(0, toInt(tr.querySelector(".qty").value || 0)),
   })).map(r=>({ ...r, amt: roundY(r.unit * r.qty) }));
 
-  const mode = modeSel.value; // taxin / taxex
+  const mode = modeSel.value;
   const rate = 0.10;
+  const sum  = roundY(rows.reduce((a, r) => a + r.amt, 0));
 
-  const sum = roundY(rows.reduce((a,r)=>a+r.amt, 0));
-
-  let sub=0, tax=0, total=0;
+  let sub = 0, tax = 0, total = 0;
   if (mode === "taxex"){
-    sub = roundY(sum);
-    tax = roundY(sub * rate);
+    sub   = roundY(sum);
+    tax   = roundY(sub * rate);
     total = sub + tax;
-  }else{
+  } else {
     total = roundY(sum);
-    sub = roundY(total / (1 + rate));
-    tax = total - sub;
+    sub   = roundY(total / (1 + rate));
+    tax   = total - sub;
   }
 
   return {
     company: "澄和創藝合同会社",
-    toZip: "〒185-0032",
-    toAddr: "東京都国分寺市日吉町2-34-14 2G号室",
+    toZip:   "〒185-0032",
+    toAddr:  "東京都国分寺市日吉町2-34-14 2G号室",
     docNo, docDate, author, shop, tel, addr,
     rows, sub, tax, total
   };
 }
 
 /* ===========================================================
-  ✅ Vector PDF (jsPDF + autoTable) - NO garble
+  ✅ FIXED: Vector PDF
+  - Fonts registered directly on the doc instance (not a temp doc)
+  - Logo size adjusted to preserve aspect ratio
 =========================================================== */
 async function generatePdfVector(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit:"mm", format:"a4" });
 
-  // Always use our embedded font first (avoid default font garble)
-  doc.setFont("NotoSansJP", "normal");
+  // ✅ FIX 1: Register fonts directly on this doc instance
+  try {
+    const regB64 = await fetchAsBase64(FONT_REG_URL);
+    doc.addFileToVFS("NotoSansJP-Regular.ttf", regB64);
+    doc.addFont("NotoSansJP-Regular.ttf", "NotoSansJP", "normal", "Identity-H");
+  } catch(e) {
+    throw new Error("Regular font load failed: " + e.message);
+  }
 
-  await tryAddLogo(doc);
+  try {
+    const boldB64 = await fetchAsBase64(FONT_BOLD_URL);
+    doc.addFileToVFS("NotoSansJP-Bold.ttf", boldB64);
+    doc.addFont("NotoSansJP-Bold.ttf", "NotoSansJP", "bold", "Identity-H");
+  } catch(e) {
+    console.warn("Bold font not available, falling back to normal:", e);
+  }
+
+  // Set Japanese font immediately after registration
+  doc.setFont("NotoSansJP", "normal");
 
   const M = 12;
   const W = 210;
 
-  // Header
+  // ✅ FIX 2: Logo with better size (preserves aspect ratio, not squished)
+  let logoLoaded = false;
+  try {
+    const logoB64 = await fetchAsBase64(LOGO_URL);
+    // Determine format from extension
+    const ext = LOGO_URL.split('.').pop().toUpperCase();
+    const fmt = (ext === "PNG" || ext === "png") ? "PNG" : "JPEG";
+    // Create an Image to measure natural dimensions
+    await new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const naturalW = img.naturalWidth;
+        const naturalH = img.naturalHeight;
+        // Target height: 14mm, calculate width to preserve ratio
+        const targetH = 14;
+        const targetW = (naturalW / naturalH) * targetH;
+        doc.addImage("data:image/" + fmt.toLowerCase() + ";base64," + logoB64, fmt, M, 10, targetW, targetH);
+        logoLoaded = true;
+        resolve();
+      };
+      img.onerror = () => resolve(); // if fails, skip logo gracefully
+      img.src = "data:image/" + fmt.toLowerCase() + ";base64," + logoB64;
+    });
+  } catch(e) {
+    console.warn("Logo embed failed:", e);
+  }
+
+  // Header text — positioned to right of logo area
+  const headerX = logoLoaded ? 50 : M;
   doc.setFont("NotoSansJP", "bold");
   doc.setFontSize(22);
-  doc.text("納品書", 42, 18);
+  doc.text("納品書", headerX, 18);
 
   doc.setFont("NotoSansJP", "normal");
   doc.setFontSize(12);
   doc.setTextColor(85);
-  doc.text("澄和創藝合同会社", 42, 24);
+  doc.text("澄和創藝合同会社", headerX, 24);
   doc.setTextColor(17);
 
   const data = collectPdfData();
 
-  // Info table (grid)
+  // Info table
   const infoBody = [
-    ["宛先", `澄和創藝合同会社\n${data.toZip} ${data.toAddr}`],
+    ["宛先", data.company + "\n" + data.toZip + " " + data.toAddr],
     ["納品書番号", data.docNo || "—"],
-    ["納品日", data.docDate || "—"],
-    ["姓名", data.author || "—"],
-    ["屋号", data.shop || "—"],
-    ["TEL", data.tel || "—"],
+    ["納品日",    data.docDate || "—"],
+    ["姓名",      data.author || "—"],
+    ["屋号",      data.shop || "—"],
+    ["TEL",       data.tel || "—"],
   ];
   if (data.addr) infoBody.push(["住所", data.addr]);
 
@@ -824,10 +815,10 @@ async function generatePdfVector(){
       valign: "top",
     },
     columnStyles: {
-      0: { cellWidth: 36, textColor: [85,85,85], fontStyle:"bold" },
-      1: { cellWidth: 210 - 12*2 - 36 },
+      0: { cellWidth: 36, textColor: [85,85,85], fontStyle: "bold" },
+      1: { cellWidth: W - M * 2 - 36 },
     },
-    margin: { left: 12, right: 12 },
+    margin: { left: M, right: M },
   });
 
   // Items table
@@ -838,24 +829,24 @@ async function generatePdfVector(){
     r.name || "",
     formatNumber(r.unit),
     formatNumber(r.qty),
-    `${formatNumber(r.amt)} 円`,
+    formatNumber(r.amt) + " 円",
   ]));
 
+  // Pad to at least 6 rows
   while (itemsBody.length < 6){
-    itemsBody.push([String(itemsBody.length+1), "", "", "", "0 円"]);
+    itemsBody.push([String(itemsBody.length + 1), "", "", "", "0 円"]);
   }
 
-  // Column widths (A4 like your print CSS)
-  const colNo = 12;
+  const colNo   = 12;
   const colUnit = 32;
-  const colQty = 20;
-  const colAmt = 32;
-  const colName = (210 - 12*2) - (colNo + colUnit + colQty + colAmt);
+  const colQty  = 20;
+  const colAmt  = 36;
+  const colName = (W - M * 2) - (colNo + colUnit + colQty + colAmt);
 
   doc.autoTable({
     startY: startItemsY,
     theme: "grid",
-    head: [["No","品名 / 作品名","単価","数量","金額"]],
+    head: [["No", "品名 / 作品名", "単価", "数量", "金額"]],
     body: itemsBody,
     styles: {
       font: "NotoSansJP",
@@ -867,42 +858,52 @@ async function generatePdfVector(){
       valign: "middle",
     },
     headStyles: {
-      fillColor: [239,239,239],
+      fillColor: [239, 239, 239],
       textColor: 17,
       fontStyle: "bold",
     },
     columnStyles: {
-      0: { cellWidth: colNo,   halign:"center" },
-      1: { cellWidth: colName, halign:"left"   },
-      2: { cellWidth: colUnit, halign:"right"  },
-      3: { cellWidth: colQty,  halign:"right"  },
-      4: { cellWidth: colAmt,  halign:"right"  },
+      0: { cellWidth: colNo,   halign: "center" },
+      1: { cellWidth: colName, halign: "left"   },
+      2: { cellWidth: colUnit, halign: "right"  },
+      3: { cellWidth: colQty,  halign: "right"  },
+      4: { cellWidth: colAmt,  halign: "right"  },
     },
-    margin: { left: 12, right: 12 },
+    margin: { left: M, right: M },
   });
 
   const lastY = doc.lastAutoTable.finalY;
 
-  // Sum box (right)
-  const boxW = 70;
+  // Sum box
+  const boxW = 76;
   const boxX = W - M - boxW;
   const boxY = lastY + 8;
+  const lineH = 8;
+  const boxH  = lineH * 3 + 6;
 
   doc.setDrawColor(204);
-  doc.roundedRect(boxX, boxY, boxW, 28, 2, 2);
+  doc.roundedRect(boxX, boxY, boxW, boxH, 2, 2);
+
+  // Divider lines
+  doc.setDrawColor(224);
+  doc.line(boxX, boxY + lineH + 2, boxX + boxW, boxY + lineH + 2);
+  doc.line(boxX, boxY + lineH * 2 + 4, boxX + boxW, boxY + lineH * 2 + 4);
 
   doc.setFont("NotoSansJP", "bold");
-  doc.setFontSize(11);
-  doc.text("小計", boxX + 6, boxY + 8);
-  doc.text(`${formatNumber(data.sub)} 円`, boxX + boxW - 6, boxY + 8, { align:"right" });
+  doc.setFontSize(10.5);
 
-  doc.text("消費税（10%）", boxX + 6, boxY + 16);
-  doc.text(`${formatNumber(data.tax)} 円`, boxX + boxW - 6, boxY + 16, { align:"right" });
+  const rows3 = [
+    { label: "小計",          value: formatNumber(data.sub)   + " 円" },
+    { label: "消費税（10%）",  value: formatNumber(data.tax)   + " 円" },
+    { label: "合計",          value: formatNumber(data.total) + " 円" },
+  ];
 
-  doc.text("合計", boxX + 6, boxY + 24);
-  doc.text(`${formatNumber(data.total)} 円`, boxX + boxW - 6, boxY + 24, { align:"right" });
+  rows3.forEach((r, i) => {
+    const y = boxY + lineH * i + lineH - 1;
+    doc.text(r.label, boxX + 4, y);
+    doc.text(r.value, boxX + boxW - 4, y, { align: "right" });
+  });
 
-  // Save
   doc.save(makeName());
 }
 
@@ -910,24 +911,23 @@ async function generatePdfVector(){
   PDF button handler
 =========================================================== */
 async function handlePDF(){
-  const btn = document.getElementById("pdfBtn");
+  const btn  = document.getElementById("pdfBtn");
   const hint = document.getElementById("pdfHint");
   btn.disabled = true;
   hint.textContent = "PDFを作成中…";
 
   clearPH();
 
-  try{
-    await ensurePdfAssets(); // ✅ must before generate
+  try {
     await generatePdfVector();
     hint.textContent = "";
-  }catch(e){
+  } catch(e) {
     console.error(e);
-    alert("PDF作成に失敗しました。フォント/画像ファイルの設置をご確認ください。");
-  }finally{
+    alert("PDF作成に失敗しました。\n\nエラー: " + e.message + "\n\nフォント・ロゴファイルがリポジトリのルートに配置されているか確認してください。");
+  } finally {
     restorePH();
     btn.disabled = false;
-    setTimeout(()=>{ hint.textContent = ""; }, 4000);
+    setTimeout(() => { hint.textContent = ""; }, 4000);
   }
 }
 document.getElementById("pdfBtn").addEventListener("click", handlePDF);
