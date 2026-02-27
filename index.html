@@ -214,6 +214,20 @@
     .sum-row:last-child{ border-bottom:none; }
     .sum-row .k{ color:#111; font-weight:800; }
     .sum-row .v{ font-weight:900; }
+    .mode-badge{
+      display:inline-block;
+      font-size:12px;
+      font-weight:800;
+      padding:3px 10px;
+      border-radius:20px;
+      background:#e0f7f7;
+      color:#0ea5a4;
+      letter-spacing:.3px;
+    }
+    .mode-badge.taxex{
+      background:#fff3e0;
+      color:#d97706;
+    }
 
     /* Mobile */
     body.is-mobile .row{
@@ -342,6 +356,10 @@
       }
       thead th{
         background:#efefef !important;
+        -webkit-print-color-adjust:exact;
+        print-color-adjust:exact;
+      }
+      .mode-badge{
         -webkit-print-color-adjust:exact;
         print-color-adjust:exact;
       }
@@ -504,6 +522,7 @@
           </div>
 
           <div class="sum-box">
+            <div class="sum-row mode-row"><div class="k">単価入力方式</div><div class="v mode-badge" id="modeBadge">税込（10%込）</div></div>
             <div class="sum-row"><div class="k">小計</div><div class="v" id="subTotal">0 円</div></div>
             <div class="sum-row"><div class="k">消費税（10%）</div><div class="v" id="tax">0 円</div></div>
             <div class="sum-row"><div class="k">合計</div><div class="v" id="grandTotal">0 円</div></div>
@@ -602,6 +621,16 @@ function recalc(){
 
   const rate = 0.10;
   const mode = modeSel.value;
+
+  // Update mode badge
+  const badge = document.getElementById("modeBadge");
+  if (mode === "taxex") {
+    badge.textContent = "税抜（消費税10%別）";
+    badge.classList.add("taxex");
+  } else {
+    badge.textContent = "税込（消費税10%込）";
+    badge.classList.remove("taxex");
+  }
 
   if (mode === "taxex"){
     const sub = roundY(sum);
@@ -712,7 +741,7 @@ function collectPdfData(){
     toZip:   "〒185-0032",
     toAddr:  "東京都国分寺市日吉町2-34-14 2G号室",
     docNo, docDate, author, shop, tel, addr,
-    rows, sub, tax, total
+    rows, sub, tax, total, mode
   };
 }
 
@@ -875,21 +904,31 @@ async function generatePdfVector(){
   const lastY = doc.lastAutoTable.finalY;
 
   // Sum box
-  const boxW = 76;
+  const modeLabel = data.mode === "taxex" ? "税抜（消費税10%別）" : "税込（消費税10%込）";
+  const boxW = 86;
   const boxX = W - M - boxW;
   const boxY = lastY + 8;
   const lineH = 8;
-  const boxH  = lineH * 3 + 6;
+  const boxH  = lineH * 4 + 8; // 4 rows now
 
   doc.setDrawColor(204);
   doc.roundedRect(boxX, boxY, boxW, boxH, 2, 2);
 
   // Divider lines
   doc.setDrawColor(224);
-  doc.line(boxX, boxY + lineH + 2, boxX + boxW, boxY + lineH + 2);
-  doc.line(boxX, boxY + lineH * 2 + 4, boxX + boxW, boxY + lineH * 2 + 4);
+  doc.line(boxX, boxY + lineH + 2,       boxX + boxW, boxY + lineH + 2);
+  doc.line(boxX, boxY + lineH * 2 + 4,   boxX + boxW, boxY + lineH * 2 + 4);
+  doc.line(boxX, boxY + lineH * 3 + 6,   boxX + boxW, boxY + lineH * 3 + 6);
 
   doc.setFont("NotoSansJP", "bold");
+  doc.setFontSize(10.5);
+
+  // Row 1: mode label (muted style)
+  doc.setTextColor(120);
+  doc.setFontSize(9.5);
+  doc.text("単価入力方式", boxX + 4, boxY + lineH - 1);
+  doc.text(modeLabel, boxX + boxW - 4, boxY + lineH - 1, { align: "right" });
+  doc.setTextColor(17);
   doc.setFontSize(10.5);
 
   const rows3 = [
@@ -899,7 +938,7 @@ async function generatePdfVector(){
   ];
 
   rows3.forEach((r, i) => {
-    const y = boxY + lineH * i + lineH - 1;
+    const y = boxY + lineH * (i + 1) + lineH - 1 + (i * 2);
     doc.text(r.label, boxX + 4, y);
     doc.text(r.value, boxX + boxW - 4, y, { align: "right" });
   });
