@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <!-- ✅ iPhone/Safari：不再“默认缩小”，并兼容刘海屏 -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <!-- ✅ iOS Safari 关键：shrink-to-fit=no 可以解决“页面默认缩小” -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />
   <title>納品書 | 澄和創藝合同会社</title>
 
   <style>
@@ -17,6 +17,7 @@
       --accent:#0ea5a4;
     }
     *{box-sizing:border-box}
+    html, body{width:100%; max-width:100%; overflow-x:hidden;}
     body{
       margin:0;
       font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
@@ -52,7 +53,7 @@
     }
     button:active{transform:translateY(1px)}
 
-    /* ✅ 桌面端：左窄右宽（稳定显示完整明细表） */
+    /* ✅ 桌面端布局：左窄右宽（稳定） */
     .grid{
       display:grid;
       grid-template-columns: minmax(340px, 420px) 1fr;
@@ -77,7 +78,6 @@
       padding-bottom:10px;margin-bottom:12px;
     }
     .title h2{margin:0;font-size:18px}
-    .note{color:var(--muted);font-size:12px;line-height:1.6}
 
     .row{
       display:grid;
@@ -93,7 +93,7 @@
       border:1px solid var(--line);
       border-radius:12px;
       padding:10px 12px;
-      font-size:14px;
+      font-size:16px; /* ✅ iOS：输入框小于16px会触发奇怪缩放，这里统一16 */
       background:#fff;
     }
     textarea{min-height:72px;resize:vertical}
@@ -128,18 +128,24 @@
 
     /* ====== TABLE (Desktop/Tablet) ====== */
     .table-wrap{
-      overflow-x:auto;
-      -webkit-overflow-scrolling: touch;
+      overflow:hidden;                 /* ✅ 桌面不需要横滚动 */
       border:1px solid var(--line);
       border-radius:14px;
       background:#fff;
     }
+
     table{
       width:100%;
       border-collapse:collapse;
       background:#fff;
-      min-width:0; /* ✅ 避免整页被迫缩小 */
+      table-layout:fixed;              /* ✅ 保证“品名列”吃剩余宽度，不会变短 */
     }
+
+    /* ✅ 让品名输入框绝对足够长：最少 360px（桌面） */
+    @media (min-width: 981px){
+      .name{min-width:360px;}
+    }
+
     thead th{
       background:#f3f4f6;
       color:#111;
@@ -204,20 +210,17 @@
       line-height:1.7;
     }
 
-    /* ===== ✅ Mobile: 明細を“卡片式”，无需横滑 ===== */
+    /* ===== ✅ Mobile: 明細を“卡片式” ===== */
     @media (max-width: 600px){
-      /* 外层不再横滚动 */
       .table-wrap{
         overflow:visible;
         border:0;
         background:transparent;
       }
-
-      table, tbody, tr, td{display:block; width:100%;}
+      table, thead, tbody, tr, td{display:block; width:100%;}
       table{background:transparent;}
       thead{display:none;}
 
-      /* 每一行变成一张卡片 */
       tbody tr{
         background:#fff;
         border:1px solid var(--line);
@@ -226,14 +229,8 @@
         margin:10px 0;
         box-shadow: 0 8px 22px rgba(0,0,0,.04);
       }
+      tbody td{border-bottom:0;padding:8px 0;}
 
-      /* 单元格变成“标签 + 内容”布局 */
-      tbody td{
-        border-bottom:0;
-        padding:8px 0;
-      }
-
-      /* No（第1列）更像标题 */
       tbody td:nth-child(1){
         padding-top:0;
         font-weight:800;
@@ -248,7 +245,6 @@
         font-size:12px;
       }
 
-      /* 统一：标签在左，内容在右 */
       tbody td:nth-child(2),
       tbody td:nth-child(3),
       tbody td:nth-child(4),
@@ -260,127 +256,66 @@
         gap:12px;
       }
 
-      tbody td:nth-child(2)::before{
-        content:"品名 / 作品名";
-        color:var(--muted);
-        font-weight:700;
-        font-size:12px;
-        flex:0 0 auto;
-      }
-      tbody td:nth-child(3)::before{
-        content:"単価";
-        color:var(--muted);
-        font-weight:700;
-        font-size:12px;
-        flex:0 0 auto;
-      }
-      tbody td:nth-child(4)::before{
-        content:"数量";
-        color:var(--muted);
-        font-weight:700;
-        font-size:12px;
-        flex:0 0 auto;
-      }
-      tbody td:nth-child(5)::before{
-        content:"金額";
-        color:var(--muted);
-        font-weight:700;
-        font-size:12px;
-        flex:0 0 auto;
-      }
-      tbody td:nth-child(6)::before{
-        content:"削除";
-        color:var(--muted);
-        font-weight:700;
-        font-size:12px;
-        flex:0 0 auto;
-      }
+      tbody td:nth-child(2)::before{content:"品名 / 作品名";color:var(--muted);font-weight:700;font-size:12px;}
+      tbody td:nth-child(3)::before{content:"単価";color:var(--muted);font-weight:700;font-size:12px;}
+      tbody td:nth-child(4)::before{content:"数量";color:var(--muted);font-weight:700;font-size:12px;}
+      tbody td:nth-child(5)::before{content:"金額";color:var(--muted);font-weight:700;font-size:12px;}
+      tbody td:nth-child(6)::before{content:"削除";color:var(--muted);font-weight:700;font-size:12px;}
 
-      /* 输入框在手机上不要太挤 */
-      tbody td:nth-child(2) input,
+      /* ✅ 手机端：品名输入框要更宽（不像你截图那样挤） */
+      tbody td:nth-child(2) input{width:72%;}
       tbody td:nth-child(3) input,
-      tbody td:nth-child(4) input{
-        width: 58%;
-        max-width: 260px;
-        text-align:left;
-      }
+      tbody td:nth-child(4) input{width:56%; text-align:right; font-variant-numeric: tabular-nums;}
 
-      /* 单价/数量更像数字输入 */
-      tbody td:nth-child(3) input,
-      tbody td:nth-child(4) input{
-        text-align:right;
-        font-variant-numeric: tabular-nums;
-      }
-
-      /* 金额右侧更突出 */
       tbody td:nth-child(5){
         padding-top:10px;
         border-top:1px dashed var(--line);
         margin-top:6px;
       }
-      tbody td:nth-child(5) .amount{
-        font-weight:900;
-        color:#111;
-      }
+      .amount{font-weight:900;color:#111;}
 
-      /* 删除按钮在手机上更易点 */
       tbody td:nth-child(6) button{
         padding:10px 14px;
         border-radius:14px;
         font-weight:900;
       }
 
-      /* sum 盒子更贴合手机 */
-      .sum{
-        grid-template-columns: 1fr;
-      }
+      .sum{grid-template-columns:1fr;}
     }
 
     /* ===== PRINT (PDF) ===== */
     @page { size: A4; margin: 12mm; }
     @media print{
       body{background:#fff}
-      img{
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
+      img{-webkit-print-color-adjust: exact;print-color-adjust: exact;}
       .wrap{max-width:none;padding:0}
-      .actions, .note, .pill, .footer-note .screenonly{display:none !important}
+      .actions, .pill, .footer-note .screenonly{display:none !important}
       .card{box-shadow:none;border:0;border-radius:0;padding:0}
       .grid{grid-template-columns:1fr;gap:0}
 
-      /* 打印时恢复传统表格样式（避免卡片式） */
-      .table-wrap{border:1px solid #999;border-radius:0; overflow:visible;}
-      table{display:table; width:100%;}
-      thead{display:table-header-group;}
-      tbody{display:table-row-group;}
-      tr{display:table-row; page-break-inside:avoid;}
-      td, th{display:table-cell;}
+      /* ✅ 打印时强制表格模式（不使用卡片） */
+      .table-wrap{border:1px solid #999;border-radius:0; overflow:visible !important;}
+      table{display:table; width:100% !important; table-layout:auto;}
+      thead{display:table-header-group !important;}
+      tbody{display:table-row-group !important;}
+      tr{display:table-row !important; page-break-inside:avoid;}
+      td, th{display:table-cell !important;}
 
       thead th{
         background:#eee !important;
         -webkit-print-color-adjust:exact;
         print-color-adjust:exact;
       }
-
       button{display:none !important}
       .table-actions{display:none !important}
-      input, textarea, select{border:0;padding:0}
+      input, textarea, select{border:0;padding:0;font-size:12px;}
       .row{grid-template-columns:140px 1fr;margin:6px 0}
       .sum-box{border:1px solid #999;border-radius:0}
       textarea{min-height:unset}
     }
 
-    .brandline{
-      display:flex;
-      align-items:center;
-      gap:14px;
-    }
-    .logo{
-      height:48px;
-      width:auto;
-      display:block;
-    }
+    .brandline{display:flex;align-items:center;gap:14px;}
+    .logo{height:48px;width:auto;display:block;}
   </style>
 </head>
 
@@ -404,7 +339,7 @@
     </div>
 
     <div class="grid">
-      <!-- LEFT: FORM -->
+      <!-- LEFT -->
       <div class="card">
         <div class="title">
           <h2>基本情報</h2>
@@ -437,7 +372,7 @@
 
         <div class="row">
           <label>屋号</label>
-          <input id="shopName" placeholder="例：atelier " data-ph="例：atelier " />
+          <input id="shopName" placeholder="例：atelier ○○" data-ph="例：atelier ○○" />
         </div>
 
         <div class="row">
@@ -465,7 +400,7 @@
         </div>
       </div>
 
-      <!-- RIGHT: TABLE -->
+      <!-- RIGHT -->
       <div class="card">
         <div class="title">
           <h2>明細</h2>
@@ -474,14 +409,24 @@
 
         <div class="table-wrap">
           <table id="itemsTable">
+            <!-- ✅ 列幅を固定：品名列が“必ず長く”なる -->
+            <colgroup>
+              <col style="width:50px">
+              <col><!-- 品名（残り全部） -->
+              <col style="width:140px">
+              <col style="width:90px">
+              <col style="width:160px">
+              <col style="width:70px">
+            </colgroup>
+
             <thead>
               <tr>
-                <th style="width:50px" class="center">No</th>
+                <th class="center">No</th>
                 <th>品名 / 作品名</th>
-                <th style="width:140px" class="num">単価</th>
-                <th style="width:90px" class="num">数量</th>
-                <th style="width:160px" class="num">金額</th>
-                <th style="width:70px" class="center">削除</th>
+                <th class="num">単価</th>
+                <th class="num">数量</th>
+                <th class="num">金額</th>
+                <th class="center">削除</th>
               </tr>
             </thead>
             <tbody id="tbody"></tbody>
@@ -515,8 +460,8 @@
         </div>
 
       </div>
-    </div><!-- grid -->
-  </div><!-- wrap -->
+    </div>
+  </div>
 
 <script>
   // ===== helpers =====
@@ -533,11 +478,6 @@
   const _phBackup = new Map();
   function clearPlaceholdersForPrint(){
     document.querySelectorAll("[data-ph]").forEach(el=>{
-      _phBackup.set(el, el.getAttribute("placeholder") || "");
-      el.setAttribute("placeholder", "");
-    });
-    // also clear row placeholders
-    document.querySelectorAll("input[name-placeholder]").forEach(el=>{
       _phBackup.set(el, el.getAttribute("placeholder") || "");
       el.setAttribute("placeholder", "");
     });
@@ -569,8 +509,8 @@
     tr.innerHTML = `
       <td class="center no">${i}</td>
       <td><input class="name" placeholder="例：カップショートケーキ / ブローチ など" /></td>
-      <td class="num"><input class="unit numin" inputmode="numeric" placeholder="0" /></td>
-      <td class="num"><input class="qty numin" inputmode="numeric" placeholder="1" value="1" /></td>
+      <td class="num"><input class="unit" inputmode="numeric" placeholder="0" /></td>
+      <td class="num"><input class="qty" inputmode="numeric" placeholder="1" value="1" /></td>
       <td class="num amount">0 円</td>
       <td class="center"><button class="btn-mini del" type="button">×</button></td>
     `;
@@ -600,7 +540,7 @@
   }
 
   function recalc(){
-    let sumLine = 0; // 合計（入力方式に依存）
+    let sumLine = 0;
     [...tbody.querySelectorAll("tr")].forEach(tr=>{
       const unit = toInt(tr.querySelector(".unit").value);
       const qty  = Math.max(0, toInt(tr.querySelector(".qty").value || 0));
@@ -609,11 +549,10 @@
       sumLine += amt;
     });
 
-    const mode = modeSel.value; // taxin / taxex
+    const mode = modeSel.value;
     const taxRate = 0.10;
 
     if(mode === "taxex"){
-      // 税抜入力：小計=税抜合計 / 税=小計*10% / 合計=小計+税
       const sub = roundYen(sumLine);
       const tax = roundYen(sub * taxRate);
       const total = sub + tax;
@@ -621,7 +560,6 @@
       taxEl.textContent = yen(tax);
       grandTotalEl.textContent = yen(total);
     }else{
-      // 税込入力：合計=税込合計 / 税抜小計=合計/1.1 / 税=合計-税抜小計
       const total = roundYen(sumLine);
       const sub = roundYen(total / (1 + taxRate));
       const tax = total - sub;
@@ -631,7 +569,6 @@
     }
   }
 
-  // ===== buttons =====
   addRowBtn.addEventListener("click", ()=> addRows(1));
 
   clearBtn.addEventListener("click", ()=>{
@@ -644,14 +581,12 @@
     document.getElementById("addr").value = "";
     modeSel.value = "taxin";
     tbody.innerHTML = "";
-    addRows(6); // 初期行数
+    addRows(6);
   });
 
-  // Print: remove example placeholders only for PDF, then restore
   printBtn.addEventListener("click", ()=>{
     clearPlaceholdersForPrint();
     window.print();
-    // fallback restore (some browsers don't fire afterprint reliably)
     setTimeout(restorePlaceholdersAfterPrint, 1200);
   });
 
@@ -660,8 +595,7 @@
 
   modeSel.addEventListener("change", recalc);
 
-  // ===== init =====
-  // 納品日を今日に
+  // init date
   const d = new Date();
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth()+1).padStart(2,"0");
