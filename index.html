@@ -3,19 +3,410 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Cléon 国分寺｜納品書ツール</title>
+  <title>納品書 | 澄和創藝合同会社</title>
   <style>
-    body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; margin: 0; padding: 48px 20px; }
-    .box { max-width: 900px; margin: 0 auto; }
-    h1 { margin: 0 0 12px; font-size: 28px; }
-    p { margin: 0 0 18px; color: #444; line-height: 1.7; }
-    .note { padding: 16px; background: #f5f6f8; border-radius: 12px; }
+    :root{
+      --bg:#f6f7f9;
+      --card:#fff;
+      --text:#111827;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --strong:#111;
+      --accent:#0ea5a4;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:18px 16px 64px;}
+    .topbar{
+      display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;
+      margin:10px 0 16px;
+    }
+    .brand{
+      display:flex;flex-direction:column;gap:4px;
+    }
+    .brand h1{margin:0;font-size:26px;letter-spacing:.5px}
+    .brand .sub{color:var(--muted);font-size:13px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    button{
+      border:1px solid var(--line);
+      background:#fff;
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    button.primary{
+      background:var(--accent);
+      border-color:var(--accent);
+      color:#fff;
+    }
+    button:active{transform:translateY(1px)}
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:14px;
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr}
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      box-shadow: 0 8px 22px rgba(0,0,0,.04);
+    }
+    .title{
+      display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;
+      border-bottom:1px solid var(--line);
+      padding-bottom:10px;margin-bottom:12px;
+    }
+    .title h2{margin:0;font-size:18px}
+    .note{color:var(--muted);font-size:12px;line-height:1.6}
+    .row{
+      display:grid;
+      grid-template-columns: 160px 1fr;
+      gap:10px;
+      align-items:center;
+      margin:8px 0;
+    }
+    .row label{color:var(--muted);font-size:13px}
+    input, textarea, select{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:14px;
+      background:#fff;
+    }
+    textarea{min-height:72px;resize:vertical}
+    .pill{
+      display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;
+      padding:10px 12px;
+      border:1px dashed var(--line);
+      border-radius:14px;
+      background:#fafafa;
+      margin-top:10px;
+    }
+    .pill b{color:var(--strong)}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}
+    table{width:100%;border-collapse:collapse;min-width:820px;background:#fff}
+    thead th{
+      background:#f3f4f6;
+      color:#111;
+      font-weight:700;
+      font-size:13px;
+      padding:10px 10px;
+      border-bottom:1px solid var(--line);
+    }
+    tbody td{
+      border-bottom:1px solid var(--line);
+      padding:8px 8px;
+      vertical-align:middle;
+      font-size:14px;
+    }
+    tbody tr:last-child td{border-bottom:none}
+    .num{ text-align:right; font-variant-numeric: tabular-nums; }
+    .center{text-align:center}
+    .small{font-size:12px;color:var(--muted)}
+    .btn-mini{
+      padding:8px 10px;border-radius:12px;font-weight:700;
+    }
+    .sum{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: 1fr 320px;
+      gap:12px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .sum{grid-template-columns:1fr}
+    }
+    .sum-box{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      background:#fff;
+    }
+    .sum-row{
+      display:flex;justify-content:space-between;gap:12px;
+      padding:8px 0;
+      border-bottom:1px solid var(--line);
+      font-variant-numeric: tabular-nums;
+    }
+    .sum-row:last-child{border-bottom:none}
+    .sum-row .k{color:#111;font-weight:700}
+    .sum-row .v{font-weight:800}
+    .footer-note{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.7;
+    }
+
+    /* ===== PRINT (PDF) ===== */
+    @page { size: A4; margin: 12mm; }
+    @media print{
+      body{background:#fff}
+      .wrap{max-width:none;padding:0}
+      .topbar, .actions, .note, .pill, .footer-note .screenonly{display:none !important}
+      .card{box-shadow:none;border:0;border-radius:0;padding:0}
+      .grid{grid-template-columns:1fr;gap:0}
+      .table-wrap{border:1px solid #999;border-radius:0}
+      thead th{background:#eee !important; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+      button{display:none !important}
+      input, textarea, select{border:0;padding:0}
+      .row{grid-template-columns:140px 1fr;margin:6px 0}
+      .sum-box{border:1px solid #999;border-radius:0}
+    }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h1>Cléon 国分寺｜納品書ツール</h1>
-    <p class="note">ここに納品書作成ツールを表示します。</p>
-  </div>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <h1>納品書</h1>
+        <div class="sub">宛先（固定）：<b>澄和創藝合同会社</b>　｜　PDFは右の「PDF保存/印刷」から作成できます。</div>
+      </div>
+      <div class="actions">
+        <button class="btn-mini" id="addRowBtn">＋ 行を追加</button>
+        <button class="btn-mini" id="clearBtn">入力をリセット</button>
+        <button class="primary btn-mini" id="printBtn">PDF保存 / 印刷</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- LEFT: FORM -->
+      <div class="card">
+        <div class="title">
+          <h2>基本情報</h2>
+          <div class="small">作者さまが入力 → PDF保存 → メール/LINE等で送付</div>
+        </div>
+
+        <div class="row">
+          <label>宛先</label>
+          <input value="澄和創藝合同会社" readonly />
+        </div>
+
+        <div class="row">
+          <label>納品書番号（任意）</label>
+          <input id="docNo" placeholder="例：2026-001 / 任意" />
+        </div>
+
+        <div class="row">
+          <label>納品日</label>
+          <input id="docDate" type="date" />
+        </div>
+
+        <div class="row">
+          <label>作家名（名前）</label>
+          <input id="authorName" placeholder="例：山田 花子" />
+        </div>
+
+        <div class="row">
+          <label>屋号（任意）</label>
+          <input id="shopName" placeholder="例：atelier ○○" />
+        </div>
+
+        <div class="row">
+          <label>TEL（任意）</label>
+          <input id="tel" placeholder="例：090-xxxx-xxxx" />
+        </div>
+
+        <div class="row">
+          <label>住所（任意）</label>
+          <textarea id="addr" placeholder="例：〒xxx-xxxx 東京都…"></textarea>
+        </div>
+
+        <div class="pill">
+          <span>入力方式：</span>
+          <select id="mode">
+            <option value="taxin" selected>おすすめ：税込（消費税10%込）で入力</option>
+            <option value="taxex">税抜（消費税を別計算）で入力</option>
+          </select>
+          <span class="small">税率：<b>10%</b>（固定）｜端数処理：<b>四捨五入（1円未満）</b></span>
+        </div>
+
+        <div class="footer-note">
+          <span class="screenonly">※「税込（10%込）」を選ぶと、作者さまは<b>税込単価</b>だけ入力すればOKです（税額は自動で内訳表示）。</span><br/>
+          当ツールはブラウザ内で計算します。外部サーバーへの送信はありません（ページ内で完結）。
+        </div>
+      </div>
+
+      <!-- RIGHT: TABLE -->
+      <div class="card">
+        <div class="title">
+          <h2>明細</h2>
+          <div class="small">単価 × 数量 → 金額（自動）</div>
+        </div>
+
+        <div class="table-wrap">
+          <table id="itemsTable">
+            <thead>
+              <tr>
+                <th style="width:50px" class="center">No</th>
+                <th>品名 / 作品名</th>
+                <th style="width:140px" class="num">単価</th>
+                <th style="width:90px" class="num">数量</th>
+                <th style="width:160px" class="num">金額</th>
+                <th style="width:70px" class="center">削除</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="sum">
+          <div class="footer-note">
+            ※ 金額は自動計算です。PDF化する場合は「PDF保存/印刷」を押してください。<br/>
+            ※ 税込入力時：<b>合計（税込）</b>は入力金額の合算、その内訳として<b>小計（税抜）</b>と<b>消費税</b>を算出します。
+          </div>
+
+          <div class="sum-box">
+            <div class="sum-row">
+              <div class="k">小計</div>
+              <div class="v" id="subTotal">0 円</div>
+            </div>
+            <div class="sum-row">
+              <div class="k">消費税（10%）</div>
+              <div class="v" id="tax">0 円</div>
+            </div>
+            <div class="sum-row">
+              <div class="k">合計</div>
+              <div class="v" id="grandTotal">0 円</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- grid -->
+  </div><!-- wrap -->
+
+<script>
+  // ===== helpers =====
+  const yen = (n)=> (Number.isFinite(n) ? n : 0).toLocaleString("ja-JP") + " 円";
+  const toInt = (v)=> {
+    if (v === null || v === undefined) return 0;
+    const s = String(v).replace(/[^\d.-]/g,'');
+    const n = Number(s);
+    return Number.isFinite(n) ? n : 0;
+  };
+  const roundYen = (n)=> Math.round(n); // 四捨五入（1円未満）
+
+  // ===== state =====
+  const tbody = document.getElementById("tbody");
+  const addRowBtn = document.getElementById("addRowBtn");
+  const clearBtn = document.getElementById("clearBtn");
+  const printBtn = document.getElementById("printBtn");
+  const modeSel = document.getElementById("mode");
+
+  const subTotalEl = document.getElementById("subTotal");
+  const taxEl = document.getElementById("tax");
+  const grandTotalEl = document.getElementById("grandTotal");
+
+  function makeRow(i){
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="center no">${i}</td>
+      <td><input class="name" placeholder="例：カップショートケーキ / ブローチ など" /></td>
+      <td class="num"><input class="unit numin" inputmode="numeric" placeholder="0" /></td>
+      <td class="num"><input class="qty numin" inputmode="numeric" placeholder="1" value="1" /></td>
+      <td class="num amount">0 円</td>
+      <td class="center"><button class="btn-mini del">×</button></td>
+    `;
+    tr.querySelector(".del").addEventListener("click", ()=>{
+      tr.remove();
+      renumber();
+      recalc();
+    });
+    tr.querySelectorAll("input").forEach(inp=>{
+      inp.addEventListener("input", recalc);
+    });
+    return tr;
+  }
+
+  function renumber(){
+    [...tbody.querySelectorAll("tr")].forEach((tr, idx)=>{
+      tr.querySelector(".no").textContent = String(idx+1);
+    });
+  }
+
+  function addRows(n){
+    const start = tbody.querySelectorAll("tr").length;
+    for(let k=0;k<n;k++){
+      tbody.appendChild(makeRow(start + k + 1));
+    }
+    recalc();
+  }
+
+  function recalc(){
+    let sumLine = 0; // 合計（入力方式に依存）
+    [...tbody.querySelectorAll("tr")].forEach(tr=>{
+      const unit = toInt(tr.querySelector(".unit").value);
+      const qty  = Math.max(0, toInt(tr.querySelector(".qty").value || 0));
+      const amt  = roundYen(unit * qty);
+      tr.querySelector(".amount").textContent = yen(amt);
+      sumLine += amt;
+    });
+
+    const mode = modeSel.value; // taxin / taxex
+    const taxRate = 0.10;
+
+    if(mode === "taxex"){
+      // 税抜入力：小計=税抜合計 / 税=小計*10% / 合計=小計+税
+      const sub = roundYen(sumLine);
+      const tax = roundYen(sub * taxRate);
+      const total = sub + tax;
+      subTotalEl.textContent = yen(sub);
+      taxEl.textContent = yen(tax);
+      grandTotalEl.textContent = yen(total);
+    }else{
+      // 税込入力：合計=税込合計 / 税抜小計=合計/1.1 / 税=合計-税抜小計
+      const total = roundYen(sumLine);
+      const sub = roundYen(total / (1 + taxRate));
+      const tax = total - sub;
+      subTotalEl.textContent = yen(sub);
+      taxEl.textContent = yen(tax);
+      grandTotalEl.textContent = yen(total);
+    }
+  }
+
+  // ===== buttons =====
+  addRowBtn.addEventListener("click", ()=> addRows(1));
+
+  clearBtn.addEventListener("click", ()=>{
+    if(!confirm("入力内容をリセットします。よろしいですか？")) return;
+    document.getElementById("docNo").value = "";
+    document.getElementById("docDate").value = "";
+    document.getElementById("authorName").value = "";
+    document.getElementById("shopName").value = "";
+    document.getElementById("tel").value = "";
+    document.getElementById("addr").value = "";
+    modeSel.value = "taxin";
+    tbody.innerHTML = "";
+    addRows(6); // 初期行数
+  });
+
+  printBtn.addEventListener("click", ()=>{
+    // 印刷ダイアログ → PDF保存で書き出し
+    window.print();
+  });
+
+  modeSel.addEventListener("change", recalc);
+
+  // ===== init =====
+  // 納品日を今日に
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  document.getElementById("docDate").value = `${yyyy}-${mm}-${dd}`;
+
+  addRows(6);
+</script>
 </body>
 </html>
