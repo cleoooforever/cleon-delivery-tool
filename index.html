@@ -6,261 +6,390 @@
   <title>納品書 | 澄和創藝合同会社</title>
 
   <style>
-    /* ============================================================
-       STYLE ARCHITECTURE (v3)
-       ① Base / Desktop screen  (表格レイアウト, 常にデフォルト)
-       ② .mobile クラス付与時のみ カード表示  (JSで付与)
-       ③ @media print  →  A4 表格（打印版）
-       ④ .pdf-page クラス  →  打印専用新窓口のスタイル
-    ============================================================ */
-
-    :root {
-      --bg: #f6f7f9;
-      --card: #fff;
-      --text: #111827;
-      --muted: #6b7280;
-      --line: #e5e7eb;
-      --accent: #0ea5a4;
+    :root{
+      --bg:#f6f7f9;
+      --card:#fff;
+      --text:#111827;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --accent:#0ea5a4;
+      --shadow:0 8px 22px rgba(0,0,0,.04);
     }
-    *, *::before, *::after { box-sizing: border-box; }
-    html, body { width: 100%; max-width: 100%; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      -webkit-text-size-adjust: 100%;
+    *,*::before,*::after{ box-sizing:border-box; }
+    html,body{ width:100%; max-width:100%; }
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",Roboto,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      -webkit-text-size-adjust:100%;
     }
 
-    /* ─── Layout ─── */
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 18px 16px 64px; }
-
-    .topbar {
-      display: flex; gap: 10px; flex-wrap: wrap;
-      align-items: center; justify-content: space-between;
-      margin: 10px 0 16px;
+    /* Layout */
+    .wrap{ max-width:1100px; margin:0 auto; padding:18px 16px 64px; }
+    .topbar{
+      display:flex; gap:10px; flex-wrap:wrap;
+      align-items:center; justify-content:space-between;
+      margin:10px 0 16px;
     }
-    .brand { display: flex; flex-direction: column; gap: 4px; }
-    .brand h1 { margin: 0; font-size: 26px; letter-spacing: .5px; }
-    .brandline { display: flex; align-items: center; gap: 14px; }
-    .logo { height: 48px; width: auto; display: block; }
-    .sub { color: var(--muted); font-size: 13px; }
+    .brand{ display:flex; flex-direction:column; gap:4px; }
+    .brandline{ display:flex; align-items:center; gap:14px; }
+    .logo{ height:48px; width:auto; display:block; }
+    .brand h1{ margin:0; font-size:26px; letter-spacing:.5px; }
+    .sub{ color:var(--muted); font-size:13px; }
+    .actions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
 
-    .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    button {
-      border: 1px solid var(--line); background: #fff;
-      padding: 10px 14px; border-radius: 12px;
-      cursor: pointer; font-weight: 600; font-size: 14px;
-      -webkit-tap-highlight-color: transparent;
+    button{
+      border:1px solid var(--line);
+      background:#fff;
+      padding:10px 14px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:14px;
+      -webkit-tap-highlight-color:transparent;
     }
-    button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-    button:disabled { opacity: .6; cursor: not-allowed; }
-    button:active:not(:disabled) { transform: translateY(1px); }
-    .btn-mini { padding: 8px 12px; border-radius: 12px; font-weight: 700; }
-    .hint { font-size: 12px; color: var(--muted); }
+    button.primary{ background:var(--accent); border-color:var(--accent); color:#fff; }
+    button:disabled{ opacity:.6; cursor:not-allowed; }
+    button:active:not(:disabled){ transform:translateY(1px); }
+    .btn-mini{ padding:8px 12px; border-radius:12px; font-weight:800; }
+    .hint{ font-size:12px; color:var(--muted); }
 
-    .grid {
-      display: grid;
-      grid-template-columns: minmax(320px, 400px) 1fr;
-      gap: 14px; align-items: start;
+    .grid{
+      display:grid;
+      grid-template-columns:minmax(320px, 400px) 1fr;
+      gap:14px;
+      align-items:start;
     }
-    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
-
-    .card {
-      background: var(--card); border: 1px solid var(--line);
-      border-radius: 18px; padding: 16px;
-      box-shadow: 0 8px 22px rgba(0,0,0,.04);
-    }
-    .sec-title {
-      display: flex; align-items: baseline; justify-content: space-between;
-      gap: 12px; flex-wrap: wrap;
-      border-bottom: 1px solid var(--line);
-      padding-bottom: 10px; margin-bottom: 12px;
-    }
-    .sec-title h2 { margin: 0; font-size: 18px; }
-    .small { font-size: 12px; color: var(--muted); }
-
-    /* ─── 基本情報 rows — Desktop default ─── */
-    .row {
-      display: grid;
-      grid-template-columns: 150px 1fr;
-      gap: 8px; align-items: center; margin: 8px 0;
-    }
-    .row label { color: var(--muted); font-size: 13px; }
-
-    /* ─── Inputs ─── */
-    input, textarea, select {
-      width: 100%; min-width: 0;
-      border: 1px solid var(--line); border-radius: 12px;
-      padding: 10px 12px; font-size: 16px; /* 16px: iOS zoom防止 */
-      background: #fff; color: var(--text);
-      font-family: inherit;
-    }
-    textarea { min-height: 72px; resize: vertical; }
-
-    .dest-box { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: #fff; }
-    .dest-name { font-weight: 800; }
-    .dest-addr { margin-top: 6px; color: var(--muted); font-size: 13px; line-height: 1.6; white-space: pre-line; }
-
-    .pill {
-      display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
-      padding: 10px 12px; border: 1px dashed var(--line);
-      border-radius: 14px; background: #fafafa; margin-top: 10px;
-    }
-    .footer-note { margin-top: 12px; color: var(--muted); font-size: 12px; line-height: 1.7; }
-
-    /* ─── Table (Desktop — always default) ─── */
-    .table-wrap {
-      border: 1px solid var(--line); border-radius: 14px;
-      background: #fff; overflow-x: auto; -webkit-overflow-scrolling: touch;
-    }
-    table {
-      width: 100%; border-collapse: collapse;
-      background: #fff; table-layout: fixed;
+    @media (max-width:900px){
+      .grid{ grid-template-columns:1fr; }
     }
 
-    /*
-      ✅ FIX: 品名列を大きく、数値列を適切なサイズに固定
-      合計幅 = 48+[auto]+110+75+130+58 = 421px + name
-    */
-    col.no     { width: 48px; }
-    col.name   { /* auto — takes remaining space */ }
-    col.unit   { width: 110px; }
-    col.qty    { width: 75px; }
-    col.amount { width: 130px; }
-    col.del    { width: 58px; }
-
-    thead th {
-      background: #f3f4f6; color: #111; font-weight: 700; font-size: 13px;
-      padding: 10px 8px; border-bottom: 1px solid var(--line); white-space: nowrap;
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:var(--shadow);
     }
-    tbody td {
-      border-bottom: 1px solid var(--line); padding: 7px 8px;
-      vertical-align: middle; font-size: 14px; overflow: hidden;
+    .sec-title{
+      display:flex; align-items:baseline; justify-content:space-between;
+      gap:12px; flex-wrap:wrap;
+      border-bottom:1px solid var(--line);
+      padding-bottom:10px; margin-bottom:12px;
     }
-    tbody tr:last-child td { border-bottom: none; }
-    .num { text-align: right; font-variant-numeric: tabular-nums; }
-    .center { text-align: center; }
+    .sec-title h2{ margin:0; font-size:18px; }
+    .small{ font-size:12px; color:var(--muted); }
 
-    /* ✅ FIX: td内inputは必ずmin-width:0 */
-    td input {
-      width: 100%; min-width: 0;
-      padding: 6px 8px; font-size: 14px;
-      border-radius: 8px;
+    /* 基本情報 rows (desktop default) */
+    .row{
+      display:grid;
+      grid-template-columns:150px 1fr;
+      gap:8px;
+      align-items:center;
+      margin:8px 0;
     }
-    td.unitcell input, td.qtycell input { text-align: right; }
+    .row label{ color:var(--muted); font-size:13px; }
 
-    .table-actions { margin-top: 10px; display: flex; justify-content: center; }
-    .table-actions button { padding: 12px 18px; border-radius: 14px; font-weight: 800; }
-
-    .sum {
-      margin-top: 12px; display: grid;
-      grid-template-columns: 1fr 300px; gap: 12px; align-items: start;
+    /* Inputs */
+    input,textarea,select{
+      width:100%;
+      min-width:0;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:16px; /* iOS zoom防止 */
+      background:#fff;
+      color:var(--text);
+      font-family:inherit;
     }
-    @media (max-width: 900px) { .sum { grid-template-columns: 1fr; } }
-    .sum-box { border: 1px solid var(--line); border-radius: 14px; padding: 12px; background: #fff; }
-    .sum-row {
-      display: flex; justify-content: space-between; gap: 12px;
-      padding: 8px 0; border-bottom: 1px solid var(--line);
-      font-variant-numeric: tabular-nums;
-    }
-    .sum-row:last-child { border-bottom: none; }
-    .sum-row .k { color: #111; font-weight: 700; }
-    .sum-row .v { font-weight: 800; }
+    textarea{ min-height:72px; resize:vertical; }
 
-    /* ─────────────────────────────────────────────
-       ✅ FIX B: Mobile card layout — JSで body.is-mobile 付与時のみ有効
-       これにより Safari の media query 誤判定を回避
-    ───────────────────────────────────────────── */
-    body.is-mobile .row {
-      grid-template-columns: 1fr;
-      gap: 4px; align-items: stretch; margin: 10px 0;
+    /* ✅ iOS Safari date input width / appearance normalization */
+    input[type="date"]{
+      max-width:100%;
+      width:100%;
+      min-width:0;
+      -webkit-appearance:none;
+      appearance:none;
     }
-    body.is-mobile .row label { font-size: 12px; font-weight: 600; color: var(--muted); }
 
-    body.is-mobile .table-wrap { overflow: visible; border: 0; background: transparent; }
-    body.is-mobile table { min-width: 0; background: transparent; }
+    .dest-box{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 12px;
+      background:#fff;
+    }
+    .dest-name{ font-weight:900; }
+    .dest-addr{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+      white-space:pre-line;
+    }
+
+    .pill{
+      display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+      padding:10px 12px;
+      border:1px dashed var(--line);
+      border-radius:14px;
+      background:#fafafa;
+      margin-top:10px;
+    }
+    .footer-note{ margin-top:12px; color:var(--muted); font-size:12px; line-height:1.7; }
+
+    /* ===========================================================
+       ✅ Desktop Table (always default)
+       重点：品名列吃掉剩余宽度，其他列固定宽度 → 稳定且不挤
+       =========================================================== */
+    .table-wrap{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#fff;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background:#fff;
+      table-layout:fixed;
+    }
+
+    /* ✅ 更“稳”的列宽（你要的品名很长） */
+    col.no     { width:56px; }
+    col.unit   { width:120px; }
+    col.qty    { width:90px; }
+    col.amount { width:130px; }
+    col.del    { width:66px; }
+    col.name   { width:auto; } /* 吃剩余 */
+
+    thead th{
+      background:#f3f4f6;
+      color:#111;
+      font-weight:800;
+      font-size:13px;
+      padding:10px 8px;
+      border-bottom:1px solid var(--line);
+      white-space:nowrap;
+    }
+    tbody td{
+      border-bottom:1px solid var(--line);
+      padding:8px 8px;
+      vertical-align:middle;
+      font-size:14px;
+      overflow:hidden;
+    }
+    tbody tr:last-child td{ border-bottom:none; }
+    .num{ text-align:right; font-variant-numeric:tabular-nums; }
+    .center{ text-align:center; }
+
+    /* ✅ 关键：td 内 input 必须 min-width:0，否则 Safari/Chromium 可能挤爆/重叠 */
+    td input{
+      width:100%;
+      min-width:0;
+      padding:7px 10px;
+      font-size:14px;
+      border-radius:10px;
+    }
+    td.unitcell input, td.qtycell input{ text-align:right; }
+
+    .table-actions{ margin-top:10px; display:flex; justify-content:center; }
+    .table-actions button{ padding:12px 18px; border-radius:14px; font-weight:900; }
+
+    .sum{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns:1fr 300px;
+      gap:12px;
+      align-items:start;
+    }
+    @media (max-width:900px){ .sum{ grid-template-columns:1fr; } }
+    .sum-box{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      background:#fff;
+    }
+    .sum-row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:8px 0;
+      border-bottom:1px solid var(--line);
+      font-variant-numeric:tabular-nums;
+    }
+    .sum-row:last-child{ border-bottom:none; }
+    .sum-row .k{ color:#111; font-weight:800; }
+    .sum-row .v{ font-weight:900; }
+
+    /* ===========================================================
+       ✅ Mobile card layout (JSで body.is-mobile を付与した時だけ)
+       =========================================================== */
+    body.is-mobile .row{
+      grid-template-columns:1fr;
+      gap:4px;
+      align-items:stretch;
+      margin:10px 0;
+    }
+    body.is-mobile .row label{
+      font-size:12px;
+      font-weight:700;
+      color:var(--muted);
+    }
+
+    body.is-mobile .table-wrap{ overflow:visible; border:0; background:transparent; }
+    body.is-mobile table{ min-width:0; background:transparent; }
     body.is-mobile table,
     body.is-mobile thead,
     body.is-mobile tbody,
     body.is-mobile tr,
-    body.is-mobile td { display: block; width: 100%; }
-    body.is-mobile thead { display: none; }
+    body.is-mobile td{ display:block; width:100%; }
+    body.is-mobile thead{ display:none; }
 
-    body.is-mobile tbody tr {
-      background: #fff; border: 1px solid var(--line);
-      border-radius: 16px; padding: 12px; margin: 10px 0;
-      box-shadow: 0 8px 22px rgba(0,0,0,.04);
+    body.is-mobile tbody tr{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px;
+      margin:10px 0;
+      box-shadow:var(--shadow);
     }
-    body.is-mobile tbody td { border-bottom: 0; padding: 6px 0; overflow: visible; }
+    body.is-mobile tbody td{ border-bottom:0; padding:6px 0; overflow:visible; }
 
-    body.is-mobile tbody td:nth-child(1) {
-      padding-top: 0; font-weight: 800; color: #111;
-      display: flex; justify-content: center;
+    body.is-mobile tbody td:nth-child(1){
+      padding-top:0;
+      font-weight:900;
+      color:#111;
+      display:flex;
+      justify-content:center;
     }
-    body.is-mobile tbody td:nth-child(2) { display: block; }
-    body.is-mobile tbody td:nth-child(2)::before {
-      content: "品名 / 作品名"; display: block;
-      color: var(--muted); font-weight: 700; font-size: 12px; margin-bottom: 6px;
+    body.is-mobile tbody td:nth-child(2)::before{
+      content:"品名 / 作品名";
+      display:block;
+      color:var(--muted);
+      font-weight:800;
+      font-size:12px;
+      margin-bottom:6px;
     }
-    body.is-mobile tbody td:nth-child(2) input { width: 100%; }
     body.is-mobile tbody td:nth-child(3),
     body.is-mobile tbody td:nth-child(4),
     body.is-mobile tbody td:nth-child(5),
-    body.is-mobile tbody td:nth-child(6) {
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    body.is-mobile tbody td:nth-child(6){
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
     }
-    body.is-mobile tbody td:nth-child(3)::before { content: "単価";   color: var(--muted); font-weight: 700; font-size: 12px; flex: 0 0 auto; }
-    body.is-mobile tbody td:nth-child(4)::before { content: "数量";   color: var(--muted); font-weight: 700; font-size: 12px; flex: 0 0 auto; }
-    body.is-mobile tbody td:nth-child(5)::before { content: "金額";   color: var(--muted); font-weight: 700; font-size: 12px; flex: 0 0 auto; }
-    body.is-mobile tbody td:nth-child(6)::before { content: "削除";   color: var(--muted); font-weight: 700; font-size: 12px; flex: 0 0 auto; }
+    body.is-mobile tbody td:nth-child(3)::before{ content:"単価"; color:var(--muted); font-weight:800; font-size:12px; }
+    body.is-mobile tbody td:nth-child(4)::before{ content:"数量"; color:var(--muted); font-weight:800; font-size:12px; }
+    body.is-mobile tbody td:nth-child(5)::before{ content:"金額"; color:var(--muted); font-weight:800; font-size:12px; }
+    body.is-mobile tbody td:nth-child(6)::before{ content:"削除"; color:var(--muted); font-weight:800; font-size:12px; }
+
     body.is-mobile tbody td:nth-child(3) input,
-    body.is-mobile tbody td:nth-child(4) input { width: 58%; text-align: right; }
-    body.is-mobile tbody td:nth-child(5) {
-      padding-top: 10px; border-top: 1px dashed var(--line); margin-top: 6px;
+    body.is-mobile tbody td:nth-child(4) input{ width:60%; text-align:right; }
+
+    body.is-mobile tbody td:nth-child(5){
+      padding-top:10px;
+      border-top:1px dashed var(--line);
+      margin-top:6px;
     }
-    body.is-mobile .amount { font-weight: 900; }
-    body.is-mobile tbody td:nth-child(6) button { padding: 10px 14px; border-radius: 14px; font-weight: 900; }
+    body.is-mobile .amount{ font-weight:950; }
 
-    /* ─── @media print (系統打印, A4) ─── */
-    @page { size: A4; margin: 12mm; }
-    @media print {
-      body { background: #fff; }
-      .wrap { max-width: none; padding: 0; }
-      .actions, .pill, .table-actions, .footer-note { display: none !important; }
-      .card { box-shadow: none; border: 0; border-radius: 0; padding: 0; }
-      .grid { display: block !important; }
-      .topbar { margin-bottom: 14px; }
+    body.is-mobile tbody td:nth-child(6) button{
+      padding:10px 14px;
+      border-radius:14px;
+      font-weight:900;
+    }
 
-      .table-wrap { border: 1px solid #aaa; border-radius: 0; overflow: visible !important; background: #fff !important; }
-      table { display: table !important; width: 100% !important; border-collapse: collapse !important; table-layout: fixed !important; min-width: 0 !important; }
-      col.no     { width: 38px !important; }
-      col.unit   { width: 100px !important; }
-      col.qty    { width: 65px !important; }
-      col.amount { width: 115px !important; }
-      col.del    { width: 0 !important; display: none !important; }
+    /* ✅ iPhone Safari: date input 在 mobile 下有时会“显得更长”，这里强制一致 */
+    body.is-mobile input[type="date"]{
+      width:100%;
+      max-width:100%;
+      display:block;
+    }
 
-      thead { display: table-header-group !important; }
-      tbody { display: table-row-group !important; }
-      tr    { display: table-row !important; page-break-inside: avoid !important; }
-      th, td { display: table-cell !important; }
-      td::before { content: none !important; }
-      tbody tr { box-shadow: none !important; border: 0 !important; border-radius: 0 !important; padding: 0 !important; margin: 0 !important; background: #fff !important; }
-      thead th { background: #efefef !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      tbody td { border: 1px solid #aaa !important; padding: 6px 8px !important; overflow: hidden !important; vertical-align: middle !important; font-size: 12px !important; }
-      th:last-child, td:last-child { display: none !important; }
+    /* ===========================================================
+       Print (A4)
+       =========================================================== */
+    @page { size:A4; margin:12mm; }
+    @media print{
+      body{ background:#fff; }
+      .wrap{ max-width:none; padding:0; }
+      .actions, .pill, .table-actions, .footer-note { display:none !important; }
+      .card{ box-shadow:none; border:0; border-radius:0; padding:0; }
+      .grid{ display:block !important; }
+      .topbar{ margin-bottom:14px; }
 
-      input, textarea, select { border: 0 !important; padding: 0 !important; font-size: 12px !important; background: transparent !important; -webkit-appearance: none; appearance: none; box-shadow: none !important; }
+      .table-wrap{
+        border:1px solid #aaa;
+        border-radius:0;
+        overflow:visible !important;
+        background:#fff !important;
+      }
+      table{
+        display:table !important;
+        width:100% !important;
+        border-collapse:collapse !important;
+        table-layout:fixed !important;
+        min-width:0 !important;
+      }
+      col.no     { width:38px !important; }
+      col.unit   { width:100px !important; }
+      col.qty    { width:65px !important; }
+      col.amount { width:115px !important; }
+      col.del    { width:0 !important; display:none !important; }
 
-      .row { grid-template-columns: 140px 1fr !important; gap: 6px !important; align-items: center !important; margin: 5px 0 !important; }
-      .sum { grid-template-columns: 1fr !important; }
-      .sum-box { width: 260px; margin-left: auto; }
+      thead{ display:table-header-group !important; }
+      tbody{ display:table-row-group !important; }
+      tr{ display:table-row !important; page-break-inside:avoid !important; }
+      th,td{ display:table-cell !important; }
+      td::before{ content:none !important; }
+      tbody tr{
+        box-shadow:none !important;
+        border:0 !important;
+        border-radius:0 !important;
+        padding:0 !important;
+        margin:0 !important;
+        background:#fff !important;
+      }
+      thead th{
+        background:#efefef !important;
+        -webkit-print-color-adjust:exact;
+        print-color-adjust:exact;
+      }
+      tbody td{
+        border:1px solid #aaa !important;
+        padding:6px 8px !important;
+        overflow:hidden !important;
+        vertical-align:middle !important;
+        font-size:12px !important;
+      }
+      th:last-child, td:last-child{ display:none !important; }
+
+      input,textarea,select{
+        border:0 !important;
+        padding:0 !important;
+        font-size:12px !important;
+        background:transparent !important;
+        -webkit-appearance:none;
+        appearance:none;
+        box-shadow:none !important;
+      }
+
+      .row{
+        grid-template-columns:140px 1fr !important;
+        gap:6px !important;
+        align-items:center !important;
+        margin:5px 0 !important;
+      }
+      .sum{ grid-template-columns:1fr !important; }
+      .sum-box{ width:260px; margin-left:auto; }
     }
   </style>
 
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <!-- libs: html2pdf (desktop & supported mobile) -->
   <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 </head>
 
@@ -284,7 +413,7 @@
     </div>
   </div>
 
-  <div id="pdfRoot">
+  <div id="screenRoot">
     <div class="grid">
 
       <!-- LEFT -->
@@ -298,8 +427,7 @@
           <label>宛先</label>
           <div class="dest-box">
             <div class="dest-name">澄和創藝合同会社</div>
-            <div class="dest-addr">〒185-0032
-東京都国分寺市日吉町2-34-14 2G号室</div>
+            <div class="dest-addr">〒185-0032 東京都国分寺市日吉町2-34-14 2G号室</div>
           </div>
         </div>
 
@@ -307,22 +435,27 @@
           <label>納品書番号（任意）</label>
           <input id="docNo" placeholder="例：2026-001" data-ph="例：2026-001" />
         </div>
+
         <div class="row">
           <label>納品日</label>
           <input id="docDate" type="date" />
         </div>
+
         <div class="row">
           <label>姓名</label>
           <input id="authorName" placeholder="例：澄和 花子" data-ph="例：澄和 花子" />
         </div>
+
         <div class="row">
           <label>屋号</label>
           <input id="shopName" placeholder="例：atelier ○○" data-ph="例：atelier ○○" />
         </div>
+
         <div class="row">
           <label>TEL</label>
           <input id="tel" placeholder="例：090-xxxx-xxxx" data-ph="例：090-xxxx-xxxx" />
         </div>
+
         <div class="row">
           <label>住所（任意）</label>
           <textarea id="addr" placeholder="例：〒xxx-xxxx 東京都…" data-ph="例：〒xxx-xxxx 東京都…"></textarea>
@@ -383,216 +516,208 @@
             ※ 金額は自動計算です。「PDFをダウンロード」でPDFが作成できます。<br/>
             ※ 税込入力時：合計（税込）は入力金額の合算、内訳として小計（税抜）と消費税を算出します。
           </div>
+
           <div class="sum-box">
             <div class="sum-row"><div class="k">小計</div><div class="v" id="subTotal">0 円</div></div>
             <div class="sum-row"><div class="k">消費税（10%）</div><div class="v" id="tax">0 円</div></div>
             <div class="sum-row"><div class="k">合計</div><div class="v" id="grandTotal">0 円</div></div>
           </div>
         </div>
+
       </div>
 
     </div>
-  </div><!-- /pdfRoot -->
-</div><!-- /wrap -->
+  </div>
+</div>
 
 <script>
-/* ============================================================
-   Helpers
-============================================================ */
-const yen    = n => (Number.isFinite(n) ? n : 0).toLocaleString("ja-JP") + " 円";
-const toInt  = v => { const n = Number(String(v ?? "").replace(/[^\d.-]/g, "")); return Number.isFinite(n) ? n : 0; };
+/* ===========================================================
+  Helpers
+=========================================================== */
+const yen = n => (Number.isFinite(n) ? n : 0).toLocaleString("ja-JP") + " 円";
+const toInt = v => {
+  const n = Number(String(v ?? "").replace(/[^\d.-]/g, ""));
+  return Number.isFinite(n) ? n : 0;
+};
 const roundY = n => Math.round(n);
 
+/* placeholders remove for print/pdf */
 const _phBackup = new Map();
-function clearPH() {
-  document.querySelectorAll("[data-ph], input.name, input.unit, input.qty").forEach(el => {
+function clearPH(){
+  document.querySelectorAll("[data-ph], input.name, input.unit, input.qty").forEach(el=>{
     _phBackup.set(el, el.getAttribute("placeholder") || "");
-    el.setAttribute("placeholder", "");
+    el.setAttribute("placeholder","");
   });
 }
-function restorePH() {
-  _phBackup.forEach((v, el) => { try { el.setAttribute("placeholder", v); } catch(e){} });
+function restorePH(){
+  _phBackup.forEach((v,el)=>{ try{ el.setAttribute("placeholder", v); }catch(e){} });
   _phBackup.clear();
 }
 
-/* ============================================================
-   ✅ FIX B: JS-based mobile detection (Safari safe)
-   window.innerWidth は iOS Safari で信頼性が高い
-============================================================ */
-function checkMobile() {
-  if (window.innerWidth <= 620) {
-    document.body.classList.add("is-mobile");
-  } else {
-    document.body.classList.remove("is-mobile");
-  }
+/* ===========================================================
+  ✅ Mobile detection: JS-based (avoid Safari media quirks)
+=========================================================== */
+function checkMobile(){
+  if (window.innerWidth <= 620) document.body.classList.add("is-mobile");
+  else document.body.classList.remove("is-mobile");
 }
 checkMobile();
 window.addEventListener("resize", checkMobile);
 
-/* ============================================================
-   DOM refs
-============================================================ */
-const tbody      = document.getElementById("tbody");
-const modeSel    = document.getElementById("mode");
+/* ===========================================================
+  DOM refs
+=========================================================== */
+const tbody = document.getElementById("tbody");
+const modeSel = document.getElementById("mode");
 const subTotalEl = document.getElementById("subTotal");
-const taxEl      = document.getElementById("tax");
+const taxEl = document.getElementById("tax");
 const grandTotalEl = document.getElementById("grandTotal");
 
-/* ============================================================
-   Table rows
-============================================================ */
-function makeRow(i) {
+/* ===========================================================
+  Table rows
+=========================================================== */
+function makeRow(i){
   const tr = document.createElement("tr");
   tr.innerHTML = `
     <td class="center no">${i}</td>
     <td class="namecell"><input class="name" placeholder="例：カップショートケーキ / ブローチ など" /></td>
     <td class="num unitcell"><input class="unit" inputmode="numeric" placeholder="0" /></td>
-    <td class="num qtycell"><input class="qty"  inputmode="numeric" placeholder="1" value="1" /></td>
+    <td class="num qtycell"><input class="qty" inputmode="numeric" placeholder="1" value="1" /></td>
     <td class="num amount">0 円</td>
     <td class="center"><button type="button" class="btn-mini del">×</button></td>
   `;
-  tr.querySelector(".del").addEventListener("click", () => { tr.remove(); renumber(); recalc(); });
-  tr.querySelectorAll("input").forEach(inp => inp.addEventListener("input", recalc));
+  tr.querySelector(".del").addEventListener("click", ()=>{ tr.remove(); renumber(); recalc(); });
+  tr.querySelectorAll("input").forEach(inp=> inp.addEventListener("input", recalc));
   return tr;
 }
-
-function renumber() {
-  [...tbody.querySelectorAll("tr")].forEach((tr, i) => { tr.querySelector(".no").textContent = i + 1; });
+function renumber(){
+  [...tbody.querySelectorAll("tr")].forEach((tr,i)=>{ tr.querySelector(".no").textContent = i+1; });
 }
-
-function addRows(n) {
+function addRows(n){
   const start = tbody.querySelectorAll("tr").length;
-  for (let k = 0; k < n; k++) tbody.appendChild(makeRow(start + k + 1));
+  for (let k=0;k<n;k++) tbody.appendChild(makeRow(start+k+1));
   recalc();
 }
-
-function recalc() {
+function recalc(){
   let sum = 0;
-  [...tbody.querySelectorAll("tr")].forEach(tr => {
+  [...tbody.querySelectorAll("tr")].forEach(tr=>{
     const unit = toInt(tr.querySelector(".unit").value);
-    const qty  = Math.max(0, toInt(tr.querySelector(".qty").value || 0));
-    const amt  = roundY(unit * qty);
+    const qty = Math.max(0, toInt(tr.querySelector(".qty").value || 0));
+    const amt = roundY(unit * qty);
     tr.querySelector(".amount").textContent = yen(amt);
     sum += amt;
   });
   const rate = 0.10;
   const mode = modeSel.value;
-  if (mode === "taxex") {
-    const sub = roundY(sum), tax = roundY(sub * rate);
-    subTotalEl.textContent = yen(sub); taxEl.textContent = yen(tax); grandTotalEl.textContent = yen(sub + tax);
-  } else {
-    const total = roundY(sum), sub = roundY(total / (1 + rate)), tax = total - sub;
-    subTotalEl.textContent = yen(sub); taxEl.textContent = yen(tax); grandTotalEl.textContent = yen(total);
+  if (mode === "taxex"){
+    const sub = roundY(sum);
+    const tax = roundY(sub * rate);
+    subTotalEl.textContent = yen(sub);
+    taxEl.textContent = yen(tax);
+    grandTotalEl.textContent = yen(sub + tax);
+  }else{
+    const total = roundY(sum);
+    const sub = roundY(total / (1 + rate));
+    const tax = total - sub;
+    subTotalEl.textContent = yen(sub);
+    taxEl.textContent = yen(tax);
+    grandTotalEl.textContent = yen(total);
   }
 }
-
-document.getElementById("addRowBtn").addEventListener("click", () => addRows(1));
+document.getElementById("addRowBtn").addEventListener("click", ()=> addRows(1));
 modeSel.addEventListener("change", recalc);
 
-/* ============================================================
-   Reset
-============================================================ */
-document.getElementById("clearBtn").addEventListener("click", () => {
+/* ===========================================================
+  Reset
+=========================================================== */
+document.getElementById("clearBtn").addEventListener("click", ()=>{
   if (!confirm("入力内容をリセットします。よろしいですか？")) return;
-  ["docNo","authorName","shopName","tel","addr"].forEach(id => document.getElementById(id).value = "");
+  ["docNo","authorName","shopName","tel","addr"].forEach(id=> document.getElementById(id).value = "");
   const d = new Date();
-  document.getElementById("docDate").value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  document.getElementById("docDate").value =
+    `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
   modeSel.value = "taxin";
   tbody.innerHTML = "";
   addRows(6);
 });
 
-/* ============================================================
-   Print
-============================================================ */
-document.getElementById("printBtn").addEventListener("click", () => {
-  clearPH(); window.print(); setTimeout(restorePH, 1500);
+/* ===========================================================
+  Print
+=========================================================== */
+document.getElementById("printBtn").addEventListener("click", ()=>{
+  clearPH();
+  window.print();
+  setTimeout(restorePH, 1200);
 });
 
-/* ============================================================
-   Device detection
-============================================================ */
-const ua = navigator.userAgent;
-const isIOS     = /iP(hone|ad|od)/i.test(ua);
-const isAndroid = /android/i.test(ua);
-const isMobileDev = isIOS || isAndroid;
-
-/* ============================================================
-   Filename
-============================================================ */
-function makeName() {
-  const no  = (document.getElementById("docNo").value || "").trim();
-  const au  = (document.getElementById("authorName").value || "").trim();
-  const dt  = (document.getElementById("docDate").value || "").trim();
+/* ===========================================================
+  Filename
+=========================================================== */
+function makeName(){
+  const no = (document.getElementById("docNo").value || "").trim();
+  const au = (document.getElementById("authorName").value || "").trim();
+  const dt = (document.getElementById("docDate").value || "").trim();
   const base = no ? `納品書_${no}` : "納品書";
   const tail = [au, dt].filter(Boolean).join("_");
   return (tail ? `${base}_${tail}` : base) + ".pdf";
 }
 
-/* ============================================================
-   HTML escape
-============================================================ */
-function esc(s) {
+/* ===========================================================
+  Build A4 "print-like" DOM (ONE source of truth)
+  重点：PDF / Mobile Preview / Desktop Download 全部用同一张 A4 表格排版
+=========================================================== */
+function esc(s){
   return String(s || "")
     .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
     .replace(/"/g,"&quot;").replace(/\n/g,"<br/>");
 }
 
-/* ============================================================
-   ✅ FIX C+D: 打印専用新窗口
-   iOS Safari + Android + html2pdf失敗時 → 全てこちら
-   新窗口 = 純粋なA4 HTML、css table固定、ユーザーが「保存」を押す
-============================================================ */
-function openPrintWindow() {
-  const docNo   = document.getElementById("docNo").value;
+function buildA4HTML(){
+  const docNo = document.getElementById("docNo").value;
   const docDate = document.getElementById("docDate").value;
-  const author  = document.getElementById("authorName").value;
-  const shop    = document.getElementById("shopName").value;
-  const tel     = document.getElementById("tel").value;
-  const addr    = document.getElementById("addr").value;
+  const author = document.getElementById("authorName").value;
+  const shop = document.getElementById("shopName").value;
+  const tel = document.getElementById("tel").value;
+  const addr = document.getElementById("addr").value;
 
-  const rows = [...tbody.querySelectorAll("tr")].map(tr => ({
-    no:   tr.querySelector(".no").textContent,
+  const rows = [...tbody.querySelectorAll("tr")].map(tr=>({
+    no: tr.querySelector(".no").textContent,
     name: tr.querySelector(".name").value,
     unit: tr.querySelector(".unit").value,
-    qty:  tr.querySelector(".qty").value,
-    amt:  tr.querySelector(".amount").textContent,
+    qty: tr.querySelector(".qty").value,
+    amt: tr.querySelector(".amount").textContent
   }));
-  const sub   = subTotalEl.textContent;
-  const tax   = taxEl.textContent;
+
+  const sub = subTotalEl.textContent;
+  const tax = taxEl.textContent;
   const total = grandTotalEl.textContent;
 
-  // ✅ FIX: 品名列を広く取る table-layout:fixed + col幅指定
-  const rowsHTML = rows.map(r => `
-    <tr>
-      <td style="text-align:center;width:36px">${esc(r.no)}</td>
-      <td>${esc(r.name)}</td>
-      <td style="text-align:right;width:100px">${esc(r.unit)}</td>
-      <td style="text-align:right;width:60px">${esc(r.qty)}</td>
-      <td style="text-align:right;width:110px">${r.amt}</td>
-    </tr>`).join("");
-
   const infoRows = [
-    ["宛先", `<span style="font-weight:800">澄和創藝合同会社</span><br/><span style="font-size:11px;color:#555">〒185-0032 東京都国分寺市日吉町2-34-14 2G号室</span>`],
+    ["宛先", `<span style="font-weight:900">澄和創藝合同会社</span><br/><span style="font-size:11px;color:#555">〒185-0032 東京都国分寺市日吉町2-34-14 2G号室</span>`],
     ["納品書番号", esc(docNo) || "—"],
-    ["納品日",     esc(docDate) || "—"],
-    ["姓名",       esc(author) || "—"],
-    ["屋号",       esc(shop) || "—"],
-    ["TEL",        esc(tel) || "—"],
-    addr ? ["住所", esc(addr)] : null,
-  ].filter(Boolean).map(([k,v]) => `
+    ["納品日", esc(docDate) || "—"],
+    ["姓名", esc(author) || "—"],
+    ["屋号", esc(shop) || "—"],
+    ["TEL", esc(tel) || "—"],
+    addr ? ["住所", esc(addr)] : null
+  ].filter(Boolean).map(([k,v])=>`
     <tr>
-      <td style="color:#555;font-weight:700;white-space:nowrap;width:120px;vertical-align:top;padding:5px 8px;border:1px solid #ccc">${k}</td>
-      <td style="padding:5px 8px;border:1px solid #ccc">${v}</td>
-    </tr>`).join("");
+      <td class="k">${k}</td>
+      <td class="v">${v}</td>
+    </tr>
+  `).join("");
 
-  const pw = window.open("", "_blank");
-  if (!pw) {
-    alert("ポップアップがブロックされました。ブラウザの設定からポップアップを許可してください。");
-    return;
-  }
+  const rowsHTML = rows.map(r=>`
+    <tr>
+      <td class="c">${esc(r.no)}</td>
+      <td class="name">${esc(r.name)}</td>
+      <td class="r">${esc(r.unit)}</td>
+      <td class="r">${esc(r.qty)}</td>
+      <td class="r">${r.amt}</td>
+    </tr>
+  `).join("");
 
-  pw.document.write(`<!doctype html>
+  return `<!doctype html>
 <html lang="ja"><head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -601,205 +726,250 @@ function openPrintWindow() {
   @page{size:A4;margin:14mm}
   *{box-sizing:border-box}
   body{
-    margin:0;padding:24px 28px;
+    margin:0;
+    padding:24px 28px;
     font-family:"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;
-    font-size:13px;color:#111;background:#fff;
+    font-size:13px;
+    color:#111;
+    background:#fff;
   }
-  /* header */
-  .header{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
-  .header h1{margin:0;font-size:22px;letter-spacing:.3px}
-  .header .co{font-size:12px;color:#555;margin-top:3px}
-  /* info table */
-  .info-tbl{width:100%;border-collapse:collapse;margin-bottom:16px;}
-  /* items table */
-  .items-tbl{width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:14px;}
-  .items-tbl th{background:#efefef;font-size:12px;padding:7px 7px;border:1px solid #aaa;white-space:nowrap;}
-  .items-tbl td{border:1px solid #aaa;padding:6px 7px;font-size:12px;vertical-align:middle;}
-  /* sum */
-  .sum-wrap{display:flex;justify-content:flex-end;margin-bottom:16px;}
-  .sum-box{width:260px;border:1px solid #ccc;border-radius:4px;padding:8px 12px;}
-  .sum-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #e5e7eb;font-size:12px;}
-  .sum-row:last-child{border-bottom:none}
-  .sum-row .k{font-weight:700}.sum-row .v{font-weight:800}
-  /* button */
-  .save-btn{
-    display:block;width:calc(100% - 0px);margin:20px 0 0;
-    padding:16px;background:#0ea5a4;color:#fff;
-    border:0;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;
+  .header{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .logo{height:28px;width:auto}
+  h1{margin:0;font-size:22px;letter-spacing:.3px}
+  .co{font-size:12px;color:#555;margin-top:3px}
+  .info{width:100%;border-collapse:collapse;margin:12px 0 14px;}
+  .info td{border:1px solid #ccc;padding:6px 8px;vertical-align:top;}
+  .info td.k{width:120px;white-space:nowrap;color:#555;font-weight:800}
+  .items{width:100%;border-collapse:collapse;table-layout:fixed;margin:0 0 12px;}
+  .items th{background:#efefef;border:1px solid #aaa;padding:7px 7px;font-size:12px;white-space:nowrap;text-align:left}
+  .items td{border:1px solid #aaa;padding:6px 7px;font-size:12px;vertical-align:middle}
+  .c{text-align:center}
+  .r{text-align:right}
+  /* ✅ 关键：品名列宽，其他列固定宽 — 和你打印版一致 */
+  .col-no{width:36px}
+  .col-unit{width:100px}
+  .col-qty{width:65px}
+  .col-amt{width:115px}
+  .name{word-break:break-word}
+  .sum-wrap{display:flex;justify-content:flex-end}
+  .sum{width:260px;border:1px solid #ccc;border-radius:6px;padding:8px 12px}
+  .sumrow{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #e5e7eb;font-size:12px}
+  .sumrow:last-child{border-bottom:none}
+  .sumrow .k{font-weight:800}
+  .sumrow .v{font-weight:900}
+  /* Mobile preview button (not in PDF) */
+  .bar{margin-top:16px}
+  .btn{
+    display:block;
+    width:100%;
+    padding:16px;
+    border:0;
+    border-radius:12px;
+    background:#0ea5a4;
+    color:#fff;
+    font-size:16px;
+    font-weight:800;
+    cursor:pointer;
     -webkit-tap-highlight-color:transparent;
   }
-  .save-btn:active{opacity:.85}
-  .hint-txt{text-align:center;color:#888;font-size:11px;margin-top:8px}
-  @media print{.save-btn,.hint-txt{display:none}}
+  .hint{margin-top:8px;text-align:center;color:#888;font-size:11px;line-height:1.6}
+  @media print{ .bar{display:none} }
 </style>
-</head><body>
-<div class="header">
-  <div>
-    <h1>納品書</h1>
-    <div class="co">澄和創藝合同会社</div>
+</head>
+<body>
+  <div class="header">
+    <img class="logo" src="cleon-logo.PNG" alt="Cléon"/>
+    <div>
+      <h1>納品書</h1>
+      <div class="co">澄和創藝合同会社</div>
+    </div>
   </div>
-</div>
 
-<table class="info-tbl">${infoRows}</table>
+  <table class="info">${infoRows}</table>
 
-<table class="items-tbl">
-  <colgroup>
-    <col style="width:36px">
-    <col>
-    <col style="width:100px">
-    <col style="width:60px">
-    <col style="width:110px">
-  </colgroup>
-  <thead><tr>
-    <th style="text-align:center">No</th>
-    <th>品名 / 作品名</th>
-    <th style="text-align:right">単価</th>
-    <th style="text-align:right">数量</th>
-    <th style="text-align:right">金額</th>
-  </tr></thead>
-  <tbody>${rowsHTML}</tbody>
-</table>
+  <table class="items">
+    <colgroup>
+      <col class="col-no"/>
+      <col/>
+      <col class="col-unit"/>
+      <col class="col-qty"/>
+      <col class="col-amt"/>
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="c">No</th>
+        <th>品名 / 作品名</th>
+        <th class="r">単価</th>
+        <th class="r">数量</th>
+        <th class="r">金額</th>
+      </tr>
+    </thead>
+    <tbody>${rowsHTML}</tbody>
+  </table>
 
-<div class="sum-wrap">
-  <div class="sum-box">
-    <div class="sum-row"><div class="k">小計</div><div class="v">${sub}</div></div>
-    <div class="sum-row"><div class="k">消費税（10%）</div><div class="v">${tax}</div></div>
-    <div class="sum-row"><div class="k">合計</div><div class="v">${total}</div></div>
+  <div class="sum-wrap">
+    <div class="sum">
+      <div class="sumrow"><div class="k">小計</div><div class="v">${sub}</div></div>
+      <div class="sumrow"><div class="k">消費税（10%）</div><div class="v">${tax}</div></div>
+      <div class="sumrow"><div class="k">合計</div><div class="v">${total}</div></div>
+    </div>
   </div>
-</div>
 
-<button class="save-btn" onclick="window.print()">🖨　印刷 / PDFに保存</button>
-<p class="hint-txt">「印刷」→「PDFに保存」でPDFとして保存できます</p>
-</body></html>`);
-  pw.document.close();
+  <div class="bar">
+    <button class="btn" onclick="window.print()">🖨 印刷 / PDFに保存</button>
+    <div class="hint">スマホの場合：印刷 →「PDFに保存」または共有から保存できます</div>
+  </div>
+</body></html>`;
 }
 
-/* ============================================================
-   ✅ Main PDF handler
-   - iOS/Android → 打印専用新窗口（確実）
-   - Desktop     → html2pdf ダウンロード、失敗時は新窗口fallback
-============================================================ */
-async function handlePDF() {
-  // iOS・Android は全て新窗口 print
-  if (isMobileDev) {
-    openPrintWindow();
-    return;
-  }
+/* ===========================================================
+  PDF generation (ONE layout)
+  - Desktop: generate PDF blob and download
+  - Mobile: try (1) Web Share (file) (2) direct download (Android) (3) open preview tab
+=========================================================== */
+const ua = navigator.userAgent;
+const isIOS = /iP(hone|ad|od)/i.test(ua);
+const isAndroid = /android/i.test(ua);
 
-  if (!window.html2pdf) {
-    openPrintWindow(); return;
-  }
+function supportsWebShareFile(){
+  return !!(navigator.share && navigator.canShare);
+}
 
-  const pdfBtn  = document.getElementById("pdfBtn");
-  const pdfHint = document.getElementById("pdfHint");
-  pdfBtn.disabled = true;
-  pdfHint.textContent = "PDFを作成中…";
+async function htmlToPdfBlob(a4Html){
+  // create hidden iframe, write A4 HTML, then html2pdf it (layout identical)
+  const iframe = document.createElement("iframe");
+  iframe.style.cssText = "position:fixed;left:-99999px;top:0;width:0;height:0;border:0;";
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentWindow.document;
+  doc.open();
+  doc.write(a4Html);
+  doc.close();
+
+  // wait images/fonts
+  await new Promise(res => setTimeout(res, 350));
+
+  const target = doc.body; // whole page
+  const opt = {
+    margin: [0,0,0,0],
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      scrollY: 0,
+      windowWidth: 794, // A4 px-ish
+    },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    pagebreak: { mode: ["css","legacy"] }
+  };
+
+  // html2pdf returns worker, we can output blob
+  const worker = html2pdf().set(opt).from(target);
+  const blob = await worker.outputPdf("blob");
+
+  document.body.removeChild(iframe);
+  return blob;
+}
+
+function downloadBlob(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=> URL.revokeObjectURL(url), 4000);
+}
+
+function openPreview(blob){
+  const url = URL.createObjectURL(blob);
+  // open in a new tab: iOS/Android will show pdf viewer; user can save/share
+  window.open(url, "_blank");
+  setTimeout(()=> URL.revokeObjectURL(url), 8000);
+}
+
+async function shareFile(blob, filename){
+  const file = new File([blob], filename, { type: "application/pdf" });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    await navigator.share({ files: [file], title: filename, text: "納品書PDF" });
+    return true;
+  }
+  return false;
+}
+
+async function handlePDF(){
+  const btn = document.getElementById("pdfBtn");
+  const hint = document.getElementById("pdfHint");
+  btn.disabled = true;
+  hint.textContent = "PDFを作成中…";
+
   clearPH();
 
-  /* ✅ Build a clean A4-width clone with pdf-safe inline styles */
-  const src    = document.getElementById("pdfRoot");
-  const clone  = src.cloneNode(true);
+  try{
+    if (!window.html2pdf) {
+      // fallback: open print-like page
+      const w = window.open("", "_blank");
+      if (!w) throw new Error("popup blocked");
+      w.document.open();
+      w.document.write(buildA4HTML());
+      w.document.close();
+      hint.textContent = "";
+      return;
+    }
 
-  // Remove interactive elements
-  clone.querySelectorAll(".del, .table-actions, .pill, .footer-note, .actions").forEach(e => e.remove());
+    const a4 = buildA4HTML();
+    const blob = await htmlToPdfBlob(a4);
+    const filename = makeName();
 
-  // ---- Force table display on clone ----
-  const tbl = clone.querySelector("table");
-  if (tbl) {
-    tbl.style.cssText = "display:table!important;width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;min-width:0!important;";
-    const thead = tbl.querySelector("thead");
-    if (thead) thead.style.cssText = "display:table-header-group!important;";
-    const tbody2 = tbl.querySelector("tbody");
-    if (tbody2) tbody2.style.cssText = "display:table-row-group!important;";
-    tbl.querySelectorAll("tr").forEach(tr => {
-      tr.style.cssText = "display:table-row!important;box-shadow:none!important;border:0!important;border-radius:0!important;padding:0!important;margin:0!important;background:#fff!important;";
-    });
-    tbl.querySelectorAll("th,td").forEach(cell => {
-      cell.style.display = "table-cell";
-      cell.style.border = "1px solid #aaa";
-      cell.style.padding = "6px 8px";
-      cell.style.fontSize = "12px";
-      cell.style.verticalAlign = "middle";
-      cell.style.overflow = "hidden";
-    });
-    tbl.querySelectorAll("th").forEach(th => {
-      th.style.background = "#efefef";
-      th.style.fontWeight = "700";
-    });
-    // ✅ Fix col widths
-    const cols = tbl.querySelectorAll("col");
-    const widths = ["36px", "auto", "100px", "65px", "115px", "0px"];
-    cols.forEach((c, i) => { c.style.width = widths[i] || "auto"; });
-    // Hide del column
-    tbl.querySelectorAll("th:last-child, td:last-child").forEach(e => e.style.display = "none");
-  }
+    // ✅ Best effort across devices
+    // 1) Web Share with file (works on many iOS/Android modern browsers)
+    if ((isIOS || isAndroid) && supportsWebShareFile()) {
+      const ok = await shareFile(blob, filename).catch(()=>false);
+      if (ok) { hint.textContent = ""; return; }
+    }
 
-  // ---- Fix inputs → show value as text ----
-  clone.querySelectorAll("input, textarea, select").forEach(el => {
-    el.style.cssText = "border:0!important;padding:0!important;font-size:12px!important;background:transparent!important;-webkit-appearance:none;appearance:none;box-shadow:none;width:100%;min-width:0;";
-    el.setAttribute("placeholder", "");
-  });
+    // 2) Android often supports direct download
+    if (isAndroid) {
+      downloadBlob(blob, filename);
+      hint.textContent = "";
+      return;
+    }
 
-  // ---- Fix .row to 2-column ----
-  clone.querySelectorAll(".row").forEach(row => {
-    row.style.cssText = "display:grid;grid-template-columns:130px 1fr;gap:6px 8px;align-items:center;margin:5px 0;";
-  });
+    // 3) Desktop direct download
+    if (!isIOS) {
+      downloadBlob(blob, filename);
+      hint.textContent = "";
+      return;
+    }
 
-  // ---- Fix .grid to single column ----
-  const grid = clone.querySelector(".grid");
-  if (grid) grid.style.cssText = "display:block;";
-
-  // ---- Fix .card ----
-  clone.querySelectorAll(".card").forEach(c => {
-    c.style.cssText = "box-shadow:none;border:0;border-radius:0;padding:0;margin-bottom:16px;background:#fff;";
-  });
-
-  // ---- Fix .table-wrap ----
-  const tw = clone.querySelector(".table-wrap");
-  if (tw) tw.style.cssText = "border:1px solid #aaa;border-radius:0;overflow:visible;background:#fff;";
-
-  // ---- Fix .sum ----
-  const sumEl = clone.querySelector(".sum");
-  if (sumEl) sumEl.style.cssText = "display:block;margin-top:10px;";
-  const sb = clone.querySelector(".sum-box");
-  if (sb) { sb.style.cssText = "width:260px;margin-left:auto;border:1px solid #ccc;border-radius:4px;padding:8px 10px;"; }
-
-  // Wrap in A4 container
-  const wrapper = document.createElement("div");
-  wrapper.style.cssText = "background:#fff;width:794px;padding:30px 40px;font-family:system-ui,-apple-system,'Noto Sans JP','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;font-size:13px;color:#111;";
-  wrapper.appendChild(clone);
-
-  const host = document.createElement("div");
-  host.style.cssText = "position:fixed;left:-99999px;top:0;background:#fff;z-index:-1;";
-  host.appendChild(wrapper);
-  document.body.appendChild(host);
-
-  try {
-    await html2pdf().set({
-      margin: [0,0,0,0],
-      filename: makeName(),
-      image: { type: "jpeg", quality: 0.97 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", scrollY: 0, windowWidth: 794, width: 794 },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      pagebreak: { mode: ["css","legacy"] }
-    }).from(wrapper).save();
-  } catch(e) {
-    console.error("html2pdf failed:", e);
-    const go = confirm("PDFの自動生成に失敗しました。\n印刷ダイアログを使ってPDFを保存する方法でもPDF作成できます。\n今すぐ開きますか？");
-    if (go) openPrintWindow();
-  } finally {
-    document.body.removeChild(host);
+    // 4) iOS Safari: cannot reliably force download → open preview
+    openPreview(blob);
+    hint.textContent = "プレビューを開きました（共有/保存からPDF保存できます）";
+  }catch(e){
+    console.error(e);
+    // last fallback: open A4 page and let user print/save
+    const w = window.open("", "_blank");
+    if (w){
+      w.document.open();
+      w.document.write(buildA4HTML());
+      w.document.close();
+      hint.textContent = "印刷画面からPDF保存できます。";
+    }else{
+      alert("PDF作成に失敗しました。ポップアップ許可をご確認ください。");
+    }
+  }finally{
     restorePH();
-    pdfBtn.disabled = false;
-    pdfHint.textContent = "";
+    btn.disabled = false;
+    setTimeout(()=>{ hint.textContent = ""; }, 5000);
   }
 }
-
 document.getElementById("pdfBtn").addEventListener("click", handlePDF);
 
-/* ============================================================
-   Init
-============================================================ */
+/* ===========================================================
+  Init
+=========================================================== */
 const d = new Date();
 document.getElementById("docDate").value =
   `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
