@@ -2,8 +2,10 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- ✅ iPhone/Safari：不再“默认缩小”，并兼容刘海屏 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>納品書 | 澄和創藝合同会社</title>
+
   <style>
     :root{
       --bg:#f6f7f9;
@@ -20,18 +22,21 @@
       font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
       background:var(--bg);
       color:var(--text);
+      -webkit-text-size-adjust:100%;
     }
+
     .wrap{max-width:1100px;margin:0 auto;padding:18px 16px 64px;}
     .topbar{
       display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;
       margin:10px 0 16px;
     }
-    .brand{
-      display:flex;flex-direction:column;gap:4px;
-    }
+
+    .brand{display:flex;flex-direction:column;gap:4px;}
     .brand h1{margin:0;font-size:26px;letter-spacing:.5px}
     .brand .sub{color:var(--muted);font-size:13px}
+
     .actions{display:flex;gap:10px;flex-wrap:wrap}
+
     button{
       border:1px solid var(--line);
       background:#fff;
@@ -46,14 +51,18 @@
       color:#fff;
     }
     button:active{transform:translateY(1px)}
+
+    /* ✅ 桌面端：左窄右宽（稳定显示完整明细表） */
     .grid{
       display:grid;
-      grid-template-columns: 1.2fr .8fr;
+      grid-template-columns: minmax(340px, 420px) 1fr;
       gap:14px;
+      align-items:start;
     }
     @media (max-width: 980px){
       .grid{grid-template-columns:1fr}
     }
+
     .card{
       background:var(--card);
       border:1px solid var(--line);
@@ -61,6 +70,7 @@
       padding:16px;
       box-shadow: 0 8px 22px rgba(0,0,0,.04);
     }
+
     .title{
       display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;
       border-bottom:1px solid var(--line);
@@ -68,6 +78,7 @@
     }
     .title h2{margin:0;font-size:18px}
     .note{color:var(--muted);font-size:12px;line-height:1.6}
+
     .row{
       display:grid;
       grid-template-columns: 160px 1fr;
@@ -76,6 +87,7 @@
       margin:8px 0;
     }
     .row label{color:var(--muted);font-size:13px}
+
     input, textarea, select{
       width:100%;
       border:1px solid var(--line);
@@ -93,7 +105,13 @@
       background:#fff;
     }
     .dest-name{font-weight:800}
-    .dest-addr{margin-top:6px;color:var(--muted);font-size:13px;line-height:1.6;white-space:pre-line}
+    .dest-addr{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+      white-space:pre-line
+    }
 
     .pill{
       display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;
@@ -104,8 +122,24 @@
       margin-top:10px;
     }
     .pill b{color:var(--strong)}
-    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}
-    table{width:100%;border-collapse:collapse;min-width:820px;background:#fff}
+
+    .small{font-size:12px;color:var(--muted)}
+    .btn-mini{padding:8px 10px;border-radius:12px;font-weight:700;}
+
+    /* ====== TABLE (Desktop/Tablet) ====== */
+    .table-wrap{
+      overflow-x:auto;
+      -webkit-overflow-scrolling: touch;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#fff;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background:#fff;
+      min-width:0; /* ✅ 避免整页被迫缩小 */
+    }
     thead th{
       background:#f3f4f6;
       color:#111;
@@ -113,6 +147,7 @@
       font-size:13px;
       padding:10px 10px;
       border-bottom:1px solid var(--line);
+      white-space:nowrap;
     }
     tbody td{
       border-bottom:1px solid var(--line);
@@ -121,12 +156,9 @@
       font-size:14px;
     }
     tbody tr:last-child td{border-bottom:none}
+
     .num{ text-align:right; font-variant-numeric: tabular-nums; }
     .center{text-align:center}
-    .small{font-size:12px;color:var(--muted)}
-    .btn-mini{
-      padding:8px 10px;border-radius:12px;font-weight:700;
-    }
 
     .table-actions{
       margin-top:10px;
@@ -149,6 +181,7 @@
     @media (max-width: 980px){
       .sum{grid-template-columns:1fr}
     }
+
     .sum-box{
       border:1px solid var(--line);
       border-radius:14px;
@@ -171,26 +204,165 @@
       line-height:1.7;
     }
 
+    /* ===== ✅ Mobile: 明細を“卡片式”，无需横滑 ===== */
+    @media (max-width: 600px){
+      /* 外层不再横滚动 */
+      .table-wrap{
+        overflow:visible;
+        border:0;
+        background:transparent;
+      }
+
+      table, tbody, tr, td{display:block; width:100%;}
+      table{background:transparent;}
+      thead{display:none;}
+
+      /* 每一行变成一张卡片 */
+      tbody tr{
+        background:#fff;
+        border:1px solid var(--line);
+        border-radius:16px;
+        padding:12px;
+        margin:10px 0;
+        box-shadow: 0 8px 22px rgba(0,0,0,.04);
+      }
+
+      /* 单元格变成“标签 + 内容”布局 */
+      tbody td{
+        border-bottom:0;
+        padding:8px 0;
+      }
+
+      /* No（第1列）更像标题 */
+      tbody td:nth-child(1){
+        padding-top:0;
+        font-weight:800;
+        color:#111;
+      }
+      tbody td:nth-child(1)::before{
+        content:"No";
+        display:inline-block;
+        margin-right:10px;
+        color:var(--muted);
+        font-weight:700;
+        font-size:12px;
+      }
+
+      /* 统一：标签在左，内容在右 */
+      tbody td:nth-child(2),
+      tbody td:nth-child(3),
+      tbody td:nth-child(4),
+      tbody td:nth-child(5),
+      tbody td:nth-child(6){
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+      }
+
+      tbody td:nth-child(2)::before{
+        content:"品名 / 作品名";
+        color:var(--muted);
+        font-weight:700;
+        font-size:12px;
+        flex:0 0 auto;
+      }
+      tbody td:nth-child(3)::before{
+        content:"単価";
+        color:var(--muted);
+        font-weight:700;
+        font-size:12px;
+        flex:0 0 auto;
+      }
+      tbody td:nth-child(4)::before{
+        content:"数量";
+        color:var(--muted);
+        font-weight:700;
+        font-size:12px;
+        flex:0 0 auto;
+      }
+      tbody td:nth-child(5)::before{
+        content:"金額";
+        color:var(--muted);
+        font-weight:700;
+        font-size:12px;
+        flex:0 0 auto;
+      }
+      tbody td:nth-child(6)::before{
+        content:"削除";
+        color:var(--muted);
+        font-weight:700;
+        font-size:12px;
+        flex:0 0 auto;
+      }
+
+      /* 输入框在手机上不要太挤 */
+      tbody td:nth-child(2) input,
+      tbody td:nth-child(3) input,
+      tbody td:nth-child(4) input{
+        width: 58%;
+        max-width: 260px;
+        text-align:left;
+      }
+
+      /* 单价/数量更像数字输入 */
+      tbody td:nth-child(3) input,
+      tbody td:nth-child(4) input{
+        text-align:right;
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* 金额右侧更突出 */
+      tbody td:nth-child(5){
+        padding-top:10px;
+        border-top:1px dashed var(--line);
+        margin-top:6px;
+      }
+      tbody td:nth-child(5) .amount{
+        font-weight:900;
+        color:#111;
+      }
+
+      /* 删除按钮在手机上更易点 */
+      tbody td:nth-child(6) button{
+        padding:10px 14px;
+        border-radius:14px;
+        font-weight:900;
+      }
+
+      /* sum 盒子更贴合手机 */
+      .sum{
+        grid-template-columns: 1fr;
+      }
+    }
+
     /* ===== PRINT (PDF) ===== */
     @page { size: A4; margin: 12mm; }
     @media print{
       body{background:#fff}
       img{
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
       .wrap{max-width:none;padding:0}
-     .actions, .note, .pill, .footer-note .screenonly{display:none !important}
+      .actions, .note, .pill, .footer-note .screenonly{display:none !important}
       .card{box-shadow:none;border:0;border-radius:0;padding:0}
       .grid{grid-template-columns:1fr;gap:0}
-      .table-wrap{border:1px solid #999;border-radius:0}
+
+      /* 打印时恢复传统表格样式（避免卡片式） */
+      .table-wrap{border:1px solid #999;border-radius:0; overflow:visible;}
+      table{display:table; width:100%;}
+      thead{display:table-header-group;}
+      tbody{display:table-row-group;}
+      tr{display:table-row; page-break-inside:avoid;}
+      td, th{display:table-cell;}
+
       thead th{
         background:#eee !important;
         -webkit-print-color-adjust:exact;
         print-color-adjust:exact;
       }
-      thead{display:table-header-group;}
-      tr{page-break-inside:avoid;}
+
       button{display:none !important}
       .table-actions{display:none !important}
       input, textarea, select{border:0;padding:0}
@@ -198,31 +370,33 @@
       .sum-box{border:1px solid #999;border-radius:0}
       textarea{min-height:unset}
     }
- .brandline{
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
 
-.logo{
-  height:48px;
-  width:auto;
-  display:block;
-}
+    .brandline{
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+    .logo{
+      height:48px;
+      width:auto;
+      display:block;
+    }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <div class="topbar">
       <div class="brand">
-  <div class="brandline">
-    <img src="cleon-logo.PNG" alt="Cléon arts & trade" class="logo" />
-    <div>
-      <h1>納品書</h1>
-      <div class="sub"><b>澄和創藝合同会社</b>　｜　PDFは右の「PDF保存/印刷」から作成できます。</div>
-    </div>
-  </div>
-</div>
+        <div class="brandline">
+          <img src="cleon-logo.PNG" alt="Cléon arts & trade" class="logo" />
+          <div>
+            <h1>納品書</h1>
+            <div class="sub"><b>澄和創藝合同会社</b>　｜　PDFは右の「PDF保存/印刷」から作成できます。</div>
+          </div>
+        </div>
+      </div>
+
       <div class="actions">
         <button class="btn-mini" id="clearBtn">入力をリセット</button>
         <button class="primary btn-mini" id="printBtn">PDF保存 / 印刷</button>
@@ -314,7 +488,6 @@
           </table>
         </div>
 
-        <!-- moved: add row button under table -->
         <div class="table-actions">
           <button class="btn-mini" id="addRowBtn">＋ 行を追加</button>
         </div>
@@ -340,6 +513,7 @@
             </div>
           </div>
         </div>
+
       </div>
     </div><!-- grid -->
   </div><!-- wrap -->
@@ -398,7 +572,7 @@
       <td class="num"><input class="unit numin" inputmode="numeric" placeholder="0" /></td>
       <td class="num"><input class="qty numin" inputmode="numeric" placeholder="1" value="1" /></td>
       <td class="num amount">0 円</td>
-      <td class="center"><button class="btn-mini del">×</button></td>
+      <td class="center"><button class="btn-mini del" type="button">×</button></td>
     `;
     tr.querySelector(".del").addEventListener("click", ()=>{
       tr.remove();
