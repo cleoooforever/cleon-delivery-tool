@@ -385,7 +385,7 @@
     }
   </style>
 
-  <!-- ✅ NEW libs: jsPDF (vector) -->
+  <!-- ✅ libs: jsPDF (vector) -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 </head>
@@ -529,7 +529,16 @@
 
 <script>
 /* ===========================================================
-  Helpers
+  ✅ PDF assets in repo root
+=========================================================== */
+const FONT_REG_URL  = "./NotoSansJP-Regular.ttf";
+const FONT_BOLD_URL = "./NotoSansJP-Bold.ttf";
+const LOGO_URL      = "./cleon-logo.PNG";
+
+let _pdfAssetsReady = false;
+
+/* ===========================================================
+  Helpers (screen)
 =========================================================== */
 const yen = n => (Number.isFinite(n) ? n : 0).toLocaleString("ja-JP") + " 円";
 const toInt = v => {
@@ -552,7 +561,7 @@ function restorePH(){
 }
 
 /* ===========================================================
-  ✅ Mobile detection: JS-based
+  ✅ Mobile detection (JS-based)
 =========================================================== */
 function checkMobile(){
   if (window.innerWidth <= 620) document.body.classList.add("is-mobile");
@@ -571,7 +580,7 @@ const taxEl = document.getElementById("tax");
 const grandTotalEl = document.getElementById("grandTotal");
 
 /* ===========================================================
-  Table rows
+  Table rows (screen)
 =========================================================== */
 function makeRow(i){
   const tr = document.createElement("tr");
@@ -599,13 +608,15 @@ function recalc(){
   let sum = 0;
   [...tbody.querySelectorAll("tr")].forEach(tr=>{
     const unit = toInt(tr.querySelector(".unit").value);
-    const qty = Math.max(0, toInt(tr.querySelector(".qty").value || 0));
-    const amt = roundY(unit * qty);
+    const qty  = Math.max(0, toInt(tr.querySelector(".qty").value || 0));
+    const amt  = roundY(unit * qty);
     tr.querySelector(".amount").textContent = yen(amt);
     sum += amt;
   });
+
   const rate = 0.10;
   const mode = modeSel.value;
+
   if (mode === "taxex"){
     const sub = roundY(sum);
     const tax = roundY(sub * rate);
@@ -639,7 +650,7 @@ document.getElementById("clearBtn").addEventListener("click", ()=>{
 });
 
 /* ===========================================================
-  Print
+  Print (browser)
 =========================================================== */
 document.getElementById("printBtn").addEventListener("click", ()=>{
   clearPH();
@@ -660,19 +671,16 @@ function makeName(){
 }
 
 /* ===========================================================
-  ✅ Vector PDF (jsPDF) — Stable & Fast
+  ✅ PDF helpers
 =========================================================== */
-const PDF_FONT_URL = "./NotoSansJP-Regular.ttf"; // recommend
-const LOGO_URL = "./cleon-logo.PNG";
-
 function formatNumber(n){
   const v = Number(n || 0);
   return v.toLocaleString("ja-JP");
 }
 
 async function fetchAsBase64(url){
-  const res = await fetch(url, { cache:"no-store" });
-  if (!res.ok) throw new Error("fetch failed: " + url);
+  const res = await fetch(url, { cache:"force-cache" });
+  if (!res.ok) throw new Error("fetch failed: " + url + " ("+res.status+")");
   const buf = await res.arrayBuffer();
   let binary = "";
   const bytes = new Uint8Array(buf);
@@ -683,57 +691,63 @@ async function fetchAsBase64(url){
   return btoa(binary);
 }
 
-async function tryEmbedJPFont(doc){
-  // If missing, JP may become squares. This keeps your tool stable.
+async function ensurePdfAssets(){
+  if (_pdfAssetsReady) return true;
+  if (!window.jspdf || !window.jspdf.jsPDF) throw new Error("jsPDF not found.");
+
+  // we register fonts into a temp doc (jsPDF font registry becomes available for docs created after)
+  const { jsPDF } = window.jspdf;
+  const tmp = new jsPDF({ unit:"mm", format:"a4" });
+
+  // Regular
+  const regB64 = await fetchAsBase64(FONT_REG_URL);
+  tmp.addFileToVFS("NotoSansJP-Regular.ttf", regB64);
+  tmp.addFont("NotoSansJP-Regular.ttf", "NotoSansJP", "normal", "Identity-H");
+
+  // Bold (optional but you have it)
   try{
-    const b64 = await fetchAsBase64(PDF_FONT_URL);
-    doc.addFileToVFS("NotoSansJP-Regular.ttf", b64);
-    doc.addFont("NotoSansJP-Regular.ttf", "NotoSansJP", "normal");
-    doc.setFont("NotoSansJP", "normal");
-    return true;
+    const boldB64 = await fetchAsBase64(FONT_BOLD_URL);
+    tmp.addFileToVFS("NotoSansJP-Bold.ttf", boldB64);
+    tmp.addFont("NotoSansJP-Bold.ttf", "NotoSansJP", "bold", "Identity-H");
   }catch(e){
-    doc.setFont("helvetica", "normal");
-    return false;
+    // If bold missing, keep going (normal still works)
+    console.warn("Bold font not available:", e);
   }
+
+  _pdfAssetsReady = true;
+  return true;
 }
 
 async function tryAddLogo(doc){
   try{
     const b64 = await fetchAsBase64(LOGO_URL);
-    // PNG base64 to data URL
     const dataUrl = "data:image/png;base64," + b64;
-    // x,y,w,h in mm
     doc.addImage(dataUrl, "PNG", 12, 12, 26, 10);
     return true;
   }catch(e){
+    console.warn("Logo embed failed:", e);
     return false;
   }
 }
 
 function collectPdfData(){
-  const docNo = (document.getElementById("docNo").value || "").trim();
-  const docDate = (document.getElementById("docDate").value || "").trim();
+  const docNo  = (document.getElementById("docNo").value || "").trim();
+  const docDate= (document.getElementById("docDate").value || "").trim();
   const author = (document.getElementById("authorName").value || "").trim();
-  const shop = (document.getElementById("shopName").value || "").trim();
-  const tel = (document.getElementById("tel").value || "").trim();
-  const addr = (document.getElementById("addr").value || "").trim();
+  const shop   = (document.getElementById("shopName").value || "").trim();
+  const tel    = (document.getElementById("tel").value || "").trim();
+  const addr   = (document.getElementById("addr").value || "").trim();
 
   const rows = [...tbody.querySelectorAll("tr")].map(tr=>({
     no: tr.querySelector(".no").textContent,
     name: (tr.querySelector(".name").value || "").trim(),
     unit: toInt(tr.querySelector(".unit").value),
     qty: Math.max(0, toInt(tr.querySelector(".qty").value || 0)),
-  })).map(r=>({
-    ...r,
-    amt: roundY(r.unit * r.qty),
-  }));
+  })).map(r=>({ ...r, amt: roundY(r.unit * r.qty) }));
 
-  const mode = modeSel.value;     // taxin / taxex
+  const mode = modeSel.value; // taxin / taxex
   const rate = 0.10;
 
-  // totals should match on-screen calc exactly:
-  // - taxex: input sum is 税抜小計, tax=round(sub*rate), total=sub+tax
-  // - taxin: input sum is 税込合計, sub=round(total/(1+rate)), tax=total-sub
   const sum = roundY(rows.reduce((a,r)=>a+r.amt, 0));
 
   let sub=0, tax=0, total=0;
@@ -752,38 +766,39 @@ function collectPdfData(){
     toZip: "〒185-0032",
     toAddr: "東京都国分寺市日吉町2-34-14 2G号室",
     docNo, docDate, author, shop, tel, addr,
-    rows,
-    sub, tax, total,
+    rows, sub, tax, total
   };
 }
 
+/* ===========================================================
+  ✅ Vector PDF (jsPDF + autoTable) - NO garble
+=========================================================== */
 async function generatePdfVector(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit:"mm", format:"a4" });
 
-  await tryEmbedJPFont(doc);
+  // Always use our embedded font first (avoid default font garble)
+  doc.setFont("NotoSansJP", "normal");
+
   await tryAddLogo(doc);
 
   const M = 12;
   const W = 210;
 
-  // Header text (match your print-like page)
+  // Header
+  doc.setFont("NotoSansJP", "bold");
   doc.setFontSize(22);
-  doc.setFont(undefined, "bold");
   doc.text("納品書", 42, 18);
 
+  doc.setFont("NotoSansJP", "normal");
   doc.setFontSize(12);
-  doc.setFont(undefined, "normal");
   doc.setTextColor(85);
   doc.text("澄和創藝合同会社", 42, 24);
   doc.setTextColor(17);
 
   const data = collectPdfData();
 
-  // Info table (like buildA4HTML print version)
-  doc.setFontSize(12);
-  doc.setFont(undefined, "normal");
-
+  // Info table (grid)
   const infoBody = [
     ["宛先", `澄和創藝合同会社\n${data.toZip} ${data.toAddr}`],
     ["納品書番号", data.docNo || "—"],
@@ -792,16 +807,16 @@ async function generatePdfVector(){
     ["屋号", data.shop || "—"],
     ["TEL", data.tel || "—"],
   ];
-
   if (data.addr) infoBody.push(["住所", data.addr]);
 
-  // draw info table manually via autoTable for stable wrapping
   doc.autoTable({
     startY: 32,
     theme: "grid",
     head: [],
     body: infoBody,
     styles: {
+      font: "NotoSansJP",
+      fontStyle: "normal",
       fontSize: 11,
       cellPadding: 2.2,
       lineColor: 170,
@@ -812,9 +827,10 @@ async function generatePdfVector(){
       0: { cellWidth: 36, textColor: [85,85,85], fontStyle:"bold" },
       1: { cellWidth: 210 - 12*2 - 36 },
     },
+    margin: { left: 12, right: 12 },
   });
 
-  // Items table (fixed columns like your print css)
+  // Items table
   const startItemsY = doc.lastAutoTable.finalY + 6;
 
   const itemsBody = data.rows.map(r => ([
@@ -825,10 +841,16 @@ async function generatePdfVector(){
     `${formatNumber(r.amt)} 円`,
   ]));
 
-  // Ensure at least 6 rows (same feeling as your UI)
   while (itemsBody.length < 6){
     itemsBody.push([String(itemsBody.length+1), "", "", "", "0 円"]);
   }
+
+  // Column widths (A4 like your print CSS)
+  const colNo = 12;
+  const colUnit = 32;
+  const colQty = 20;
+  const colAmt = 32;
+  const colName = (210 - 12*2) - (colNo + colUnit + colQty + colAmt);
 
   doc.autoTable({
     startY: startItemsY,
@@ -836,6 +858,8 @@ async function generatePdfVector(){
     head: [["No","品名 / 作品名","単価","数量","金額"]],
     body: itemsBody,
     styles: {
+      font: "NotoSansJP",
+      fontStyle: "normal",
       fontSize: 11,
       cellPadding: 2.0,
       lineColor: 170,
@@ -848,18 +872,18 @@ async function generatePdfVector(){
       fontStyle: "bold",
     },
     columnStyles: {
-      0: { cellWidth: 12, halign:"center" },     // No (print-like 36px-ish)
-      1: { cellWidth: 210 - 12*2 - (12+32+20+32) }, // name takes remaining
-      2: { cellWidth: 32, halign:"right" },      // unit ~100px
-      3: { cellWidth: 20, halign:"right" },      // qty ~65px
-      4: { cellWidth: 32, halign:"right" },      // amt ~115px
+      0: { cellWidth: colNo,   halign:"center" },
+      1: { cellWidth: colName, halign:"left"   },
+      2: { cellWidth: colUnit, halign:"right"  },
+      3: { cellWidth: colQty,  halign:"right"  },
+      4: { cellWidth: colAmt,  halign:"right"  },
     },
     margin: { left: 12, right: 12 },
   });
 
   const lastY = doc.lastAutoTable.finalY;
 
-  // Sum box at right (like your print layout)
+  // Sum box (right)
   const boxW = 70;
   const boxX = W - M - boxW;
   const boxY = lastY + 8;
@@ -867,8 +891,8 @@ async function generatePdfVector(){
   doc.setDrawColor(204);
   doc.roundedRect(boxX, boxY, boxW, 28, 2, 2);
 
+  doc.setFont("NotoSansJP", "bold");
   doc.setFontSize(11);
-  doc.setFont(undefined, "bold");
   doc.text("小計", boxX + 6, boxY + 8);
   doc.text(`${formatNumber(data.sub)} 円`, boxX + boxW - 6, boxY + 8, { align:"right" });
 
@@ -879,8 +903,7 @@ async function generatePdfVector(){
   doc.text(`${formatNumber(data.total)} 円`, boxX + boxW - 6, boxY + 24, { align:"right" });
 
   // Save
-  const filename = makeName();
-  doc.save(filename);
+  doc.save(makeName());
 }
 
 /* ===========================================================
@@ -895,6 +918,7 @@ async function handlePDF(){
   clearPH();
 
   try{
+    await ensurePdfAssets(); // ✅ must before generate
     await generatePdfVector();
     hint.textContent = "";
   }catch(e){
