@@ -6,364 +6,538 @@
   <title>納品書 | 澄和創藝合同会社</title>
 
   <style>
-    :root{
-      --bg:#f6f7f9;
-      --card:#fff;
-      --text:#111827;
-      --muted:#6b7280;
-      --line:#e5e7eb;
-      --strong:#111;
-      --accent:#0ea5a4;
+    /* ============================================================
+       CSS ARCHITECTURE:
+       1. Variables & Reset
+       2. Base / Screen (共通)
+       3. Desktop Screen (>600px) — table layout
+       4. Mobile Screen (≤600px)  — card layout
+       5. Print / @media print   — A4 table (同"打印"版式)
+       6. .pdf-clone class        — A4 table (同"打印"版式, for html2pdf clone)
+    ============================================================ */
+
+    /* 1. Variables & Reset */
+    :root {
+      --bg: #f6f7f9;
+      --card: #fff;
+      --text: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --strong: #111;
+      --accent: #0ea5a4;
     }
-    *{box-sizing:border-box}
-    html, body{width:100%; max-width:100%;}
-    body{
-      margin:0;
-      font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      -webkit-text-size-adjust:100%;
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { width: 100%; max-width: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-text-size-adjust: 100%;
     }
 
-    .wrap{max-width:1100px;margin:0 auto;padding:18px 16px 64px;}
-    .topbar{
-      display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;
-      margin:10px 0 16px;
-    }
+    /* 2. Base / Screen 共通 */
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 18px 16px 64px; }
 
-    .brand{display:flex;flex-direction:column;gap:4px;}
-    .brand h1{margin:0;font-size:26px;letter-spacing:.5px}
-    .brand .sub{color:var(--muted);font-size:13px}
-
-    .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    button{
-      border:1px solid var(--line);
-      background:#fff;
-      padding:10px 12px;
-      border-radius:12px;
-      cursor:pointer;
-      font-weight:600;
+    .topbar {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      align-items: center; justify-content: space-between;
+      margin: 10px 0 16px;
     }
-    button.primary{
-      background:var(--accent);
-      border-color:var(--accent);
-      color:#fff;
-    }
-    button:disabled{opacity:.6;cursor:not-allowed;}
-    button:active{transform:translateY(1px)}
-    .btn-mini{padding:8px 10px;border-radius:12px;font-weight:700;}
-    .hint{font-size:12px;color:var(--muted)}
+    .brand { display: flex; flex-direction: column; gap: 4px; }
+    .brand h1 { margin: 0; font-size: 26px; letter-spacing: .5px; }
+    .brand .sub { color: var(--muted); font-size: 13px; }
+    .brandline { display: flex; align-items: center; gap: 14px; }
+    .logo { height: 48px; width: auto; display: block; }
 
-    .grid{
-      display:grid;
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    button {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    button:active { transform: translateY(1px); }
+    .btn-mini { padding: 8px 10px; border-radius: 12px; font-weight: 700; }
+    .hint { font-size: 12px; color: var(--muted); }
+
+    /* Two-column grid layout */
+    .grid {
+      display: grid;
       grid-template-columns: minmax(340px, 420px) 1fr;
-      gap:14px;
-      align-items:start;
+      gap: 14px;
+      align-items: start;
     }
-    @media (max-width: 980px){
-      .grid{grid-template-columns:1fr}
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
     }
 
-    .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:16px;
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
       box-shadow: 0 8px 22px rgba(0,0,0,.04);
     }
-
-    .title{
-      display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;
-      border-bottom:1px solid var(--line);
-      padding-bottom:10px;margin-bottom:12px;
+    .title {
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 10px; margin-bottom: 12px;
     }
-    .title h2{margin:0;font-size:18px}
-    .small{font-size:12px;color:var(--muted)}
+    .title h2 { margin: 0; font-size: 18px; }
+    .small { font-size: 12px; color: var(--muted); }
 
-    .row{
-      display:grid;
+    /* 基本情報 rows — Desktop default */
+    .row {
+      display: grid;
       grid-template-columns: 160px 1fr;
-      gap:10px;
-      align-items:center;
-      margin:8px 0;
+      gap: 10px;
+      align-items: center;
+      margin: 8px 0;
     }
-    .row label{color:var(--muted);font-size:13px}
+    .row label { color: var(--muted); font-size: 13px; }
 
-    /* iOS input zoom対策：16px */
-    input, textarea, select{
-      width:100%;
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:10px 12px;
-      font-size:16px;
-      background:#fff;
-      min-width:0;
+    /* iOS input zoom防止：16px */
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 16px;
+      background: #fff;
+      min-width: 0; /* ✅ 防止flex/grid内撑破宽度 */
     }
-    textarea{min-height:72px;resize:vertical}
+    textarea { min-height: 72px; resize: vertical; }
 
-    .dest-box{
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:10px 12px;
-      background:#fff;
+    .dest-box {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fff;
     }
-    .dest-name{font-weight:800}
-    .dest-addr{margin-top:6px;color:var(--muted);font-size:13px;line-height:1.6;white-space:pre-line;}
+    .dest-name { font-weight: 800; }
+    .dest-addr { margin-top: 6px; color: var(--muted); font-size: 13px; line-height: 1.6; white-space: pre-line; }
 
-    .pill{
-      display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;
-      padding:10px 12px;
-      border:1px dashed var(--line);
-      border-radius:14px;
-      background:#fafafa;
-      margin-top:10px;
+    .pill {
+      display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+      padding: 10px 12px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      background: #fafafa;
+      margin-top: 10px;
     }
-    .pill b{color:var(--strong)}
-    .footer-note{margin-top:12px;color:var(--muted);font-size:12px;line-height:1.7;}
+    .pill b { color: var(--strong); }
+    .footer-note { margin-top: 12px; color: var(--muted); font-size: 12px; line-height: 1.7; }
 
-    /* ✅ 手机端：基本信息改成“上下布局”，纳品日就不会比例失衡 */
-    @media (max-width: 600px){
-      .row{
-        grid-template-columns: 1fr;
-        gap:6px;
-        align-items:stretch;
-        margin:12px 0;
-      }
-      .row label{font-size:12px}
+    /* ============================================================
+       3. Desktop Table Layout (screen, >600px)
+    ============================================================ */
+    .table-wrap {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
-    /* ===== Table (Desktop/Tablet) ===== */
-    .table-wrap{
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:#fff;
-      overflow-x:auto;
-      -webkit-overflow-scrolling:touch;
+    /* ✅ KEY FIX A: table-layout:fixed + explicit col widths prevent squish */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      table-layout: fixed;
     }
-    table{
-      width:100%;
-      border-collapse:collapse;
-      background:#fff;
-      table-layout:fixed;
-      min-width: 860px;
+
+    /* ✅ col widths: name gets remaining space, others locked */
+    col.no     { width: 48px; }
+    col.name   { width: auto; }   /* flexible — takes the rest */
+    col.unit   { width: 130px; }
+    col.qty    { width: 80px; }
+    col.amount { width: 140px; }
+    col.del    { width: 62px; }
+
+    thead th {
+      background: #f3f4f6;
+      color: #111;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+      overflow: hidden;
     }
-    col.no{width:50px}
-    col.name{width:auto}
-    col.unit{width:140px}
-    col.qty{width:90px}
-    col.amount{width:160px}
-    col.del{width:70px}
-
-    thead th{
-      background:#f3f4f6;
-      color:#111;
-      font-weight:700;
-      font-size:13px;
-      padding:10px 10px;
-      border-bottom:1px solid var(--line);
-      white-space:nowrap;
+    tbody td {
+      border-bottom: 1px solid var(--line);
+      padding: 7px 8px;
+      vertical-align: middle;
+      font-size: 14px;
+      overflow: hidden;
     }
-    tbody td{
-      border-bottom:1px solid var(--line);
-      padding:8px 8px;
-      vertical-align:middle;
-      font-size:14px;
-      overflow:hidden;
+    tbody tr:last-child td { border-bottom: none; }
+
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .center { text-align: center; }
+
+    /* ✅ KEY FIX A: inputs inside td must not overflow — min-width:0 + width:100% */
+    td input {
+      width: 100%;
+      min-width: 0;
+      padding: 6px 8px;
+      font-size: 14px;
     }
-    tbody tr:last-child td{border-bottom:none}
+    td.unitcell input,
+    td.qtycell input { text-align: right; }
 
-    .num{ text-align:right; font-variant-numeric: tabular-nums; }
-    .center{text-align:center}
+    .table-actions { margin-top: 10px; display: flex; justify-content: center; }
+    .table-actions button { padding: 12px 16px; border-radius: 14px; font-weight: 800; }
 
-    td.namecell input.name{width:100%; min-width:0;}
-    td.unitcell input, td.qtycell input{width:100%; text-align:right;}
-
-    .table-actions{margin-top:10px;display:flex;justify-content:center;}
-    .table-actions button{padding:12px 16px;border-radius:14px;font-weight:800;}
-
-    .sum{
-      margin-top:12px;
-      display:grid;
+    .sum {
+      margin-top: 12px;
+      display: grid;
       grid-template-columns: 1fr 320px;
-      gap:12px;
-      align-items:start;
+      gap: 12px;
+      align-items: start;
     }
-    @media (max-width: 980px){ .sum{grid-template-columns:1fr} }
+    @media (max-width: 980px) { .sum { grid-template-columns: 1fr; } }
 
-    .sum-box{
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:12px;
-      background:#fff;
+    .sum-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
     }
-    .sum-row{
-      display:flex;justify-content:space-between;gap:12px;
-      padding:8px 0;border-bottom:1px solid var(--line);
+    .sum-row {
+      display: flex; justify-content: space-between; gap: 12px;
+      padding: 8px 0; border-bottom: 1px solid var(--line);
       font-variant-numeric: tabular-nums;
     }
-    .sum-row:last-child{border-bottom:none}
-    .sum-row .k{color:#111;font-weight:700}
-    .sum-row .v{font-weight:800}
+    .sum-row:last-child { border-bottom: none; }
+    .sum-row .k { color: #111; font-weight: 700; }
+    .sum-row .v { font-weight: 800; }
 
-    /* ===== Mobile cards (画面表示用) ===== */
-    @media (max-width: 600px){
-      table{min-width:0;}
-      .table-wrap{overflow:visible;border:0;background:transparent;}
-      table, thead, tbody, tr, td{display:block;width:100%;}
-      thead{display:none;}
-      table{background:transparent;}
+    /* ============================================================
+       4. Mobile Screen (≤600px) — Card layout + fixed .row
+    ============================================================ */
+    @media (max-width: 600px) {
 
-      tbody tr{
-        background:#fff;
-        border:1px solid var(--line);
-        border-radius:16px;
-        padding:12px;
-        margin:10px 0;
+      /* ✅ KEY FIX B: 手机端基本信息改为上下布局，防止 date input 比例失衡 */
+      .row {
+        grid-template-columns: 1fr;
+        gap: 4px;
+        align-items: stretch;
+        margin: 10px 0;
+      }
+      .row label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+
+      /* Card layout for table rows */
+      .table-wrap {
+        overflow: visible;
+        border: 0;
+        background: transparent;
+      }
+      table { min-width: 0; background: transparent; }
+      table, thead, tbody, tr, td { display: block; width: 100%; }
+      thead { display: none; }
+
+      tbody tr {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 12px;
+        margin: 10px 0;
         box-shadow: 0 8px 22px rgba(0,0,0,.04);
       }
-      tbody td{border-bottom:0;padding:8px 0;overflow:visible;}
-
-      tbody td:nth-child(1){
-        padding-top:0;
-        font-weight:800;
-        color:#111;
-        display:flex;
-        justify-content:center;
+      tbody td {
+        border-bottom: 0;
+        padding: 6px 0;
+        overflow: visible;
       }
 
-      tbody td:nth-child(2){display:block;}
-      tbody td:nth-child(2)::before{
-        content:"品名 / 作品名";
-        display:block;
-        color:var(--muted);
-        font-weight:700;
-        font-size:12px;
-        margin-bottom:6px;
+      /* No column */
+      tbody td:nth-child(1) {
+        padding-top: 0;
+        font-weight: 800;
+        color: #111;
+        display: flex;
+        justify-content: center;
       }
-      tbody td:nth-child(2) input{width:100%;}
+      /* 品名 */
+      tbody td:nth-child(2) { display: block; }
+      tbody td:nth-child(2)::before {
+        content: "品名 / 作品名";
+        display: block;
+        color: var(--muted);
+        font-weight: 700;
+        font-size: 12px;
+        margin-bottom: 6px;
+      }
+      tbody td:nth-child(2) input { width: 100%; }
 
+      /* 単価・数量・金額・削除 */
       tbody td:nth-child(3),
       tbody td:nth-child(4),
       tbody td:nth-child(5),
-      tbody td:nth-child(6){
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        gap:12px;
+      tbody td:nth-child(6) {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
       }
-      tbody td:nth-child(3)::before{content:"単価";color:var(--muted);font-weight:700;font-size:12px;flex:0 0 auto;}
-      tbody td:nth-child(4)::before{content:"数量";color:var(--muted);font-weight:700;font-size:12px;flex:0 0 auto;}
-      tbody td:nth-child(5)::before{content:"金額";color:var(--muted);font-weight:700;font-size:12px;flex:0 0 auto;}
-      tbody td:nth-child(6)::before{content:"削除";color:var(--muted);font-weight:700;font-size:12px;flex:0 0 auto;}
+      tbody td:nth-child(3)::before { content: "単価";   color: var(--muted); font-weight: 700; font-size: 12px; flex: 0 0 auto; }
+      tbody td:nth-child(4)::before { content: "数量";   color: var(--muted); font-weight: 700; font-size: 12px; flex: 0 0 auto; }
+      tbody td:nth-child(5)::before { content: "金額";   color: var(--muted); font-weight: 700; font-size: 12px; flex: 0 0 auto; }
+      tbody td:nth-child(6)::before { content: "削除";   color: var(--muted); font-weight: 700; font-size: 12px; flex: 0 0 auto; }
 
       tbody td:nth-child(3) input,
-      tbody td:nth-child(4) input{width:58%; text-align:right;}
+      tbody td:nth-child(4) input { width: 58%; text-align: right; }
 
-      tbody td:nth-child(5){
-        padding-top:10px;
-        border-top:1px dashed var(--line);
-        margin-top:6px;
+      tbody td:nth-child(5) {
+        padding-top: 10px;
+        border-top: 1px dashed var(--line);
+        margin-top: 6px;
       }
-      .amount{font-weight:900}
-      tbody td:nth-child(6) button{padding:10px 14px;border-radius:14px;font-weight:900;}
-
-      .sum{grid-template-columns:1fr;}
+      .amount { font-weight: 900; }
+      tbody td:nth-child(6) button { padding: 10px 14px; border-radius: 14px; font-weight: 900; }
     }
 
-    /* ===== ✅ PDF DOWNLOAD MODE：强制和“打印版式”一样（永远表格，不用卡片） ===== */
-    .pdf-mode{
-      background:#fff !important;
-    }
-    .pdf-mode .actions,
-    .pdf-mode .pill,
-    .pdf-mode .table-actions{
-      display:none !important;
-    }
-    .pdf-mode .wrap{
-      max-width:none !important;
-      padding:0 !important;
-    }
-    .pdf-mode .grid{
-      grid-template-columns:1fr !important;
-      gap:0 !important;
-    }
-    .pdf-mode .card{
-      box-shadow:none !important;
-      border:0 !important;
-      border-radius:0 !important;
-      padding:0 !important;
-      background:#fff !important;
-    }
-    .pdf-mode .table-wrap{
-      border:1px solid #999 !important;
-      border-radius:0 !important;
-      overflow:visible !important;
-      background:#fff !important;
-    }
-    .pdf-mode table{
-      display:table !important;
-      width:100% !important;
-      border-collapse:collapse !important;
-      table-layout:fixed !important;
-      min-width:0 !important;
-      background:#fff !important;
-    }
-    .pdf-mode thead{display:table-header-group !important;}
-    .pdf-mode tbody{display:table-row-group !important;}
-    .pdf-mode tr{display:table-row !important; page-break-inside:avoid !important;}
-    .pdf-mode th, .pdf-mode td{display:table-cell !important;}
-    .pdf-mode td::before{content:none !important;}
-    .pdf-mode tbody tr{
-      box-shadow:none !important;
-      border:0 !important;
-      border-radius:0 !important;
-      padding:0 !important;
-      margin:0 !important;
-      background:#fff !important;
-    }
-    .pdf-mode thead th{
-      background:#eee !important;
-      -webkit-print-color-adjust:exact;
-      print-color-adjust:exact;
-    }
-    .pdf-mode tbody td{
-      border:1px solid #999 !important;
-      padding:8px 8px !important;
-      overflow:hidden !important;
-    }
-    .pdf-mode input, .pdf-mode textarea, .pdf-mode select{
-      border:0 !important;
-      padding:0 !important;
-      font-size:12px !important;
-      background:transparent !important;
-    }
-
-    /* ===== Print (系统打印) ===== */
+    /* ============================================================
+       5. @media print — A4 表格版式（系统打印）
+    ============================================================ */
     @page { size: A4; margin: 12mm; }
-    @media print{
-      body{background:#fff}
-      .wrap{max-width:none;padding:0}
-      .actions, .pill, .table-actions{display:none !important}
-      .card{box-shadow:none;border:0;border-radius:0;padding:0}
-      .grid{grid-template-columns:1fr !important;gap:0 !important}
-      .table-wrap{border:1px solid #999;border-radius:0; overflow:visible !important; background:#fff !important;}
-      table{display:table !important; width:100% !important; border-collapse:collapse !important; table-layout:fixed !important; min-width:0 !important;}
-      thead{display:table-header-group !important;}
-      tbody{display:table-row-group !important;}
-      tr{display:table-row !important; page-break-inside:avoid !important;}
-      th, td{display:table-cell !important;}
-      td::before{content:none !important;}
-      tbody tr{box-shadow:none !important;border:0 !important;border-radius:0 !important;padding:0 !important;margin:0 !important;}
-      thead th{background:#eee !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-      tbody td{border:1px solid #999 !important;padding:8px 8px !important;overflow:hidden !important;}
-      input, textarea, select{border:0 !important;padding:0 !important;font-size:12px !important;background:transparent !important;}
+    @media print {
+      body { background: #fff; }
+      .wrap { max-width: none; padding: 0; }
+      .actions, .pill, .table-actions, .footer-note { display: none !important; }
+      .card { box-shadow: none; border: 0; border-radius: 0; padding: 0; }
+      .grid { grid-template-columns: 1fr !important; gap: 0 !important; }
+
+      /* ✅ Force table layout in print */
+      .table-wrap {
+        border: 1px solid #999;
+        border-radius: 0;
+        overflow: visible !important;
+        background: #fff !important;
+      }
+      table {
+        display: table !important;
+        width: 100% !important;
+        border-collapse: collapse !important;
+        table-layout: fixed !important;
+        min-width: 0 !important;
+        background: #fff !important;
+      }
+      col.no     { width: 40px !important; }
+      col.unit   { width: 120px !important; }
+      col.qty    { width: 70px !important; }
+      col.amount { width: 130px !important; }
+      col.del    { display: none !important; }
+
+      thead  { display: table-header-group !important; }
+      tbody  { display: table-row-group !important; }
+      tr     { display: table-row !important; page-break-inside: avoid !important; }
+      th, td { display: table-cell !important; }
+      td::before { content: none !important; }
+
+      tbody tr {
+        box-shadow: none !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #fff !important;
+      }
+      thead th {
+        background: #eee !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      tbody td {
+        border: 1px solid #999 !important;
+        padding: 7px 8px !important;
+        overflow: hidden !important;
+        vertical-align: middle !important;
+      }
+      /* 隐藏删除列 */
+      th:last-child, td:last-child { display: none !important; }
+
+      input, textarea, select {
+        border: 0 !important;
+        padding: 0 !important;
+        font-size: 12px !important;
+        background: transparent !important;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
+      /* 基本情報 rows: 打印时也用2列 */
+      .row {
+        grid-template-columns: 140px 1fr !important;
+        gap: 8px !important;
+        align-items: center !important;
+        margin: 6px 0 !important;
+      }
+      .sum { grid-template-columns: 1fr !important; }
+      .sum-box {
+        width: 280px;
+        margin-left: auto;
+      }
     }
 
-    .brandline{display:flex;align-items:center;gap:14px;}
-    .logo{height:48px;width:auto;display:block;}
+    /* ============================================================
+       6. .pdf-clone — PDF下载用的克隆容器
+          完全镜像 @media print 的样式，但作为普通class（html2pdf使用screen CSS）
+    ============================================================ */
+    .pdf-clone {
+      background: #fff;
+      width: 794px;  /* A4 @ 96dpi */
+      padding: 34px 45px;
+      font-family: system-ui, -apple-system, "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+      color: #111;
+      font-size: 13px;
+    }
+    .pdf-clone .actions,
+    .pdf-clone .pill,
+    .pdf-clone .table-actions,
+    .pdf-clone .footer-note,
+    .pdf-clone .hint,
+    .pdf-clone .sub { display: none !important; }
+
+    .pdf-clone .wrap { max-width: none; padding: 0; }
+    .pdf-clone .topbar { margin-bottom: 20px; }
+    .pdf-clone .grid { display: block; }
+    .pdf-clone .card { box-shadow: none; border: 0; border-radius: 0; padding: 0; margin-bottom: 18px; }
+    .pdf-clone .title { border-bottom: 2px solid #111; padding-bottom: 6px; margin-bottom: 10px; }
+    .pdf-clone .title h2 { font-size: 15px; }
+
+    /* 基本情報 rows — 2列 */
+    .pdf-clone .row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 8px;
+      align-items: center;
+      margin: 5px 0;
+    }
+    .pdf-clone .row label { color: #555; font-size: 12px; }
+    .pdf-clone .dest-box { border: 1px solid #ccc; border-radius: 6px; padding: 6px 10px; background: #fff; }
+    .pdf-clone .dest-name { font-weight: 800; font-size: 13px; }
+    .pdf-clone .dest-addr { font-size: 11px; color: #555; margin-top: 4px; white-space: pre-line; line-height: 1.5; }
+
+    /* inputs in pdf-clone: show as plain text */
+    .pdf-clone input,
+    .pdf-clone textarea,
+    .pdf-clone select {
+      border: 0 !important;
+      background: transparent !important;
+      padding: 0 !important;
+      font-size: 12px !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      -webkit-appearance: none;
+      appearance: none;
+      resize: none;
+    }
+    .pdf-clone textarea { min-height: auto; overflow: hidden; }
+
+    /* table */
+    .pdf-clone .table-wrap {
+      border: 1px solid #999;
+      border-radius: 0;
+      overflow: visible;
+      background: #fff;
+    }
+    .pdf-clone table {
+      display: table !important;
+      width: 100% !important;
+      border-collapse: collapse !important;
+      table-layout: fixed !important;
+      min-width: 0 !important;
+      background: #fff !important;
+    }
+    .pdf-clone col.no     { width: 38px; }
+    .pdf-clone col.name   { width: auto; }
+    .pdf-clone col.unit   { width: 110px; }
+    .pdf-clone col.qty    { width: 65px; }
+    .pdf-clone col.amount { width: 120px; }
+    .pdf-clone col.del    { display: none; width: 0; }
+
+    .pdf-clone thead  { display: table-header-group !important; }
+    .pdf-clone tbody  { display: table-row-group !important; }
+    .pdf-clone tr     { display: table-row !important; }
+    .pdf-clone th,
+    .pdf-clone td     { display: table-cell !important; }
+    .pdf-clone td::before { content: none !important; }
+
+    .pdf-clone thead th {
+      background: #eeeeee !important;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 7px 6px;
+      border: 1px solid #999;
+      white-space: nowrap;
+    }
+    .pdf-clone tbody tr {
+      box-shadow: none !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      background: #fff !important;
+    }
+    .pdf-clone tbody td {
+      border: 1px solid #999 !important;
+      padding: 6px 6px !important;
+      overflow: hidden !important;
+      vertical-align: middle !important;
+      font-size: 12px !important;
+    }
+    /* 隐藏删除列 */
+    .pdf-clone th:last-child,
+    .pdf-clone td:last-child { display: none !important; }
+
+    .pdf-clone .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .pdf-clone .center { text-align: center; }
+
+    /* sum box */
+    .pdf-clone .sum { display: block; margin-top: 10px; }
+    .pdf-clone .sum-box {
+      width: 260px;
+      margin-left: auto;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+    .pdf-clone .sum-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 12px;
+    }
+    .pdf-clone .sum-row:last-child { border-bottom: none; }
+    .pdf-clone .sum-row .k { font-weight: 700; }
+    .pdf-clone .sum-row .v { font-weight: 800; }
+
+    /* brand/logo in pdf */
+    .pdf-clone .brand h1 { font-size: 20px; margin: 0; }
+    .pdf-clone .logo { height: 36px; }
   </style>
 
-  <!-- PDF生成库 -->
+  <!-- PDF生成ライブラリ -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
@@ -384,15 +558,16 @@
 
       <div class="actions">
         <button type="button" class="btn-mini" id="clearBtn">入力をリセット</button>
-        <button type="button" class="primary btn-mini" id="pdfBtn">PDFをダウンロード</button>
-        <button type="button" class="btn-mini" id="printBtn" title="PCで印刷したい場合">印刷</button>
+        <button type="button" class="primary btn-mini" id="pdfBtn">📄 PDFをダウンロード</button>
+        <button type="button" class="btn-mini" id="printBtn">🖨 印刷</button>
         <span class="hint" id="pdfHint"></span>
       </div>
     </div>
 
     <div id="pdfRoot">
       <div class="grid">
-        <!-- LEFT -->
+
+        <!-- LEFT: 基本情報 -->
         <div class="card">
           <div class="title">
             <h2>基本情報</h2>
@@ -444,20 +619,20 @@
               <option value="taxin" selected>おすすめ：税込（消費税10%込）で入力</option>
               <option value="taxex">税抜（消費税を別計算）で入力</option>
             </select>
-            <span class="small">税率：<b>10%</b>（固定）｜端数処理：<b>四捨五入（1円未満）</b></span>
+            <span class="small">税率：<b>10%</b>（固定）｜端数：<b>四捨五入</b></span>
           </div>
 
           <div class="footer-note">
-            <span class="screenonly">※「税込（10%込）」を選ぶと、作者さまは<b>税込単価</b>だけ入力すればOKです（税額は自動で内訳表示）。</span><br/>
-            当サイトはCléon専用の内部ツールであり、入力情報は厳重に管理され、外部への流出は一切ありません。
+            ※「税込（10%込）」を選ぶと、作者さまは<b>税込単価</b>だけ入力すればOKです。<br/>
+            当サイトはCléon専用の内部ツールです。入力情報は外部へ流出しません。
           </div>
         </div>
 
-        <!-- RIGHT -->
+        <!-- RIGHT: 明細 -->
         <div class="card">
           <div class="title">
             <h2>明細</h2>
-            <div class="small">単価 × 数量 → 金額（自動）</div>
+            <div class="small">単価 × 数量 → 金額（自動計算）</div>
           </div>
 
           <div class="table-wrap">
@@ -490,71 +665,66 @@
 
           <div class="sum">
             <div class="footer-note">
-              ※ 金額は自動計算です。PDF化する場合は「PDFをダウンロード」を押してください。<br/>
+              ※ 金額は自動計算です。「PDFをダウンロード」でPDFが作成できます。<br/>
               ※ 税込入力時：<b>合計（税込）</b>は入力金額の合算、その内訳として<b>小計（税抜）</b>と<b>消費税</b>を算出します。
             </div>
-
             <div class="sum-box">
-              <div class="sum-row">
-                <div class="k">小計</div>
-                <div class="v" id="subTotal">0 円</div>
-              </div>
-              <div class="sum-row">
-                <div class="k">消費税（10%）</div>
-                <div class="v" id="tax">0 円</div>
-              </div>
-              <div class="sum-row">
-                <div class="k">合計</div>
-                <div class="v" id="grandTotal">0 円</div>
-              </div>
+              <div class="sum-row"><div class="k">小計</div><div class="v" id="subTotal">0 円</div></div>
+              <div class="sum-row"><div class="k">消費税（10%）</div><div class="v" id="tax">0 円</div></div>
+              <div class="sum-row"><div class="k">合計</div><div class="v" id="grandTotal">0 円</div></div>
             </div>
           </div>
-
         </div>
+
       </div>
     </div><!-- /pdfRoot -->
-  </div>
+  </div><!-- /wrap -->
 
 <script>
-  // helpers
-  const yen = (n)=> (Number.isFinite(n) ? n : 0).toLocaleString("ja-JP") + " 円";
-  const toInt = (v)=> {
-    if (v === null || v === undefined) return 0;
-    const s = String(v).replace(/[^\d.-]/g,'');
+  /* ============================================================
+     Helpers
+  ============================================================ */
+  const yen = n => (Number.isFinite(n) ? n : 0).toLocaleString("ja-JP") + " 円";
+  const toInt = v => {
+    const s = String(v ?? "").replace(/[^\d.-]/g, "");
     const n = Number(s);
     return Number.isFinite(n) ? n : 0;
   };
-  const roundYen = (n)=> Math.round(n);
+  const roundYen = n => Math.round(n);
 
-  // placeholder control
+  /* Placeholder clear/restore for PDF & print */
   const _phBackup = new Map();
-  function clearPlaceholders(){
-    document.querySelectorAll("[data-ph], .name, .unit, .qty").forEach(el=>{
+  function clearPlaceholders() {
+    document.querySelectorAll("[data-ph], input.name, input.unit, input.qty").forEach(el => {
       _phBackup.set(el, el.getAttribute("placeholder") || "");
       el.setAttribute("placeholder", "");
     });
   }
-  function restorePlaceholders(){
-    _phBackup.forEach((val, el)=>{
-      try{ el.setAttribute("placeholder", val); }catch(e){}
+  function restorePlaceholders() {
+    _phBackup.forEach((val, el) => {
+      try { el.setAttribute("placeholder", val); } catch(e) {}
     });
     _phBackup.clear();
   }
 
-  // state
-  const tbody = document.getElementById("tbody");
-  const addRowBtn = document.getElementById("addRowBtn");
-  const clearBtn = document.getElementById("clearBtn");
-  const printBtn = document.getElementById("printBtn");
-  const pdfBtn = document.getElementById("pdfBtn");
-  const pdfHint = document.getElementById("pdfHint");
-  const modeSel = document.getElementById("mode");
-
+  /* ============================================================
+     DOM refs
+  ============================================================ */
+  const tbody      = document.getElementById("tbody");
+  const addRowBtn  = document.getElementById("addRowBtn");
+  const clearBtn   = document.getElementById("clearBtn");
+  const printBtn   = document.getElementById("printBtn");
+  const pdfBtn     = document.getElementById("pdfBtn");
+  const pdfHint    = document.getElementById("pdfHint");
+  const modeSel    = document.getElementById("mode");
   const subTotalEl = document.getElementById("subTotal");
-  const taxEl = document.getElementById("tax");
+  const taxEl      = document.getElementById("tax");
   const grandTotalEl = document.getElementById("grandTotal");
 
-  function makeRow(i){
+  /* ============================================================
+     Row management
+  ============================================================ */
+  function makeRow(i) {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="center no">${i}</td>
@@ -564,30 +734,28 @@
       <td class="num amount">0 円</td>
       <td class="center"><button type="button" class="btn-mini del">×</button></td>
     `;
-    tr.querySelector(".del").addEventListener("click", ()=>{
-      tr.remove();
-      renumber();
-      recalc();
+    tr.querySelector(".del").addEventListener("click", () => {
+      tr.remove(); renumber(); recalc();
     });
-    tr.querySelectorAll("input").forEach(inp=> inp.addEventListener("input", recalc));
+    tr.querySelectorAll("input").forEach(inp => inp.addEventListener("input", recalc));
     return tr;
   }
 
-  function renumber(){
-    [...tbody.querySelectorAll("tr")].forEach((tr, idx)=>{
-      tr.querySelector(".no").textContent = String(idx+1);
+  function renumber() {
+    [...tbody.querySelectorAll("tr")].forEach((tr, idx) => {
+      tr.querySelector(".no").textContent = String(idx + 1);
     });
   }
 
-  function addRows(n){
+  function addRows(n) {
     const start = tbody.querySelectorAll("tr").length;
-    for(let k=0;k<n;k++) tbody.appendChild(makeRow(start + k + 1));
+    for (let k = 0; k < n; k++) tbody.appendChild(makeRow(start + k + 1));
     recalc();
   }
 
-  function recalc(){
+  function recalc() {
     let sumLine = 0;
-    [...tbody.querySelectorAll("tr")].forEach(tr=>{
+    [...tbody.querySelectorAll("tr")].forEach(tr => {
       const unit = toInt(tr.querySelector(".unit").value);
       const qty  = Math.max(0, toInt(tr.querySelector(".qty").value || 0));
       const amt  = roundYen(unit * qty);
@@ -598,107 +766,156 @@
     const mode = modeSel.value;
     const taxRate = 0.10;
 
-    if(mode === "taxex"){
-      const sub = roundYen(sumLine);
-      const tax = roundYen(sub * taxRate);
+    if (mode === "taxex") {
+      const sub   = roundYen(sumLine);
+      const tax   = roundYen(sub * taxRate);
       const total = sub + tax;
-      subTotalEl.textContent = yen(sub);
-      taxEl.textContent = yen(tax);
+      subTotalEl.textContent   = yen(sub);
+      taxEl.textContent        = yen(tax);
       grandTotalEl.textContent = yen(total);
-    }else{
+    } else {
       const total = roundYen(sumLine);
-      const sub = roundYen(total / (1 + taxRate));
-      const tax = total - sub;
-      subTotalEl.textContent = yen(sub);
-      taxEl.textContent = yen(tax);
+      const sub   = roundYen(total / (1 + taxRate));
+      const tax   = total - sub;
+      subTotalEl.textContent   = yen(sub);
+      taxEl.textContent        = yen(tax);
       grandTotalEl.textContent = yen(total);
     }
   }
 
-  addRowBtn.addEventListener("click", ()=> addRows(1));
+  addRowBtn.addEventListener("click", () => addRows(1));
+  modeSel.addEventListener("change", recalc);
 
-  clearBtn.addEventListener("click", ()=>{
-    if(!confirm("入力内容をリセットします。よろしいですか？")) return;
-    document.getElementById("docNo").value = "";
-    document.getElementById("docDate").value = "";
-    document.getElementById("authorName").value = "";
-    document.getElementById("shopName").value = "";
-    document.getElementById("tel").value = "";
-    document.getElementById("addr").value = "";
+  /* ============================================================
+     Clear
+  ============================================================ */
+  clearBtn.addEventListener("click", () => {
+    if (!confirm("入力内容をリセットします。よろしいですか？")) return;
+    ["docNo","authorName","shopName","tel","addr"].forEach(id => {
+      document.getElementById(id).value = "";
+    });
+    const d = new Date();
+    document.getElementById("docDate").value =
+      `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
     modeSel.value = "taxin";
     tbody.innerHTML = "";
     addRows(6);
   });
 
-  modeSel.addEventListener("change", recalc);
-
-  // print
-  printBtn.addEventListener("click", ()=>{
+  /* ============================================================
+     Print
+  ============================================================ */
+  printBtn.addEventListener("click", () => {
     clearPlaceholders();
     window.print();
-    setTimeout(restorePlaceholders, 1200);
+    setTimeout(restorePlaceholders, 1500);
   });
 
-  // ✅ download PDF：让版式完全等于打印（强制 pdf-mode）
-  async function downloadPDF(){
-    if(!window.html2pdf){
-      alert("PDF生成ライブラリの読み込みに失敗しました。通信環境をご確認ください。");
-      return;
-    }
-    pdfBtn.disabled = true;
-    pdfHint.textContent = "PDFを作成中…";
+  /* ============================================================
+     Device detection
+  ============================================================ */
+  function isAndroid() {
+    return /android/i.test(navigator.userAgent);
+  }
+  function isIOS() {
+    return /iP(hone|ad|od)/i.test(navigator.userAgent);
+  }
+  function isMobile() {
+    return isAndroid() || isIOS();
+  }
 
-    clearPlaceholders();
+  /* ============================================================
+     PDF filename
+  ============================================================ */
+  function makePDFFilename() {
+    const docNo  = (document.getElementById("docNo").value || "").trim();
+    const author = (document.getElementById("authorName").value || "").trim();
+    const d      = (document.getElementById("docDate").value || "").trim();
+    const base   = docNo ? `納品書_${docNo}` : "納品書";
+    const tail   = [author, d].filter(Boolean).join("_");
+    return (tail ? `${base}_${tail}` : base) + ".pdf";
+  }
 
-    // clone + force pdf-mode
-    const src = document.getElementById("pdfRoot");
+  /* ============================================================
+     Build PDF clone DOM
+     ✅ KEY FIX C: Clone pdfRoot + apply .pdf-clone CSS class
+       (completely independent from mobile screen CSS)
+  ============================================================ */
+  function buildPDFClone() {
+    const src   = document.getElementById("pdfRoot");
     const clone = src.cloneNode(true);
 
-    // 包一层，打上 pdf-mode，让CSS强制“打印同款表格”
+    // Remove delete buttons (not needed in PDF)
+    clone.querySelectorAll(".del, .table-actions").forEach(el => el.remove());
+
+    // Wrap with pdf-clone class
     const wrapper = document.createElement("div");
-    wrapper.className = "pdf-mode";
+    wrapper.className = "pdf-clone";
     wrapper.appendChild(clone);
 
-    // render host (offscreen)
+    // Host element (off-screen)
     const host = document.createElement("div");
-    host.style.position = "fixed";
-    host.style.left = "-99999px";
-    host.style.top = "0";
-    host.style.width = "1100px";   // ✅ A4 视觉稳定
-    host.style.background = "#fff";
+    host.style.cssText = "position:fixed;left:-99999px;top:0;background:#fff;z-index:-1;";
     host.appendChild(wrapper);
+    return { host, wrapper };
+  }
+
+  /* ============================================================
+     Download PDF (Chrome/Edge/Firefox/Safari desktop)
+     Fallback: window.print() for Android & unstable browsers
+  ============================================================ */
+  async function downloadPDF() {
+    // ✅ KEY FIX D: Android fallback — use print dialog
+    if (isAndroid()) {
+      showAndroidPrintDialog();
+      return;
+    }
+
+    if (!window.html2pdf) {
+      alert("PDF生成ライブラリの読み込みに失敗しました。\n「印刷」ボタンから印刷 → PDFに保存 をお試しください。");
+      return;
+    }
+
+    pdfBtn.disabled = true;
+    pdfHint.textContent = "PDFを作成中…";
+    clearPlaceholders();
+
+    const { host, wrapper } = buildPDFClone();
     document.body.appendChild(host);
 
-    const fileName = (() => {
-      const docNo = (document.getElementById("docNo").value || "").trim();
-      const author = (document.getElementById("authorName").value || "").trim();
-      const d = (document.getElementById("docDate").value || "").trim();
-      const base = docNo ? `納品書_${docNo}` : "納品書";
-      const tail = [author, d].filter(Boolean).join("_");
-      return (tail ? `${base}_${tail}` : base) + ".pdf";
-    })();
-
-    try{
+    try {
       await html2pdf()
         .set({
-          margin: [12, 12, 12, 12],
-          filename: fileName,
-          image: { type: "jpeg", quality: 0.98 },
+          margin: [0, 0, 0, 0],
+          filename: makePDFFilename(),
+          image: { type: "jpeg", quality: 0.97 },
           html2canvas: {
             scale: 2,
             useCORS: true,
             backgroundColor: "#ffffff",
             scrollY: 0,
-            windowWidth: 1100
+            windowWidth: 794,
+            width: 794,
           },
           jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
           pagebreak: { mode: ["css", "legacy"] }
         })
         .from(wrapper)
         .save();
-    }catch(e){
-      alert("PDFの作成に失敗しました。別のブラウザ（Chrome/Edge）でお試しください。");
-    }finally{
+    } catch(e) {
+      console.error("html2pdf error:", e);
+      // Fallback to print
+      const doFallback = confirm(
+        "PDFの自動生成に失敗しました。\n" +
+        "「印刷」ダイアログを開いて「PDFに保存」する方法でもPDFを作成できます。\n\n" +
+        "今すぐ印刷ダイアログを開きますか？"
+      );
+      if (doFallback) {
+        clearPlaceholders();
+        window.print();
+        setTimeout(restorePlaceholders, 1500);
+      }
+    } finally {
       document.body.removeChild(host);
       restorePlaceholders();
       pdfBtn.disabled = false;
@@ -706,14 +923,127 @@
     }
   }
 
+  /* ============================================================
+     Android fallback: open a print-ready window
+     ✅ KEY FIX D: A4表格版式 in new window → user taps "Save as PDF"
+  ============================================================ */
+  function showAndroidPrintDialog() {
+    // Collect current input values
+    const docNo     = document.getElementById("docNo").value;
+    const docDate   = document.getElementById("docDate").value;
+    const authorName = document.getElementById("authorName").value;
+    const shopName  = document.getElementById("shopName").value;
+    const tel       = document.getElementById("tel").value;
+    const addr      = document.getElementById("addr").value;
+    const mode      = modeSel.value;
+
+    // Collect rows
+    const rows = [...tbody.querySelectorAll("tr")].map(tr => ({
+      no:   tr.querySelector(".no").textContent,
+      name: tr.querySelector(".name").value,
+      unit: tr.querySelector(".unit").value,
+      qty:  tr.querySelector(".qty").value,
+      amt:  tr.querySelector(".amount").textContent,
+    }));
+
+    const subTotal   = subTotalEl.textContent;
+    const tax        = taxEl.textContent;
+    const grandTotal = grandTotalEl.textContent;
+
+    const rowsHTML = rows.map(r => `
+      <tr>
+        <td style="text-align:center">${r.no}</td>
+        <td>${escHtml(r.name)}</td>
+        <td style="text-align:right">${escHtml(r.unit)}</td>
+        <td style="text-align:right">${escHtml(r.qty)}</td>
+        <td style="text-align:right">${r.amt}</td>
+      </tr>`).join("");
+
+    const printWin = window.open("", "_blank");
+    if (!printWin) {
+      alert("ポップアップがブロックされました。\nブラウザのポップアップ許可設定をご確認の上、もう一度お試しください。");
+      return;
+    }
+
+    printWin.document.write(`<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>納品書</title>
+<style>
+  @page{size:A4;margin:12mm}
+  *{box-sizing:border-box}
+  body{margin:0;padding:20px;font-family:"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;font-size:13px;color:#111;background:#fff}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{font-size:12px;color:#555;margin-bottom:18px}
+  .info-grid{display:grid;grid-template-columns:130px 1fr;gap:6px 10px;margin-bottom:18px;font-size:13px}
+  .info-grid .label{color:#555;font-weight:700}
+  .dest-box{border:1px solid #ccc;border-radius:4px;padding:6px 10px}
+  table{width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:14px}
+  col.no{width:36px}col.unit{width:110px}col.qty{width:65px}col.amount{width:120px}
+  th{background:#eee;font-size:12px;padding:7px 6px;border:1px solid #999;white-space:nowrap}
+  td{border:1px solid #999;padding:6px 6px;font-size:12px;vertical-align:middle}
+  .right{text-align:right}.center{text-align:center}
+  .sum-box{width:260px;margin-left:auto;border:1px solid #ccc;border-radius:4px;padding:8px 10px}
+  .sum-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #e5e7eb;font-size:12px}
+  .sum-row:last-child{border-bottom:none}
+  .sum-row .k{font-weight:700}.sum-row .v{font-weight:800}
+  .print-btn{display:block;margin:20px auto 0;padding:14px 32px;background:#0ea5a4;color:#fff;border:0;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer}
+  @media print{.print-btn{display:none}}
+</style>
+</head><body>
+<h1>納品書</h1>
+<div class="sub">澄和創藝合同会社</div>
+<div class="info-grid">
+  <div class="label">宛先</div>
+  <div class="dest-box"><b>澄和創藝合同会社</b><br/><span style="font-size:11px;color:#555">〒185-0032 東京都国分寺市日吉町2-34-14 2G号室</span></div>
+  <div class="label">納品書番号</div><div>${escHtml(docNo) || "—"}</div>
+  <div class="label">納品日</div><div>${escHtml(docDate) || "—"}</div>
+  <div class="label">姓名</div><div>${escHtml(authorName) || "—"}</div>
+  <div class="label">屋号</div><div>${escHtml(shopName) || "—"}</div>
+  <div class="label">TEL</div><div>${escHtml(tel) || "—"}</div>
+  ${addr ? `<div class="label">住所</div><div>${escHtml(addr)}</div>` : ""}
+</div>
+<table>
+  <colgroup>
+    <col class="no"><col><col class="unit"><col class="qty"><col class="amount">
+  </colgroup>
+  <thead><tr>
+    <th class="center">No</th>
+    <th>品名 / 作品名</th>
+    <th class="right">単価</th>
+    <th class="right">数量</th>
+    <th class="right">金額</th>
+  </tr></thead>
+  <tbody>${rowsHTML}</tbody>
+</table>
+<div class="sum-box">
+  <div class="sum-row"><div class="k">小計</div><div class="v">${subTotal}</div></div>
+  <div class="sum-row"><div class="k">消費税（10%）</div><div class="v">${tax}</div></div>
+  <div class="sum-row"><div class="k">合計</div><div class="v">${grandTotal}</div></div>
+</div>
+<button class="print-btn" onclick="window.print()">🖨 印刷 / PDFに保存</button>
+</body></html>`);
+    printWin.document.close();
+  }
+
+  function escHtml(str) {
+    return String(str || "")
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;")
+      .replace(/\n/g,"<br/>");
+  }
+
   pdfBtn.addEventListener("click", downloadPDF);
 
-  // init date
-  const d = new Date();
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth()+1).padStart(2,"0");
-  const dd = String(d.getDate()).padStart(2,"0");
-  document.getElementById("docDate").value = `${yyyy}-${mm}-${dd}`;
+  /* ============================================================
+     Init
+  ============================================================ */
+  const now = new Date();
+  document.getElementById("docDate").value =
+    `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
 
   addRows(6);
 </script>
