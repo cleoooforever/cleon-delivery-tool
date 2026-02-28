@@ -4,1025 +4,469 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />
   <title>納品書 | 澄和創藝合同会社</title>
-
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#f6f7f9;
-      --card:#fff;
-      --text:#111827;
-      --muted:#6b7280;
-      --line:#e5e7eb;
-      --accent:#0ea5a4;
-      --shadow:0 8px 22px rgba(0,0,0,.04);
+      --bg:#f8f6f2; --card:#fff; --text:#1a1612; --muted:#7c7168;
+      --line:#e8e3db; --accent:#8b6f4e; --accent2:#c9a97a; --deep:#3d2b1f;
+      --shadow:0 4px 24px rgba(60,40,20,.07);
     }
-    *,*::before,*::after{ box-sizing:border-box; }
-    html,body{ width:100%; max-width:100%; }
-    body{
-      margin:0;
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",Roboto,sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      -webkit-text-size-adjust:100%;
-    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html,body{width:100%;max-width:100%;}
+    body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);-webkit-text-size-adjust:100%;min-height:100vh;}
 
-    /* Layout */
-    .wrap{ max-width:1100px; margin:0 auto; padding:18px 16px 64px; }
-    .topbar{
-      display:flex; gap:10px; flex-wrap:wrap;
-      align-items:center; justify-content:space-between;
-      margin:10px 0 16px;
-    }
-    .brand{ display:flex; flex-direction:column; gap:4px; }
-    .brandline{ display:flex; align-items:center; gap:14px; }
-    .logo{ height:48px; width:auto; display:block; }
-    .brand h1{ margin:0; font-size:26px; letter-spacing:.5px; }
-    .sub{ color:var(--muted); font-size:13px; }
-    .actions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    /* LOGIN */
+    #loginScreen{position:fixed;inset:0;z-index:1000;background:var(--deep);display:flex;align-items:center;justify-content:center;flex-direction:column;padding:24px;transition:opacity .6s ease,transform .6s ease;}
+    #loginScreen.hide{opacity:0;pointer-events:none;transform:translateY(-16px);}
+    .login-deco{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+    .login-deco::before{content:'';position:absolute;top:-40%;left:-20%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(201,169,122,.12) 0%,transparent 70%);}
+    .login-deco::after{content:'';position:absolute;bottom:-30%;right:-10%;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(139,111,78,.10) 0%,transparent 70%);}
+    .login-box{position:relative;z-index:1;width:100%;max-width:420px;text-align:center;animation:fadeUp .8s ease both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+    .login-logo{height:52px;width:auto;display:block;margin:0 auto 20px;filter:brightness(0) invert(1) opacity(.9);}
+    .login-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;color:#f0ebe3;letter-spacing:2px;margin-bottom:6px;}
+    .login-subtitle{font-size:11px;color:rgba(240,235,227,.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:40px;}
+    .login-field{position:relative;margin-bottom:14px;}
+    .login-field input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(201,169,122,.3);border-radius:14px;padding:16px 48px 16px 20px;font-size:15px;color:#f0ebe3;font-family:'Noto Sans JP',sans-serif;letter-spacing:2px;outline:none;transition:border-color .2s,background .2s;}
+    .login-field input::placeholder{color:rgba(240,235,227,.25);letter-spacing:0;}
+    .login-field input:focus{border-color:rgba(201,169,122,.7);background:rgba(255,255,255,.09);}
+    .toggle-pw{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(240,235,227,.4);font-size:18px;padding:4px;}
+    .login-btn{width:100%;background:linear-gradient(135deg,var(--accent2) 0%,var(--accent) 100%);border:none;border-radius:14px;padding:16px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;letter-spacing:2px;font-family:'Noto Sans JP',sans-serif;transition:opacity .2s,transform .15s;box-shadow:0 4px 20px rgba(139,111,78,.35);}
+    .login-btn:active{transform:translateY(1px);opacity:.9;}
+    .login-error{margin-top:12px;font-size:13px;color:#e8917a;min-height:20px;}
+    .login-hint{margin-top:36px;font-size:11px;color:rgba(240,235,227,.2);line-height:1.8;}
 
-    button{
-      border:1px solid var(--line);
-      background:#fff;
-      padding:10px 14px;
-      border-radius:12px;
-      cursor:pointer;
-      font-weight:700;
-      font-size:14px;
-      -webkit-tap-highlight-color:transparent;
-    }
-    button.primary{ background:var(--accent); border-color:var(--accent); color:#fff; }
-    button:disabled{ opacity:.6; cursor:not-allowed; }
-    button:active:not(:disabled){ transform:translateY(1px); }
-    .btn-mini{ padding:8px 12px; border-radius:12px; font-weight:800; }
-    .hint{ font-size:12px; color:var(--muted); }
+    /* MAIN */
+    #mainApp{opacity:0;transition:opacity .5s ease .1s;}
+    #mainApp.show{opacity:1;}
+    .wrap{max-width:1140px;margin:0 auto;padding:20px 16px 72px;}
 
-    .grid{
-      display:grid;
-      grid-template-columns:minmax(320px, 400px) 1fr;
-      gap:14px;
-      align-items:start;
-    }
-    @media (max-width:900px){
-      .grid{ grid-template-columns:1fr; }
-    }
+    .topbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--line);}
+    .brand{display:flex;align-items:center;gap:16px;}
+    .logo{height:44px;width:auto;display:block;}
+    .brand-text h1{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;letter-spacing:1px;color:var(--deep);line-height:1.1;}
+    .brand-text .sub{color:var(--muted);font-size:12px;margin-top:2px;letter-spacing:.3px;}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
 
-    .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:16px;
-      box-shadow:var(--shadow);
-    }
-    .sec-title{
-      display:flex; align-items:baseline; justify-content:space-between;
-      gap:12px; flex-wrap:wrap;
-      border-bottom:1px solid var(--line);
-      padding-bottom:10px; margin-bottom:12px;
-    }
-    .sec-title h2{ margin:0; font-size:18px; }
-    .small{ font-size:12px; color:var(--muted); }
+    button{border:1px solid var(--line);background:#fff;padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:700;font-size:13px;font-family:'Noto Sans JP',sans-serif;color:var(--text);transition:background .15s,transform .1s;-webkit-tap-highlight-color:transparent;}
+    button:hover:not(:disabled){background:#f5f0e8;}
+    button.primary{background:linear-gradient(135deg,var(--accent2) 0%,var(--accent) 100%);border-color:transparent;color:#fff;box-shadow:0 3px 14px rgba(139,111,78,.3);}
+    button.primary:hover:not(:disabled){opacity:.92;background:linear-gradient(135deg,var(--accent2) 0%,var(--accent) 100%);}
+    button:disabled{opacity:.5;cursor:not-allowed;}
+    button:active:not(:disabled){transform:translateY(1px);}
+    .btn-mini{padding:9px 14px;border-radius:10px;font-weight:800;}
+    .hint{font-size:12px;color:var(--muted);}
 
-    .row{
-      display:grid;
-      grid-template-columns:150px 1fr;
-      gap:8px;
-      align-items:center;
-      margin:8px 0;
-    }
-    .row label{ color:var(--muted); font-size:13px; }
+    .send-banner{background:linear-gradient(135deg,#fdf8f2 0%,#f8f2e8 100%);border:1px solid var(--accent2);border-radius:18px;padding:18px 22px;margin-bottom:16px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;box-shadow:0 2px 12px rgba(139,111,78,.08);}
+    .send-banner-icon{font-size:30px;flex-shrink:0;}
+    .send-banner-body{flex:1;min-width:200px;}
+    .send-banner-body strong{display:block;font-size:14px;font-weight:900;color:var(--deep);margin-bottom:5px;}
+    .send-banner-body p{font-size:13px;color:var(--muted);line-height:1.8;margin:0;}
+    .send-banner-body a{color:var(--accent);font-weight:700;text-decoration:none;border-bottom:1px solid rgba(139,111,78,.3);transition:color .15s;}
+    .send-banner-body a:hover{color:var(--deep);}
+    .send-banner-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+    .copy-btn{font-size:12px;padding:8px 14px;border-radius:9px;font-weight:800;background:#fff;border:1px solid var(--accent2);color:var(--accent);cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:background .15s;}
+    .copy-btn:hover{background:#fdf8f2;}
+    .copy-btn.copied{color:#059669;border-color:#a7f3d0;background:#ecfdf5;}
 
-    input,textarea,select{
-      width:100%;
-      min-width:0;
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:10px 12px;
-      font-size:16px;
-      background:#fff;
-      color:var(--text);
-      font-family:inherit;
-    }
-    textarea{ min-height:72px; resize:vertical; }
+    .grid{display:grid;grid-template-columns:minmax(300px,390px) 1fr;gap:16px;align-items:start;}
+    @media(max-width:900px){.grid{grid-template-columns:1fr;}}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:var(--shadow);}
+    .sec-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:16px;}
+    .sec-title h2{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--deep);letter-spacing:.5px;}
+    .small{font-size:12px;color:var(--muted);}
+    .row{display:grid;grid-template-columns:130px 1fr;gap:8px;align-items:center;margin:9px 0;}
+    .row label{color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.3px;}
+    input,textarea,select{width:100%;min-width:0;border:1px solid var(--line);border-radius:10px;padding:10px 13px;font-size:15px;background:#fdfcfa;color:var(--text);font-family:'Noto Sans JP',sans-serif;transition:border-color .15s,box-shadow .15s;outline:none;}
+    input:focus,textarea:focus,select:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(201,169,122,.12);}
+    textarea{min-height:72px;resize:vertical;}
+    input[type="date"]{max-width:100%;width:100%;min-width:0;-webkit-appearance:none;appearance:none;}
+    .dest-box{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:#fdfcfa;}
+    .dest-name{font-weight:900;font-size:14px;color:var(--deep);}
+    .dest-addr{margin-top:5px;color:var(--muted);font-size:12px;line-height:1.7;white-space:pre-line;}
+    .pill{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px 14px;border:1px dashed var(--accent2);border-radius:14px;background:linear-gradient(135deg,#fdf8f2 0%,#faf5ee 100%);margin-top:12px;}
+    .footer-note{margin-top:14px;color:var(--muted);font-size:12px;line-height:1.8;}
 
-    input[type="date"]{
-      max-width:100%;
-      width:100%;
-      min-width:0;
-      -webkit-appearance:none;
-      appearance:none;
-    }
+    .table-wrap{border:1px solid var(--line);border-radius:14px;background:#fff;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+    table{width:100%;border-collapse:collapse;background:#fff;table-layout:fixed;}
+    col.no{width:52px;} col.unit{width:115px;} col.qty{width:86px;} col.amount{width:126px;} col.del{width:62px;} col.name{width:auto;}
+    thead th{background:linear-gradient(to bottom,#f8f5f0,#f2ede6);color:var(--deep);font-weight:900;font-size:12px;padding:11px 8px;border-bottom:1px solid var(--line);white-space:nowrap;letter-spacing:.3px;}
+    tbody td{border-bottom:1px solid var(--line);padding:8px;vertical-align:middle;font-size:14px;overflow:hidden;}
+    tbody tr:last-child td{border-bottom:none;}
+    tbody tr:hover td{background:#fdfaf6;}
+    .num{text-align:right;font-variant-numeric:tabular-nums;}
+    .center{text-align:center;}
+    td input{width:100%;min-width:0;padding:7px 10px;font-size:14px;border-radius:8px;}
+    td.unitcell input,td.qtycell input{text-align:right;}
+    .table-actions{margin-top:10px;display:flex;justify-content:center;}
+    .table-actions button{padding:11px 20px;border-radius:12px;font-weight:900;}
 
-    .dest-box{
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:10px 12px;
-      background:#fff;
-    }
-    .dest-name{ font-weight:900; }
-    .dest-addr{
-      margin-top:6px;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.6;
-      white-space:pre-line;
-    }
-
-    .pill{
-      display:flex; gap:8px; align-items:center; flex-wrap:wrap;
-      padding:10px 12px;
-      border:1px dashed var(--line);
-      border-radius:14px;
-      background:#fafafa;
-      margin-top:10px;
-    }
-    .footer-note{ margin-top:12px; color:var(--muted); font-size:12px; line-height:1.7; }
-
-    .table-wrap{
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:#fff;
-      overflow-x:auto;
-      -webkit-overflow-scrolling:touch;
-    }
-    table{
-      width:100%;
-      border-collapse:collapse;
-      background:#fff;
-      table-layout:fixed;
-    }
-
-    col.no     { width:56px; }
-    col.unit   { width:120px; }
-    col.qty    { width:90px; }
-    col.amount { width:130px; }
-    col.del    { width:66px; }
-    col.name   { width:auto; }
-
-    thead th{
-      background:#f3f4f6;
-      color:#111;
-      font-weight:800;
-      font-size:13px;
-      padding:10px 8px;
-      border-bottom:1px solid var(--line);
-      white-space:nowrap;
-    }
-    tbody td{
-      border-bottom:1px solid var(--line);
-      padding:8px 8px;
-      vertical-align:middle;
-      font-size:14px;
-      overflow:hidden;
-    }
-    tbody tr:last-child td{ border-bottom:none; }
-    .num{ text-align:right; font-variant-numeric:tabular-nums; }
-    .center{ text-align:center; }
-
-    td input{
-      width:100%;
-      min-width:0;
-      padding:7px 10px;
-      font-size:14px;
-      border-radius:10px;
-    }
-    td.unitcell input, td.qtycell input{ text-align:right; }
-
-    .table-actions{ margin-top:10px; display:flex; justify-content:center; }
-    .table-actions button{ padding:12px 18px; border-radius:14px; font-weight:900; }
-
-    .sum{
-      margin-top:12px;
-      display:grid;
-      grid-template-columns:1fr 300px;
-      gap:12px;
-      align-items:start;
-    }
-    @media (max-width:900px){ .sum{ grid-template-columns:1fr; } }
-    .sum-box{
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:12px;
-      background:#fff;
-    }
-    .sum-row{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      padding:8px 0;
-      border-bottom:1px solid var(--line);
-      font-variant-numeric:tabular-nums;
-    }
-    .sum-row:last-child{ border-bottom:none; }
-    .sum-row .k{ color:#111; font-weight:800; }
-    .sum-row .v{ font-weight:900; }
-    .mode-badge{
-      display:inline-block;
-      font-size:12px;
-      font-weight:800;
-      padding:3px 10px;
-      border-radius:20px;
-      background:#e0f7f7;
-      color:#0ea5a4;
-      letter-spacing:.3px;
-    }
-    .mode-badge.taxex{
-      background:#fff3e0;
-      color:#d97706;
-    }
-    .mode-badge.totalnone{
-      background:#f3e8ff;
-      color:#7c3aed;
-    }
+    .sum{margin-top:14px;display:grid;grid-template-columns:1fr 300px;gap:14px;align-items:start;}
+    @media(max-width:900px){.sum{grid-template-columns:1fr;}}
+    .sum-box{border:1px solid var(--line);border-radius:16px;padding:14px;background:linear-gradient(135deg,#fdf8f2 0%,#fff 100%);box-shadow:var(--shadow);}
+    .sum-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;}
+    .sum-row:last-child{border-bottom:none;}
+    .sum-row .k{color:var(--muted);font-size:13px;font-weight:700;}
+    .sum-row .v{font-weight:900;font-size:14px;color:var(--deep);}
+    .sum-row.grand .k{color:var(--deep);font-size:14px;font-weight:900;}
+    .sum-row.grand .v{font-size:17px;color:var(--accent);}
+    .mode-badge{display:inline-block;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;background:#e8f4f4;color:#0e8a8a;letter-spacing:.3px;}
+    .mode-badge.taxex{background:#fff3e0;color:#c07000;}
+    .mode-badge.totalnone{background:#f0ebff;color:#6b3fa0;}
 
     /* Mobile */
-    body.is-mobile .row{
-      grid-template-columns:1fr;
-      gap:4px;
-      align-items:stretch;
-      margin:10px 0;
-    }
-    body.is-mobile .row label{
-      font-size:12px;
-      font-weight:700;
-      color:var(--muted);
-    }
-
-    body.is-mobile .table-wrap{ overflow:visible; border:0; background:transparent; }
-    body.is-mobile table{ min-width:0; background:transparent; }
-    body.is-mobile table,
-    body.is-mobile thead,
-    body.is-mobile tbody,
-    body.is-mobile tr,
-    body.is-mobile td{ display:block; width:100%; }
-    body.is-mobile thead{ display:none; }
-
-    body.is-mobile tbody tr{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:16px;
-      padding:12px;
-      margin:10px 0;
-      box-shadow:var(--shadow);
-    }
-    body.is-mobile tbody td{ border-bottom:0; padding:6px 0; overflow:visible; }
-
-    body.is-mobile tbody td:nth-child(1){
-      padding-top:0;
-      font-weight:900;
-      color:#111;
-      display:flex;
-      justify-content:center;
-    }
-    body.is-mobile tbody td:nth-child(2)::before{
-      content:"品名 / 作品名";
-      display:block;
-      color:var(--muted);
-      font-weight:800;
-      font-size:12px;
-      margin-bottom:6px;
-    }
-    body.is-mobile tbody td:nth-child(3),
-    body.is-mobile tbody td:nth-child(4),
-    body.is-mobile tbody td:nth-child(5),
-    body.is-mobile tbody td:nth-child(6){
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-    body.is-mobile tbody td:nth-child(3)::before{ content:"単価"; color:var(--muted); font-weight:800; font-size:12px; }
-    body.is-mobile tbody td:nth-child(4)::before{ content:"数量"; color:var(--muted); font-weight:800; font-size:12px; }
-    body.is-mobile tbody td:nth-child(5)::before{ content:"金額"; color:var(--muted); font-weight:800; font-size:12px; }
-    body.is-mobile tbody td:nth-child(6)::before{ content:"削除"; color:var(--muted); font-weight:800; font-size:12px; }
-
-    body.is-mobile tbody td:nth-child(3) input,
-    body.is-mobile tbody td:nth-child(4) input{ width:60%; text-align:right; }
-
-    body.is-mobile tbody td:nth-child(5){
-      padding-top:10px;
-      border-top:1px dashed var(--line);
-      margin-top:6px;
-    }
-    body.is-mobile .amount{ font-weight:950; }
-
-    body.is-mobile tbody td:nth-child(6) button{
-      padding:10px 14px;
-      border-radius:14px;
-      font-weight:900;
-    }
-
-    body.is-mobile input[type="date"]{
-      width:100%;
-      max-width:100%;
-      display:block;
-    }
+    body.is-mobile .row{grid-template-columns:1fr;gap:4px;align-items:stretch;margin:10px 0;}
+    body.is-mobile .row label{font-size:12px;font-weight:700;}
+    body.is-mobile .table-wrap{overflow:visible;border:0;background:transparent;}
+    body.is-mobile table{min-width:0;background:transparent;}
+    body.is-mobile table,body.is-mobile thead,body.is-mobile tbody,body.is-mobile tr,body.is-mobile td{display:block;width:100%;}
+    body.is-mobile thead{display:none;}
+    body.is-mobile tbody tr{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0;box-shadow:var(--shadow);}
+    body.is-mobile tbody td{border-bottom:0;padding:6px 0;overflow:visible;}
+    body.is-mobile tbody td:nth-child(1){padding-top:0;font-weight:900;color:var(--deep);display:flex;justify-content:center;}
+    body.is-mobile tbody td:nth-child(2)::before{content:"品名 / 作品名";display:block;color:var(--muted);font-weight:800;font-size:12px;margin-bottom:6px;}
+    body.is-mobile tbody td:nth-child(3),body.is-mobile tbody td:nth-child(4),body.is-mobile tbody td:nth-child(5),body.is-mobile tbody td:nth-child(6){display:flex;align-items:center;justify-content:space-between;gap:12px;}
+    body.is-mobile tbody td:nth-child(3)::before{content:"単価";color:var(--muted);font-weight:800;font-size:12px;}
+    body.is-mobile tbody td:nth-child(4)::before{content:"数量";color:var(--muted);font-weight:800;font-size:12px;}
+    body.is-mobile tbody td:nth-child(5)::before{content:"金額";color:var(--muted);font-weight:800;font-size:12px;}
+    body.is-mobile tbody td:nth-child(6)::before{content:"削除";color:var(--muted);font-weight:800;font-size:12px;}
+    body.is-mobile tbody td:nth-child(3) input,body.is-mobile tbody td:nth-child(4) input{width:60%;text-align:right;}
+    body.is-mobile tbody td:nth-child(5){padding-top:10px;border-top:1px dashed var(--line);margin-top:6px;}
+    body.is-mobile .amount{font-weight:950;}
+    body.is-mobile tbody td:nth-child(6) button{padding:10px 14px;border-radius:12px;}
+    body.is-mobile input[type="date"]{width:100%;max-width:100%;display:block;}
 
     /* Print */
-    @page { size:A4; margin:12mm; }
+    @page{size:A4;margin:12mm;}
     @media print{
-      body{ background:#fff; }
-      .wrap{ max-width:none; padding:0; }
-      .actions, .pill, .table-actions, .footer-note { display:none !important; }
-      .card{ box-shadow:none; border:0; border-radius:0; padding:0; }
-      .grid{ display:block !important; }
-      .topbar{ margin-bottom:14px; }
-
-      .table-wrap{
-        border:1px solid #aaa;
-        border-radius:0;
-        overflow:visible !important;
-        background:#fff !important;
-      }
-      table{
-        display:table !important;
-        width:100% !important;
-        border-collapse:collapse !important;
-        table-layout:fixed !important;
-        min-width:0 !important;
-      }
-      col.no     { width:38px !important; }
-      col.unit   { width:100px !important; }
-      col.qty    { width:65px !important; }
-      col.amount { width:115px !important; }
-      col.del    { width:0 !important; display:none !important; }
-
-      thead{ display:table-header-group !important; }
-      tbody{ display:table-row-group !important; }
-      tr{ display:table-row !important; page-break-inside:avoid !important; }
-      th,td{ display:table-cell !important; }
-      td::before{ content:none !important; }
-      tbody tr{
-        box-shadow:none !important;
-        border:0 !important;
-        border-radius:0 !important;
-        padding:0 !important;
-        margin:0 !important;
-        background:#fff !important;
-      }
-      thead th{
-        background:#efefef !important;
-        -webkit-print-color-adjust:exact;
-        print-color-adjust:exact;
-      }
-      .mode-badge{
-        -webkit-print-color-adjust:exact;
-        print-color-adjust:exact;
-      }
-      tbody td{
-        border:1px solid #aaa !important;
-        padding:6px 8px !important;
-        overflow:hidden !important;
-        vertical-align:middle !important;
-        font-size:12px !important;
-      }
-      th:last-child, td:last-child{ display:none !important; }
-
-      input,textarea,select{
-        border:0 !important;
-        padding:0 !important;
-        font-size:12px !important;
-        background:transparent !important;
-        -webkit-appearance:none;
-        appearance:none;
-        box-shadow:none !important;
-      }
-
-      .row{
-        grid-template-columns:140px 1fr !important;
-        gap:6px !important;
-        align-items:center !important;
-        margin:5px 0 !important;
-      }
-      .sum{ grid-template-columns:1fr !important; }
-      .sum-box{ width:260px; margin-left:auto; }
+      body{background:#fff;}
+      #loginScreen{display:none !important;}
+      .wrap{max-width:none;padding:0;}
+      .actions,.pill,.table-actions,.footer-note,.send-banner{display:none !important;}
+      .card{box-shadow:none;border:0;border-radius:0;padding:0;}
+      .grid{display:block !important;}
+      .topbar{margin-bottom:14px;border-bottom:1px solid #ccc;padding-bottom:10px;}
+      .table-wrap{border:1px solid #aaa;border-radius:0;overflow:visible !important;background:#fff !important;}
+      table{display:table !important;width:100% !important;border-collapse:collapse !important;table-layout:fixed !important;min-width:0 !important;}
+      col.no{width:38px !important;} col.unit{width:100px !important;} col.qty{width:65px !important;} col.amount{width:115px !important;} col.del{width:0 !important;display:none !important;}
+      thead{display:table-header-group !important;} tbody{display:table-row-group !important;}
+      tr{display:table-row !important;page-break-inside:avoid !important;}
+      th,td{display:table-cell !important;} td::before{content:none !important;}
+      tbody tr{box-shadow:none !important;border:0 !important;border-radius:0 !important;padding:0 !important;margin:0 !important;background:#fff !important;}
+      tbody tr:hover td{background:#fff !important;}
+      thead th{background:#efefef !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      tbody td{border:1px solid #aaa !important;padding:6px 8px !important;overflow:hidden !important;vertical-align:middle !important;font-size:12px !important;}
+      th:last-child,td:last-child{display:none !important;}
+      input,textarea,select{border:0 !important;padding:0 !important;font-size:12px !important;background:transparent !important;-webkit-appearance:none;appearance:none;box-shadow:none !important;}
+      .row{grid-template-columns:130px 1fr !important;gap:5px !important;align-items:center !important;margin:5px 0 !important;}
+      .sum{grid-template-columns:1fr !important;}
+      .sum-box{width:260px;margin-left:auto;background:#fff !important;box-shadow:none !important;}
+      .mode-badge{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
     }
   </style>
-
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 </head>
-
 <body>
+
+<div id="loginScreen">
+  <div class="login-deco"></div>
+  <div class="login-box">
+    <img src="cleon-logo.PNG" alt="Cleon arts and trade" class="login-logo" onerror="this.style.display='none'" />
+    <div class="login-title">Cléon arts &amp; trade</div>
+    <div class="login-subtitle">Delivery Note System</div>
+    <div class="login-field">
+      <input type="password" id="pwInput" placeholder="パスワードを入力してください" autocomplete="current-password" />
+      <button class="toggle-pw" type="button" id="togglePw" aria-label="show password">👁</button>
+    </div>
+    <button class="login-btn" id="loginBtn" type="button">入　る</button>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-hint">このページはCléon arts &amp; trade の作者さま専用ツールです。<br>お心当たりのない方はこのページをお閉じください。</div>
+  </div>
+</div>
+
+<div id="mainApp">
 <div class="wrap">
   <div class="topbar">
     <div class="brand">
-      <div class="brandline">
-        <img src="cleon-logo.PNG" alt="Cléon arts &amp; trade" class="logo" />
-        <div>
-          <h1>納品書</h1>
-          <div class="sub"><b>澄和創藝合同会社</b>　｜　PDFは右のボタンから作成できます。</div>
-        </div>
+      <img src="cleon-logo.PNG" alt="Cleon" class="logo" onerror="this.style.display='none'" />
+      <div class="brand-text">
+        <h1>納品書</h1>
+        <div class="sub">澄和創藝合同会社　|　Delivery Note</div>
       </div>
     </div>
     <div class="actions">
-      <button type="button" class="btn-mini" id="clearBtn">入力をリセット</button>
+      <button type="button" class="btn-mini" id="clearBtn">リセット</button>
       <button type="button" class="primary btn-mini" id="pdfBtn">📄 PDFをダウンロード</button>
       <button type="button" class="btn-mini" id="printBtn">🖨 印刷</button>
       <span class="hint" id="pdfHint"></span>
     </div>
   </div>
 
-  <div id="screenRoot">
-    <div class="grid">
+  <div class="send-banner">
+    <div class="send-banner-icon">📬</div>
+    <div class="send-banner-body">
+      <strong>PDFを作成後、下記いずれかの方法でご送付ください</strong>
+      <p>✉️ メール：<a href="mailto:info@cleonarts.com">info@cleonarts.com</a>　　💬 LINEにてそのままお送りいただいても大丈夫です。<br>ご不明な点はお気軽にご連絡ください。</p>
+    </div>
+    <div class="send-banner-actions">
+      <button class="copy-btn" id="copyMailBtn" type="button">📋 アドレスをコピー</button>
+      <a href="mailto:info@cleonarts.com?subject=納品書の送付" style="text-decoration:none;">
+        <button class="copy-btn" type="button" style="color:#059669;border-color:#a7f3d0;">✉️ メールを開く</button>
+      </a>
+    </div>
+  </div>
 
-      <!-- LEFT -->
-      <div class="card">
-        <div class="sec-title">
-          <h2>基本情報</h2>
-          <div class="small">作者さまが入力 → PDF保存 → メール/LINE等で送信</div>
-        </div>
+  <div class="grid">
+    <div class="card">
+      <div class="sec-title"><h2>基本情報</h2><div class="small">必要事項をご入力ください</div></div>
+      <div class="row"><label>宛先</label><div class="dest-box"><div class="dest-name">澄和創藝合同会社</div><div class="dest-addr">〒185-0032 東京都国分寺市日吉町2-34-14 2G号室</div></div></div>
+      <div class="row"><label>納品書番号（任意）</label><input id="docNo" placeholder="例：2026-001" data-ph="例：2026-001" /></div>
+      <div class="row"><label>納品日</label><input id="docDate" type="date" /></div>
+      <div class="row"><label>姓名</label><input id="authorName" placeholder="例：澄和 花子" data-ph="例：澄和 花子" /></div>
+      <div class="row"><label>屋号</label><input id="shopName" placeholder="例：atelier " data-ph="例：atelier " /></div>
+      <div class="row"><label>TEL</label><input id="tel" placeholder="例：090-xxxx-xxxx" data-ph="例：090-xxxx-xxxx" /></div>
+      <div class="row"><label>住所（任意）</label><textarea id="addr" placeholder="例：〒xxx-xxxx 東京都…" data-ph="例：〒xxx-xxxx 東京都…"></textarea></div>
+      <div class="pill">
+        <span style="font-size:13px;font-weight:700;color:var(--muted);">入力方式：</span>
+        <select id="mode">
+          <option value="taxin" selected>税込（10%込）</option>
+          <option value="taxex">税抜（10%別）</option>
+          <option value="totalnone">総額（税区分なし）</option>
+        </select>
+      </div>
+      <div class="footer-note">
+        ※「税込」「税抜」のどちらか分かる場合は該当する方をお選びください。<br/>
+        ※税区分の記載がない場合は「総額（税区分なし）」をご選択いただけます。その場合、入力いただいた金額をそのまま精算基準額として扱います。<br/>
+        ※当フォームはCléon専用の内部ツールです。入力情報は外部へ公開されませんのでご安心ください。
+      </div>
+    </div>
 
-        <div class="row">
-          <label>宛先</label>
-          <div class="dest-box">
-            <div class="dest-name">澄和創藝合同会社</div>
-            <div class="dest-addr">〒185-0032 東京都国分寺市日吉町2-34-14 2G号室</div>
-          </div>
-        </div>
-
-        <div class="row">
-          <label>納品書番号（任意）</label>
-          <input id="docNo" placeholder="例：2026-001" data-ph="例：2026-001" />
-        </div>
-
-        <div class="row">
-          <label>納品日</label>
-          <input id="docDate" type="date" />
-        </div>
-
-        <div class="row">
-          <label>姓名</label>
-          <input id="authorName" placeholder="例：澄和 花子" data-ph="例：澄和 花子" />
-        </div>
-
-        <div class="row">
-          <label>屋号</label>
-          <input id="shopName" placeholder="例：atelier " data-ph="例：atelier " />
-        </div>
-
-        <div class="row">
-          <label>TEL</label>
-          <input id="tel" placeholder="例：090-xxxx-xxxx" data-ph="例：090-xxxx-xxxx" />
-        </div>
-
-        <div class="row">
-          <label>住所（任意）</label>
-          <textarea id="addr" placeholder="例：〒xxx-xxxx 東京都…" data-ph="例：〒xxx-xxxx 東京都…"></textarea>
-        </div>
-
-        <div class="pill">
-          <span>入力方式：</span>
-          <select id="mode">
-            <option value="taxin" selected>税込（10%込）</option>
-            <option value="taxex">税抜（10%別）</option>
-            <option value="totalnone">総額（税区分なし）</option>
-          </select>
-        </div>
-
+    <div class="card">
+      <div class="sec-title"><h2>明細</h2><div class="small">単価 × 数量 → 金額（自動計算）</div></div>
+      <div class="table-wrap">
+        <table id="itemsTable">
+          <colgroup><col class="no"><col class="name"><col class="unit"><col class="qty"><col class="amount"><col class="del"></colgroup>
+          <thead><tr><th class="center">No</th><th>品名 / 作品名</th><th class="num">単価</th><th class="num">数量</th><th class="num">金額</th><th class="center">削除</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="table-actions"><button type="button" class="btn-mini" id="addRowBtn">＋ 行を追加</button></div>
+      <div class="sum">
         <div class="footer-note">
-          ※「税込」「税抜」のどちらか分かる場合は該当する方をお選びください。<br/>
-          ※税区分の記載がない場合は「総額（税区分なし）」をご選択いただけます。その場合、入力いただいた金額をそのまま精算基準額として扱います。<br/>
-          ※当フォームはCléon専用の内部ツールです。入力情報は外部へ公開されませんのでご安心ください。
+          ※ 金額は自動計算です。「PDFをダウンロード」でPDFが作成できます。<br/>
+          ※ 税込入力時：合計は入力金額の合算、内訳として小計と内消費税を算出します。
+        </div>
+        <div class="sum-box">
+          <div class="sum-row"><div class="k">入力方式</div><div class="v"><span class="mode-badge" id="modeBadge">税込（10%込）</span></div></div>
+          <div class="sum-row"><div class="k">小計</div><div class="v" id="subTotal">0 円</div></div>
+          <div class="sum-row" id="taxRow"><div class="k">うち消費税</div><div class="v" id="tax">0 円</div></div>
+          <div class="sum-row grand"><div class="k">合計</div><div class="v" id="grandTotal">0 円</div></div>
         </div>
       </div>
-
-      <!-- RIGHT -->
-      <div class="card">
-        <div class="sec-title">
-          <h2>明細</h2>
-          <div class="small">単価 × 数量 → 金額（自動計算）</div>
-        </div>
-
-        <div class="table-wrap">
-          <table id="itemsTable">
-            <colgroup>
-              <col class="no">
-              <col class="name">
-              <col class="unit">
-              <col class="qty">
-              <col class="amount">
-              <col class="del">
-            </colgroup>
-            <thead>
-              <tr>
-                <th class="center">No</th>
-                <th>品名 / 作品名</th>
-                <th class="num">単価</th>
-                <th class="num">数量</th>
-                <th class="num">金額</th>
-                <th class="center">削除</th>
-              </tr>
-            </thead>
-            <tbody id="tbody"></tbody>
-          </table>
-        </div>
-
-        <div class="table-actions">
-          <button type="button" class="btn-mini" id="addRowBtn">＋ 追加</button>
-        </div>
-
-        <div class="sum">
-          <div class="footer-note">
-            ※ 金額は自動計算です。「PDFをダウンロード」でPDFが作成できます。<br/>
-            ※ 税込入力時：合計は入力金額の合算、内訳として小計と内消費税を算出します。
-          </div>
-
-          <div class="sum-box">
-            <div class="sum-row mode-row"><div class="k">単価入力方式</div><div class="v mode-badge" id="modeBadge">税込（10%込）</div></div>
-            <div class="sum-row"><div class="k">小計</div><div class="v" id="subTotal">0 円</div></div>
-            <div class="sum-row" id="taxRow"><div class="k">うち消費税</div><div class="v" id="tax">0 円</div></div>
-            <div class="sum-row"><div class="k">合計</div><div class="v" id="grandTotal">0 円</div></div>
-          </div>
-        </div>
-
-      </div>
-
     </div>
   </div>
 </div>
+</div>
 
 <script>
-/* ===========================================================
-  PDF assets paths (same directory as index.html)
-=========================================================== */
-const FONT_REG_URL  = "./NotoSansJP-Regular.ttf";
-const FONT_BOLD_URL = "./NotoSansJP-Bold.ttf";
-const LOGO_URL      = "./cleon-logo.PNG";
-
-/* ===========================================================
-  Helpers
-=========================================================== */
-const yen = n => (Number.isFinite(n) ? n : 0).toLocaleString("ja-JP") + " 円";
-const toInt = v => {
-  const n = Number(String(v ?? "").replace(/[^\d.-]/g, ""));
-  return Number.isFinite(n) ? n : 0;
-};
-const roundY = n => Math.round(n);
-
-const _phBackup = new Map();
-function clearPH(){
-  document.querySelectorAll("[data-ph], input.name, input.unit, input.qty").forEach(el=>{
-    _phBackup.set(el, el.getAttribute("placeholder") || "");
-    el.setAttribute("placeholder","");
-  });
+const PASS = "cleon2026nhtool";
+function tryLogin(){
+  if(document.getElementById("pwInput").value===PASS){
+    document.getElementById("loginScreen").classList.add("hide");
+    document.getElementById("mainApp").classList.add("show");
+    setTimeout(()=>{document.getElementById("loginScreen").style.display="none";},700);
+  } else {
+    const err=document.getElementById("loginError");
+    err.textContent="パスワードが正しくありません。";
+    document.getElementById("pwInput").value="";
+    document.getElementById("pwInput").focus();
+    setTimeout(()=>{err.textContent="";},3000);
+  }
 }
-function restorePH(){
-  _phBackup.forEach((v,el)=>{ try{ el.setAttribute("placeholder", v); }catch(e){} });
-  _phBackup.clear();
-}
+document.getElementById("loginBtn").addEventListener("click",tryLogin);
+document.getElementById("pwInput").addEventListener("keydown",e=>{if(e.key==="Enter")tryLogin();});
+document.getElementById("togglePw").addEventListener("click",()=>{
+  const i=document.getElementById("pwInput"); i.type=i.type==="password"?"text":"password";
+});
 
-/* ===========================================================
-  Mobile detection
-=========================================================== */
-function checkMobile(){
-  if (window.innerWidth <= 620) document.body.classList.add("is-mobile");
-  else document.body.classList.remove("is-mobile");
-}
-checkMobile();
-window.addEventListener("resize", checkMobile);
+document.getElementById("copyMailBtn").addEventListener("click",function(){
+  navigator.clipboard.writeText("info@cleonarts.com").then(()=>{
+    this.textContent="✅ コピーしました"; this.classList.add("copied");
+    setTimeout(()=>{this.textContent="📋 アドレスをコピー"; this.classList.remove("copied");},2500);
+  }).catch(()=>{ prompt("メールアドレスをコピーしてください:","info@cleonarts.com"); });
+});
 
-/* ===========================================================
-  DOM refs
-=========================================================== */
-const tbody      = document.getElementById("tbody");
-const modeSel    = document.getElementById("mode");
-const subTotalEl = document.getElementById("subTotal");
-const taxEl      = document.getElementById("tax");
-const taxRowEl   = document.getElementById("taxRow");
-const grandTotalEl = document.getElementById("grandTotal");
+const FONT_REG_URL="./NotoSansJP-Regular.ttf";
+const FONT_BOLD_URL="./NotoSansJP-Bold.ttf";
+const LOGO_URL="./cleon-logo.PNG";
 
-/* ===========================================================
-  Table rows
-=========================================================== */
+const yen=n=>(Number.isFinite(n)?n:0).toLocaleString("ja-JP")+" 円";
+const toInt=v=>{const n=Number(String(v??"").replace(/[^\d.-]/g,""));return Number.isFinite(n)?n:0;};
+const roundY=n=>Math.round(n);
+const _phBackup=new Map();
+function clearPH(){document.querySelectorAll("[data-ph],input.name,input.unit,input.qty").forEach(el=>{_phBackup.set(el,el.getAttribute("placeholder")||"");el.setAttribute("placeholder","");});}
+function restorePH(){_phBackup.forEach((v,el)=>{try{el.setAttribute("placeholder",v);}catch(e){}});_phBackup.clear();}
+function checkMobile(){if(window.innerWidth<=620)document.body.classList.add("is-mobile");else document.body.classList.remove("is-mobile");}
+checkMobile(); window.addEventListener("resize",checkMobile);
+
+const tbody=document.getElementById("tbody");
+const modeSel=document.getElementById("mode");
+const subTotalEl=document.getElementById("subTotal");
+const taxEl=document.getElementById("tax");
+const taxRowEl=document.getElementById("taxRow");
+const grandTotalEl=document.getElementById("grandTotal");
+
 function makeRow(i){
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td class="center no">${i}</td>
-    <td class="namecell"><input class="name" placeholder="例：カップショートケーキ / ブローチ など" /></td>
-    <td class="num unitcell"><input class="unit" inputmode="numeric" placeholder="0" /></td>
-    <td class="num qtycell"><input class="qty" inputmode="numeric" placeholder="1" value="1" /></td>
-    <td class="num amount">0 円</td>
-    <td class="center"><button type="button" class="btn-mini del">×</button></td>
-  `;
-  tr.querySelector(".del").addEventListener("click", ()=>{ tr.remove(); renumber(); recalc(); });
-  tr.querySelectorAll("input").forEach(inp=> inp.addEventListener("input", recalc));
+  const tr=document.createElement("tr");
+  tr.innerHTML=`<td class="center no">${i}</td><td class="namecell"><input class="name" placeholder="例：カップショートケーキ / ブローチ など" /></td><td class="num unitcell"><input class="unit" inputmode="numeric" placeholder="0" /></td><td class="num qtycell"><input class="qty" inputmode="numeric" placeholder="1" value="1" /></td><td class="num amount">0 円</td><td class="center"><button type="button" class="btn-mini del" style="color:#c0392b;border-color:#fad7d7;background:#fff9f9;">×</button></td>`;
+  tr.querySelector(".del").addEventListener("click",()=>{tr.remove();renumber();recalc();});
+  tr.querySelectorAll("input").forEach(inp=>inp.addEventListener("input",recalc));
   return tr;
 }
-function renumber(){
-  [...tbody.querySelectorAll("tr")].forEach((tr,i)=>{ tr.querySelector(".no").textContent = i+1; });
-}
-function addRows(n){
-  const start = tbody.querySelectorAll("tr").length;
-  for (let k=0;k<n;k++) tbody.appendChild(makeRow(start+k+1));
-  recalc();
-}
+function renumber(){[...tbody.querySelectorAll("tr")].forEach((tr,i)=>{tr.querySelector(".no").textContent=i+1;});}
+function addRows(n){const start=tbody.querySelectorAll("tr").length;for(let k=0;k<n;k++)tbody.appendChild(makeRow(start+k+1));recalc();}
 function recalc(){
-  let sum = 0;
+  let sum=0;
   [...tbody.querySelectorAll("tr")].forEach(tr=>{
-    const unit = toInt(tr.querySelector(".unit").value);
-    const qty  = Math.max(0, toInt(tr.querySelector(".qty").value || 0));
-    const amt  = roundY(unit * qty);
-    tr.querySelector(".amount").textContent = yen(amt);
-    sum += amt;
+    const unit=toInt(tr.querySelector(".unit").value);
+    const qty=Math.max(0,toInt(tr.querySelector(".qty").value||0));
+    const amt=roundY(unit*qty);
+    tr.querySelector(".amount").textContent=yen(amt);
+    sum+=amt;
   });
-
-  const rate = 0.10;
-  const mode = modeSel.value;
-
-  // Update mode badge
-  const badge = document.getElementById("modeBadge");
-  if (mode === "taxex") {
-    badge.textContent = "税抜（10%別）";
-    badge.className = "mode-badge taxex";
-  } else if (mode === "totalnone") {
-    badge.textContent = "総額（税区分なし）";
-    badge.className = "mode-badge totalnone";
+  const rate=0.10; const mode=modeSel.value;
+  const badge=document.getElementById("modeBadge");
+  if(mode==="taxex"){badge.textContent="税抜（10%別）";badge.className="mode-badge taxex";}
+  else if(mode==="totalnone"){badge.textContent="総額（税区分なし）";badge.className="mode-badge totalnone";}
+  else{badge.textContent="税込（10%込）";badge.className="mode-badge";}
+  if(mode==="totalnone"){
+    taxRowEl.style.display="none";
+    const total=roundY(sum);
+    subTotalEl.textContent=yen(total); taxEl.textContent=yen(0); grandTotalEl.textContent=yen(total);
   } else {
-    badge.textContent = "税込（10%込）";
-    badge.className = "mode-badge";
-  }
-
-  if (mode === "totalnone"){
-    // 総額モード：税行を非表示、小計=合計=入力合計
-    taxRowEl.style.display = "none";
-    const total = roundY(sum);
-    subTotalEl.textContent = yen(total);
-    taxEl.textContent = yen(0);
-    grandTotalEl.textContent = yen(total);
-  } else {
-    // 税込/税抜モード：税行を表示
-    taxRowEl.style.display = "";
-    if (mode === "taxex"){
-      const sub = roundY(sum);
-      const tax = roundY(sub * rate);
-      subTotalEl.textContent = yen(sub);
-      taxEl.textContent = yen(tax);
-      grandTotalEl.textContent = yen(sub + tax);
-    } else {
-      // taxin
-      const total = roundY(sum);
-      const sub = roundY(total / (1 + rate));
-      const tax = total - sub;
-      subTotalEl.textContent = yen(sub);
-      taxEl.textContent = yen(tax);
-      grandTotalEl.textContent = yen(total);
-    }
+    taxRowEl.style.display="";
+    if(mode==="taxex"){const sub=roundY(sum);const tax=roundY(sub*rate);subTotalEl.textContent=yen(sub);taxEl.textContent=yen(tax);grandTotalEl.textContent=yen(sub+tax);}
+    else{const total=roundY(sum);const sub=roundY(total/(1+rate));const tax=total-sub;subTotalEl.textContent=yen(sub);taxEl.textContent=yen(tax);grandTotalEl.textContent=yen(total);}
   }
 }
-document.getElementById("addRowBtn").addEventListener("click", ()=> addRows(1));
-modeSel.addEventListener("change", recalc);
+document.getElementById("addRowBtn").addEventListener("click",()=>addRows(1));
+modeSel.addEventListener("change",recalc);
 
-/* ===========================================================
-  Reset
-=========================================================== */
-document.getElementById("clearBtn").addEventListener("click", ()=>{
-  if (!confirm("入力内容をリセットします。よろしいですか？")) return;
-  ["docNo","authorName","shopName","tel","addr"].forEach(id=> document.getElementById(id).value = "");
-  const d = new Date();
-  document.getElementById("docDate").value =
-    `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-  modeSel.value = "taxin";
-  tbody.innerHTML = "";
-  addRows(6);
+document.getElementById("clearBtn").addEventListener("click",()=>{
+  if(!confirm("入力内容をリセットします。よろしいですか？"))return;
+  ["docNo","authorName","shopName","tel","addr"].forEach(id=>document.getElementById(id).value="");
+  const d=new Date();
+  document.getElementById("docDate").value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  modeSel.value="taxin"; tbody.innerHTML=""; addRows(6);
 });
+document.getElementById("printBtn").addEventListener("click",()=>{clearPH();window.print();setTimeout(restorePH,1200);});
 
-/* ===========================================================
-  Print
-=========================================================== */
-document.getElementById("printBtn").addEventListener("click", ()=>{
-  clearPH();
-  window.print();
-  setTimeout(restorePH, 1200);
-});
-
-/* ===========================================================
-  Filename
-=========================================================== */
 function makeName(){
-  const no = (document.getElementById("docNo").value || "").trim();
-  const au = (document.getElementById("authorName").value || "").trim();
-  const dt = (document.getElementById("docDate").value || "").trim();
-  const base = no ? `納品書_${no}` : "納品書";
-  const tail = [au, dt].filter(Boolean).join("_");
-  return (tail ? `${base}_${tail}` : base) + ".pdf";
+  const no=(document.getElementById("docNo").value||"").trim();
+  const au=(document.getElementById("authorName").value||"").trim();
+  const dt=(document.getElementById("docDate").value||"").trim();
+  const base=no?`納品書_${no}`:"納品書";
+  const tail=[au,dt].filter(Boolean).join("_");
+  return(tail?`${base}_${tail}`:base)+".pdf";
 }
-
-/* ===========================================================
-  Helpers
-=========================================================== */
-function formatNumber(n){
-  const v = Number(n || 0);
-  return v.toLocaleString("ja-JP");
-}
-
+function formatNumber(n){return Number(n||0).toLocaleString("ja-JP");}
 async function fetchAsBase64(url){
-  const res = await fetch(url, { cache:"force-cache" });
-  if (!res.ok) throw new Error("fetch failed: " + url + " (" + res.status + ")");
-  const buf = await res.arrayBuffer();
-  let binary = "";
-  const bytes = new Uint8Array(buf);
-  const chunk = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunk){
-    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
-  }
+  const res=await fetch(url,{cache:"force-cache"});
+  if(!res.ok)throw new Error("fetch failed: "+url+" ("+res.status+")");
+  const buf=await res.arrayBuffer();
+  let binary=""; const bytes=new Uint8Array(buf); const chunk=0x8000;
+  for(let i=0;i<bytes.length;i+=chunk)binary+=String.fromCharCode.apply(null,bytes.subarray(i,i+chunk));
   return btoa(binary);
 }
-
 function collectPdfData(){
-  const docNo   = (document.getElementById("docNo").value || "").trim();
-  const docDate = (document.getElementById("docDate").value || "").trim();
-  const author  = (document.getElementById("authorName").value || "").trim();
-  const shop    = (document.getElementById("shopName").value || "").trim();
-  const tel     = (document.getElementById("tel").value || "").trim();
-  const addr    = (document.getElementById("addr").value || "").trim();
-
-  const rows = [...tbody.querySelectorAll("tr")].map(tr=>({
-    no:   tr.querySelector(".no").textContent,
-    name: (tr.querySelector(".name").value || "").trim(),
-    unit: toInt(tr.querySelector(".unit").value),
-    qty:  Math.max(0, toInt(tr.querySelector(".qty").value || 0)),
-  })).map(r=>({ ...r, amt: roundY(r.unit * r.qty) }));
-
-  const mode = modeSel.value;
-  const rate = 0.10;
-  const sum  = roundY(rows.reduce((a, r) => a + r.amt, 0));
-
-  let sub = 0, tax = 0, total = 0;
-  if (mode === "totalnone"){
-    total = roundY(sum);
-    sub   = total;
-    tax   = null; // null = 非表示
-  } else if (mode === "taxex"){
-    sub   = roundY(sum);
-    tax   = roundY(sub * rate);
-    total = sub + tax;
-  } else {
-    total = roundY(sum);
-    sub   = roundY(total / (1 + rate));
-    tax   = total - sub;
-  }
-
-  return {
-    company: "澄和創藝合同会社",
-    toZip:   "〒185-0032",
-    toAddr:  "東京都国分寺市日吉町2-34-14 2G号室",
-    docNo, docDate, author, shop, tel, addr,
-    rows, sub, tax, total, mode
-  };
+  const docNo=(document.getElementById("docNo").value||"").trim();
+  const docDate=(document.getElementById("docDate").value||"").trim();
+  const author=(document.getElementById("authorName").value||"").trim();
+  const shop=(document.getElementById("shopName").value||"").trim();
+  const tel=(document.getElementById("tel").value||"").trim();
+  const addr=(document.getElementById("addr").value||"").trim();
+  const rows=[...tbody.querySelectorAll("tr")].map(tr=>({
+    no:tr.querySelector(".no").textContent,
+    name:(tr.querySelector(".name").value||"").trim(),
+    unit:toInt(tr.querySelector(".unit").value),
+    qty:Math.max(0,toInt(tr.querySelector(".qty").value||0)),
+  })).map(r=>({...r,amt:roundY(r.unit*r.qty)}));
+  const mode=modeSel.value; const rate=0.10;
+  const sum=roundY(rows.reduce((a,r)=>a+r.amt,0));
+  let sub=0,tax=null,total=0;
+  if(mode==="totalnone"){total=roundY(sum);sub=total;tax=null;}
+  else if(mode==="taxex"){sub=roundY(sum);tax=roundY(sub*rate);total=sub+tax;}
+  else{total=roundY(sum);sub=roundY(total/(1+rate));tax=total-sub;}
+  return{company:"澄和創藝合同会社",toZip:"〒185-0032",toAddr:"東京都国分寺市日吉町2-34-14 2G号室",docNo,docDate,author,shop,tel,addr,rows,sub,tax,total,mode};
 }
 
-/* ===========================================================
-  Vector PDF generator
-=========================================================== */
 async function generatePdfVector(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit:"mm", format:"a4" });
-
-  try {
-    const regB64 = await fetchAsBase64(FONT_REG_URL);
-    doc.addFileToVFS("NotoSansJP-Regular.ttf", regB64);
-    doc.addFont("NotoSansJP-Regular.ttf", "NotoSansJP", "normal", "Identity-H");
-  } catch(e) {
-    throw new Error("Regular font load failed: " + e.message);
-  }
-
-  try {
-    const boldB64 = await fetchAsBase64(FONT_BOLD_URL);
-    doc.addFileToVFS("NotoSansJP-Bold.ttf", boldB64);
-    doc.addFont("NotoSansJP-Bold.ttf", "NotoSansJP", "bold", "Identity-H");
-  } catch(e) {
-    console.warn("Bold font not available, falling back to normal:", e);
-  }
-
-  doc.setFont("NotoSansJP", "normal");
-
-  const M = 12;
-  const W = 210;
-
-  let logoLoaded = false;
-  try {
-    const logoB64 = await fetchAsBase64(LOGO_URL);
-    const ext = LOGO_URL.split('.').pop().toUpperCase();
-    const fmt = (ext === "PNG" || ext === "png") ? "PNG" : "JPEG";
-    await new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        const naturalW = img.naturalWidth;
-        const naturalH = img.naturalHeight;
-        const targetH = 14;
-        const targetW = (naturalW / naturalH) * targetH;
-        doc.addImage("data:image/" + fmt.toLowerCase() + ";base64," + logoB64, fmt, M, 10, targetW, targetH);
-        logoLoaded = true;
-        resolve();
-      };
-      img.onerror = () => resolve();
-      img.src = "data:image/" + fmt.toLowerCase() + ";base64," + logoB64;
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:"mm",format:"a4"});
+  try{const r=await fetchAsBase64(FONT_REG_URL);doc.addFileToVFS("NotoSansJP-Regular.ttf",r);doc.addFont("NotoSansJP-Regular.ttf","NotoSansJP","normal","Identity-H");}
+  catch(e){throw new Error("Regular font load failed: "+e.message);}
+  try{const b=await fetchAsBase64(FONT_BOLD_URL);doc.addFileToVFS("NotoSansJP-Bold.ttf",b);doc.addFont("NotoSansJP-Bold.ttf","NotoSansJP","bold","Identity-H");}
+  catch(e){console.warn("Bold font not available:",e);}
+  doc.setFont("NotoSansJP","normal");
+  const M=12,W=210;
+  let logoLoaded=false;
+  try{
+    const lb=await fetchAsBase64(LOGO_URL);
+    const fmt=LOGO_URL.split('.').pop().toUpperCase()==="PNG"?"PNG":"JPEG";
+    await new Promise(resolve=>{
+      const img=new Image();
+      img.onload=()=>{const tH=14;const tW=(img.naturalWidth/img.naturalHeight)*tH;doc.addImage("data:image/"+fmt.toLowerCase()+";base64,"+lb,fmt,M,10,tW,tH);logoLoaded=true;resolve();};
+      img.onerror=()=>resolve();
+      img.src="data:image/"+fmt.toLowerCase()+";base64,"+lb;
     });
-  } catch(e) {
-    console.warn("Logo embed failed:", e);
-  }
-
-  const headerX = logoLoaded ? 50 : M;
-  doc.setFont("NotoSansJP", "bold");
-  doc.setFontSize(22);
-  doc.text("納品書", headerX, 18);
-
-  doc.setFont("NotoSansJP", "normal");
-  doc.setFontSize(12);
-  doc.setTextColor(85);
-  doc.text("澄和創藝合同会社", headerX, 24);
-  doc.setTextColor(17);
-
-  const data = collectPdfData();
-
-  const infoBody = [
-    ["宛先", data.company + "\n" + data.toZip + " " + data.toAddr],
-    ["納品書番号", data.docNo || "—"],
-    ["納品日",    data.docDate || "—"],
-    ["姓名",      data.author || "—"],
-    ["屋号",      data.shop || "—"],
-    ["TEL",       data.tel || "—"],
-  ];
-  if (data.addr) infoBody.push(["住所", data.addr]);
-
-  doc.autoTable({
-    startY: 32,
-    theme: "grid",
-    head: [],
-    body: infoBody,
-    styles: {
-      font: "NotoSansJP",
-      fontStyle: "normal",
-      fontSize: 11,
-      cellPadding: 2.2,
-      lineColor: 170,
-      lineWidth: 0.2,
-      valign: "top",
-    },
-    columnStyles: {
-      0: { cellWidth: 36, textColor: [85,85,85], fontStyle: "bold" },
-      1: { cellWidth: W - M * 2 - 36 },
-    },
-    margin: { left: M, right: M },
-  });
-
-  const startItemsY = doc.lastAutoTable.finalY + 6;
-
-  const itemsBody = data.rows.map(r => ([
-    String(r.no),
-    r.name || "",
-    formatNumber(r.unit),
-    formatNumber(r.qty),
-    formatNumber(r.amt) + " 円",
-  ]));
-
-  while (itemsBody.length < 6){
-    itemsBody.push([String(itemsBody.length + 1), "", "", "", "0 円"]);
-  }
-
-  const colNo   = 12;
-  const colUnit = 32;
-  const colQty  = 20;
-  const colAmt  = 36;
-  const colName = (W - M * 2) - (colNo + colUnit + colQty + colAmt);
-
-  doc.autoTable({
-    startY: startItemsY,
-    theme: "grid",
-    head: [["No", "品名 / 作品名", "単価", "数量", "金額"]],
-    body: itemsBody,
-    styles: {
-      font: "NotoSansJP",
-      fontStyle: "normal",
-      fontSize: 11,
-      cellPadding: 2.0,
-      lineColor: 170,
-      lineWidth: 0.2,
-      valign: "middle",
-    },
-    headStyles: {
-      fillColor: [239, 239, 239],
-      textColor: 17,
-      fontStyle: "bold",
-    },
-    columnStyles: {
-      0: { cellWidth: colNo,   halign: "center" },
-      1: { cellWidth: colName, halign: "left"   },
-      2: { cellWidth: colUnit, halign: "right"  },
-      3: { cellWidth: colQty,  halign: "right"  },
-      4: { cellWidth: colAmt,  halign: "right"  },
-    },
-    margin: { left: M, right: M },
-  });
-
-  const lastY = doc.lastAutoTable.finalY;
-
-  // Sum box
-  const isTotalNone = data.mode === "totalnone";
-  const modeLabel = isTotalNone ? "総額（税区分なし）"
-    : data.mode === "taxex" ? "税抜（10%別）" : "税込（10%込）";
-
-  const boxW = 86;
-  const boxX = W - M - boxW;
-  const boxY = lastY + 8;
-  const lineH = 8;
-
-  // 総額モードは税行なし（3行）、それ以外は4行
-  const numRows = isTotalNone ? 3 : 4;
-  const boxH  = lineH * numRows + (numRows === 3 ? 6 : 8);
-
-  doc.setDrawColor(204);
-  doc.roundedRect(boxX, boxY, boxW, boxH, 2, 2);
-
-  doc.setDrawColor(224);
-  // 区切り線：モード行の下
-  doc.line(boxX, boxY + lineH + 2, boxX + boxW, boxY + lineH + 2);
-
-  if (isTotalNone){
-    // 総額モード：小計・合計の2行のみ（税行なし）
-    doc.line(boxX, boxY + lineH * 2 + 4, boxX + boxW, boxY + lineH * 2 + 4);
-
-    doc.setFont("NotoSansJP", "bold");
-    doc.setFontSize(10.5);
-
-    // Row 1: mode label
-    doc.setTextColor(120);
-    doc.setFontSize(9.5);
-    doc.text("単価入力方式", boxX + 4, boxY + lineH - 1);
-    doc.text(modeLabel, boxX + boxW - 4, boxY + lineH - 1, { align: "right" });
-    doc.setTextColor(17);
-    doc.setFontSize(10.5);
-
-    const rows2 = [
-      { label: "お支払い金額", value: formatNumber(data.sub)   + " 円" },
-      { label: "合計",         value: formatNumber(data.total) + " 円" },
-    ];
-    rows2.forEach((r, i) => {
-      const y = boxY + lineH * (i + 1) + lineH - 1 + (i * 2);
-      doc.text(r.label, boxX + 4, y);
-      doc.text(r.value, boxX + boxW - 4, y, { align: "right" });
-    });
-
+  }catch(e){console.warn("Logo embed failed:",e);}
+  const hX=logoLoaded?50:M;
+  doc.setFont("NotoSansJP","bold");doc.setFontSize(22);doc.text("納品書",hX,18);
+  doc.setFont("NotoSansJP","normal");doc.setFontSize(12);doc.setTextColor(85);doc.text("澄和創藝合同会社",hX,24);doc.setTextColor(17);
+  const data=collectPdfData();
+  const infoBody=[["宛先",data.company+"\n"+data.toZip+" "+data.toAddr],["納品書番号",data.docNo||"—"],["納品日",data.docDate||"—"],["姓名",data.author||"—"],["屋号",data.shop||"—"],["TEL",data.tel||"—"]];
+  if(data.addr)infoBody.push(["住所",data.addr]);
+  doc.autoTable({startY:32,theme:"grid",head:[],body:infoBody,styles:{font:"NotoSansJP",fontStyle:"normal",fontSize:11,cellPadding:2.2,lineColor:170,lineWidth:0.2,valign:"top"},columnStyles:{0:{cellWidth:36,textColor:[85,85,85],fontStyle:"bold"},1:{cellWidth:W-M*2-36}},margin:{left:M,right:M}});
+  const sY=doc.lastAutoTable.finalY+6;
+  const ib=data.rows.map(r=>([String(r.no),r.name||"",formatNumber(r.unit),formatNumber(r.qty),formatNumber(r.amt)+" 円"]));
+  while(ib.length<6)ib.push([String(ib.length+1),"","","","0 円"]);
+  const cNo=12,cUnit=32,cQty=20,cAmt=36,cName=(W-M*2)-(cNo+cUnit+cQty+cAmt);
+  doc.autoTable({startY:sY,theme:"grid",head:[["No","品名 / 作品名","単価","数量","金額"]],body:ib,styles:{font:"NotoSansJP",fontStyle:"normal",fontSize:11,cellPadding:2.0,lineColor:170,lineWidth:0.2,valign:"middle"},headStyles:{fillColor:[239,239,239],textColor:17,fontStyle:"bold"},columnStyles:{0:{cellWidth:cNo,halign:"center"},1:{cellWidth:cName,halign:"left"},2:{cellWidth:cUnit,halign:"right"},3:{cellWidth:cQty,halign:"right"},4:{cellWidth:cAmt,halign:"right"}},margin:{left:M,right:M}});
+  const lY=doc.lastAutoTable.finalY;
+  const isTN=data.mode==="totalnone";
+  const ml=isTN?"総額（税区分なし）":data.mode==="taxex"?"税抜（10%別）":"税込（10%込）";
+  const bW=86,bX=W-M-bW,bY=lY+8,lH=8,nR=isTN?3:4,bH=lH*nR+(nR===3?6:8);
+  doc.setDrawColor(204);doc.roundedRect(bX,bY,bW,bH,2,2);
+  doc.setDrawColor(224);doc.line(bX,bY+lH+2,bX+bW,bY+lH+2);
+  if(isTN){
+    doc.line(bX,bY+lH*2+4,bX+bW,bY+lH*2+4);
+    doc.setFont("NotoSansJP","bold");doc.setTextColor(120);doc.setFontSize(9.5);
+    doc.text("単価入力方式",bX+4,bY+lH-1);doc.text(ml,bX+bW-4,bY+lH-1,{align:"right"});
+    doc.setTextColor(17);doc.setFontSize(10.5);
+    [{label:"お支払い金額",value:formatNumber(data.sub)+" 円"},{label:"合計",value:formatNumber(data.total)+" 円"}].forEach((r,i)=>{const y=bY+lH*(i+1)+lH-1+(i*2);doc.text(r.label,bX+4,y);doc.text(r.value,bX+bW-4,y,{align:"right"});});
   } else {
-    // 税込/税抜モード：従来通り4行
-    doc.line(boxX, boxY + lineH * 2 + 4,   boxX + boxW, boxY + lineH * 2 + 4);
-    doc.line(boxX, boxY + lineH * 3 + 6,   boxX + boxW, boxY + lineH * 3 + 6);
-
-    doc.setFont("NotoSansJP", "bold");
-    doc.setFontSize(10.5);
-
-    doc.setTextColor(120);
-    doc.setFontSize(9.5);
-    doc.text("単価入力方式", boxX + 4, boxY + lineH - 1);
-    doc.text(modeLabel, boxX + boxW - 4, boxY + lineH - 1, { align: "right" });
-    doc.setTextColor(17);
-    doc.setFontSize(10.5);
-
-    const rows3 = [
-      { label: "小計",          value: formatNumber(data.sub)   + " 円" },
-      { label: "うち消費税",     value: formatNumber(data.tax)   + " 円" },
-      { label: "合計",          value: formatNumber(data.total) + " 円" },
-    ];
-    rows3.forEach((r, i) => {
-      const y = boxY + lineH * (i + 1) + lineH - 1 + (i * 2);
-      doc.text(r.label, boxX + 4, y);
-      doc.text(r.value, boxX + boxW - 4, y, { align: "right" });
-    });
+    doc.line(bX,bY+lH*2+4,bX+bW,bY+lH*2+4);doc.line(bX,bY+lH*3+6,bX+bW,bY+lH*3+6);
+    doc.setFont("NotoSansJP","bold");doc.setTextColor(120);doc.setFontSize(9.5);
+    doc.text("単価入力方式",bX+4,bY+lH-1);doc.text(ml,bX+bW-4,bY+lH-1,{align:"right"});
+    doc.setTextColor(17);doc.setFontSize(10.5);
+    [{label:"小計",value:formatNumber(data.sub)+" 円"},{label:"うち消費税",value:formatNumber(data.tax)+" 円"},{label:"合計",value:formatNumber(data.total)+" 円"}].forEach((r,i)=>{const y=bY+lH*(i+1)+lH-1+(i*2);doc.text(r.label,bX+4,y);doc.text(r.value,bX+bW-4,y,{align:"right"});});
   }
-
   doc.save(makeName());
 }
 
-/* ===========================================================
-  PDF button handler
-=========================================================== */
 async function handlePDF(){
-  const btn  = document.getElementById("pdfBtn");
-  const hint = document.getElementById("pdfHint");
-  btn.disabled = true;
-  hint.textContent = "PDFを作成中…";
-
-  clearPH();
-
-  try {
-    await generatePdfVector();
-    hint.textContent = "";
-  } catch(e) {
-    console.error(e);
-    alert("PDF作成に失敗しました。\n\nエラー: " + e.message + "\n\nフォント・ロゴファイルがリポジトリのルートに配置されているか確認してください。");
-  } finally {
-    restorePH();
-    btn.disabled = false;
-    setTimeout(() => { hint.textContent = ""; }, 4000);
-  }
+  const btn=document.getElementById("pdfBtn"),hint=document.getElementById("pdfHint");
+  btn.disabled=true;hint.textContent="PDFを作成中…";clearPH();
+  try{await generatePdfVector();hint.textContent="";}
+  catch(e){console.error(e);alert("PDF作成に失敗しました。\n\nエラー: "+e.message);}
+  finally{restorePH();btn.disabled=false;setTimeout(()=>{hint.textContent="";},4000);}
 }
-document.getElementById("pdfBtn").addEventListener("click", handlePDF);
+document.getElementById("pdfBtn").addEventListener("click",handlePDF);
 
-/* ===========================================================
-  Init
-=========================================================== */
-const d = new Date();
-document.getElementById("docDate").value =
-  `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const d=new Date();
+document.getElementById("docDate").value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 addRows(6);
 </script>
 </body>
