@@ -228,6 +228,10 @@
       background:#fff3e0;
       color:#d97706;
     }
+    .mode-badge.totalnone{
+      background:#f3e8ff;
+      color:#7c3aed;
+    }
 
     /* Mobile */
     body.is-mobile .row{
@@ -468,15 +472,16 @@
         <div class="pill">
           <span>入力方式：</span>
           <select id="mode">
-            <option value="taxin" selected>おすすめ：税込（消費税10%込）で入力</option>
-            <option value="taxex">税抜（消費税を別計算）で入力</option>
+            <option value="taxin" selected>税込（10%込）</option>
+            <option value="taxex">税抜（10%別）</option>
+            <option value="totalnone">総額（税区分なし）</option>
           </select>
-          <span class="small">税率：<b>10%</b>｜端数：<b>四捨五入</b></span>
         </div>
 
         <div class="footer-note">
-          ※「税込（10%込）」を選ぶと、作者さまは<b>税込単価</b>だけ入力すればOKです。<br/>
-          当サイトはCléon専用の内部ツールです。入力情報は外部に公開されませんのでご安心ください。
+          ※「税込」「税抜」のどちらか分かる場合は該当する方をお選びください。<br/>
+          ※税区分の記載がない場合は「総額（税区分なし）」をご選択いただけます。その場合、入力いただいた金額をそのまま精算基準額として扱います。<br/>
+          ※当フォームはCléon専用の内部ツールです。入力情報は外部へ公開されませんのでご安心ください。
         </div>
       </div>
 
@@ -518,13 +523,13 @@
         <div class="sum">
           <div class="footer-note">
             ※ 金額は自動計算です。「PDFをダウンロード」でPDFが作成できます。<br/>
-            ※ 税込入力時：合計（税込）は入力金額の合算、内訳として小計（税抜）と消費税を算出します。
+            ※ 税込入力時：合計は入力金額の合算、内訳として小計と内消費税を算出します。
           </div>
 
           <div class="sum-box">
             <div class="sum-row mode-row"><div class="k">単価入力方式</div><div class="v mode-badge" id="modeBadge">税込（10%込）</div></div>
             <div class="sum-row"><div class="k">小計</div><div class="v" id="subTotal">0 円</div></div>
-            <div class="sum-row"><div class="k">消費税（10%）</div><div class="v" id="tax">0 円</div></div>
+            <div class="sum-row" id="taxRow"><div class="k">うち消費税</div><div class="v" id="tax">0 円</div></div>
             <div class="sum-row"><div class="k">合計</div><div class="v" id="grandTotal">0 円</div></div>
           </div>
         </div>
@@ -582,6 +587,7 @@ const tbody      = document.getElementById("tbody");
 const modeSel    = document.getElementById("mode");
 const subTotalEl = document.getElementById("subTotal");
 const taxEl      = document.getElementById("tax");
+const taxRowEl   = document.getElementById("taxRow");
 const grandTotalEl = document.getElementById("grandTotal");
 
 /* ===========================================================
@@ -625,26 +631,41 @@ function recalc(){
   // Update mode badge
   const badge = document.getElementById("modeBadge");
   if (mode === "taxex") {
-    badge.textContent = "税抜（消費税10%別）";
-    badge.classList.add("taxex");
+    badge.textContent = "税抜（10%別）";
+    badge.className = "mode-badge taxex";
+  } else if (mode === "totalnone") {
+    badge.textContent = "総額（税区分なし）";
+    badge.className = "mode-badge totalnone";
   } else {
-    badge.textContent = "税込（消費税10%込）";
-    badge.classList.remove("taxex");
+    badge.textContent = "税込（10%込）";
+    badge.className = "mode-badge";
   }
 
-  if (mode === "taxex"){
-    const sub = roundY(sum);
-    const tax = roundY(sub * rate);
-    subTotalEl.textContent = yen(sub);
-    taxEl.textContent = yen(tax);
-    grandTotalEl.textContent = yen(sub + tax);
-  }else{
+  if (mode === "totalnone"){
+    // 総額モード：税行を非表示、小計=合計=入力合計
+    taxRowEl.style.display = "none";
     const total = roundY(sum);
-    const sub = roundY(total / (1 + rate));
-    const tax = total - sub;
-    subTotalEl.textContent = yen(sub);
-    taxEl.textContent = yen(tax);
+    subTotalEl.textContent = yen(total);
+    taxEl.textContent = yen(0);
     grandTotalEl.textContent = yen(total);
+  } else {
+    // 税込/税抜モード：税行を表示
+    taxRowEl.style.display = "";
+    if (mode === "taxex"){
+      const sub = roundY(sum);
+      const tax = roundY(sub * rate);
+      subTotalEl.textContent = yen(sub);
+      taxEl.textContent = yen(tax);
+      grandTotalEl.textContent = yen(sub + tax);
+    } else {
+      // taxin
+      const total = roundY(sum);
+      const sub = roundY(total / (1 + rate));
+      const tax = total - sub;
+      subTotalEl.textContent = yen(sub);
+      taxEl.textContent = yen(tax);
+      grandTotalEl.textContent = yen(total);
+    }
   }
 }
 document.getElementById("addRowBtn").addEventListener("click", ()=> addRows(1));
@@ -726,7 +747,11 @@ function collectPdfData(){
   const sum  = roundY(rows.reduce((a, r) => a + r.amt, 0));
 
   let sub = 0, tax = 0, total = 0;
-  if (mode === "taxex"){
+  if (mode === "totalnone"){
+    total = roundY(sum);
+    sub   = total;
+    tax   = null; // null = 非表示
+  } else if (mode === "taxex"){
     sub   = roundY(sum);
     tax   = roundY(sub * rate);
     total = sub + tax;
@@ -746,15 +771,12 @@ function collectPdfData(){
 }
 
 /* ===========================================================
-  ✅ FIXED: Vector PDF
-  - Fonts registered directly on the doc instance (not a temp doc)
-  - Logo size adjusted to preserve aspect ratio
+  Vector PDF generator
 =========================================================== */
 async function generatePdfVector(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit:"mm", format:"a4" });
 
-  // ✅ FIX 1: Register fonts directly on this doc instance
   try {
     const regB64 = await fetchAsBase64(FONT_REG_URL);
     doc.addFileToVFS("NotoSansJP-Regular.ttf", regB64);
@@ -771,40 +793,34 @@ async function generatePdfVector(){
     console.warn("Bold font not available, falling back to normal:", e);
   }
 
-  // Set Japanese font immediately after registration
   doc.setFont("NotoSansJP", "normal");
 
   const M = 12;
   const W = 210;
 
-  // ✅ FIX 2: Logo with better size (preserves aspect ratio, not squished)
   let logoLoaded = false;
   try {
     const logoB64 = await fetchAsBase64(LOGO_URL);
-    // Determine format from extension
     const ext = LOGO_URL.split('.').pop().toUpperCase();
     const fmt = (ext === "PNG" || ext === "png") ? "PNG" : "JPEG";
-    // Create an Image to measure natural dimensions
     await new Promise((resolve) => {
       const img = new Image();
       img.onload = () => {
         const naturalW = img.naturalWidth;
         const naturalH = img.naturalHeight;
-        // Target height: 14mm, calculate width to preserve ratio
         const targetH = 14;
         const targetW = (naturalW / naturalH) * targetH;
         doc.addImage("data:image/" + fmt.toLowerCase() + ";base64," + logoB64, fmt, M, 10, targetW, targetH);
         logoLoaded = true;
         resolve();
       };
-      img.onerror = () => resolve(); // if fails, skip logo gracefully
+      img.onerror = () => resolve();
       img.src = "data:image/" + fmt.toLowerCase() + ";base64," + logoB64;
     });
   } catch(e) {
     console.warn("Logo embed failed:", e);
   }
 
-  // Header text — positioned to right of logo area
   const headerX = logoLoaded ? 50 : M;
   doc.setFont("NotoSansJP", "bold");
   doc.setFontSize(22);
@@ -818,7 +834,6 @@ async function generatePdfVector(){
 
   const data = collectPdfData();
 
-  // Info table
   const infoBody = [
     ["宛先", data.company + "\n" + data.toZip + " " + data.toAddr],
     ["納品書番号", data.docNo || "—"],
@@ -850,7 +865,6 @@ async function generatePdfVector(){
     margin: { left: M, right: M },
   });
 
-  // Items table
   const startItemsY = doc.lastAutoTable.finalY + 6;
 
   const itemsBody = data.rows.map(r => ([
@@ -861,7 +875,6 @@ async function generatePdfVector(){
     formatNumber(r.amt) + " 円",
   ]));
 
-  // Pad to at least 6 rows
   while (itemsBody.length < 6){
     itemsBody.push([String(itemsBody.length + 1), "", "", "", "0 円"]);
   }
@@ -904,44 +917,77 @@ async function generatePdfVector(){
   const lastY = doc.lastAutoTable.finalY;
 
   // Sum box
-  const modeLabel = data.mode === "taxex" ? "税抜（消費税10%別）" : "税込（消費税10%込）";
+  const isTotalNone = data.mode === "totalnone";
+  const modeLabel = isTotalNone ? "総額（税区分なし）"
+    : data.mode === "taxex" ? "税抜（10%別）" : "税込（10%込）";
+
   const boxW = 86;
   const boxX = W - M - boxW;
   const boxY = lastY + 8;
   const lineH = 8;
-  const boxH  = lineH * 4 + 8; // 4 rows now
+
+  // 総額モードは税行なし（3行）、それ以外は4行
+  const numRows = isTotalNone ? 3 : 4;
+  const boxH  = lineH * numRows + (numRows === 3 ? 6 : 8);
 
   doc.setDrawColor(204);
   doc.roundedRect(boxX, boxY, boxW, boxH, 2, 2);
 
-  // Divider lines
   doc.setDrawColor(224);
-  doc.line(boxX, boxY + lineH + 2,       boxX + boxW, boxY + lineH + 2);
-  doc.line(boxX, boxY + lineH * 2 + 4,   boxX + boxW, boxY + lineH * 2 + 4);
-  doc.line(boxX, boxY + lineH * 3 + 6,   boxX + boxW, boxY + lineH * 3 + 6);
+  // 区切り線：モード行の下
+  doc.line(boxX, boxY + lineH + 2, boxX + boxW, boxY + lineH + 2);
 
-  doc.setFont("NotoSansJP", "bold");
-  doc.setFontSize(10.5);
+  if (isTotalNone){
+    // 総額モード：小計・合計の2行のみ（税行なし）
+    doc.line(boxX, boxY + lineH * 2 + 4, boxX + boxW, boxY + lineH * 2 + 4);
 
-  // Row 1: mode label (muted style)
-  doc.setTextColor(120);
-  doc.setFontSize(9.5);
-  doc.text("単価入力方式", boxX + 4, boxY + lineH - 1);
-  doc.text(modeLabel, boxX + boxW - 4, boxY + lineH - 1, { align: "right" });
-  doc.setTextColor(17);
-  doc.setFontSize(10.5);
+    doc.setFont("NotoSansJP", "bold");
+    doc.setFontSize(10.5);
 
-  const rows3 = [
-    { label: "小計",          value: formatNumber(data.sub)   + " 円" },
-    { label: "消費税（10%）",  value: formatNumber(data.tax)   + " 円" },
-    { label: "合計",          value: formatNumber(data.total) + " 円" },
-  ];
+    // Row 1: mode label
+    doc.setTextColor(120);
+    doc.setFontSize(9.5);
+    doc.text("単価入力方式", boxX + 4, boxY + lineH - 1);
+    doc.text(modeLabel, boxX + boxW - 4, boxY + lineH - 1, { align: "right" });
+    doc.setTextColor(17);
+    doc.setFontSize(10.5);
 
-  rows3.forEach((r, i) => {
-    const y = boxY + lineH * (i + 1) + lineH - 1 + (i * 2);
-    doc.text(r.label, boxX + 4, y);
-    doc.text(r.value, boxX + boxW - 4, y, { align: "right" });
-  });
+    const rows2 = [
+      { label: "お支払い金額", value: formatNumber(data.sub)   + " 円" },
+      { label: "合計",         value: formatNumber(data.total) + " 円" },
+    ];
+    rows2.forEach((r, i) => {
+      const y = boxY + lineH * (i + 1) + lineH - 1 + (i * 2);
+      doc.text(r.label, boxX + 4, y);
+      doc.text(r.value, boxX + boxW - 4, y, { align: "right" });
+    });
+
+  } else {
+    // 税込/税抜モード：従来通り4行
+    doc.line(boxX, boxY + lineH * 2 + 4,   boxX + boxW, boxY + lineH * 2 + 4);
+    doc.line(boxX, boxY + lineH * 3 + 6,   boxX + boxW, boxY + lineH * 3 + 6);
+
+    doc.setFont("NotoSansJP", "bold");
+    doc.setFontSize(10.5);
+
+    doc.setTextColor(120);
+    doc.setFontSize(9.5);
+    doc.text("単価入力方式", boxX + 4, boxY + lineH - 1);
+    doc.text(modeLabel, boxX + boxW - 4, boxY + lineH - 1, { align: "right" });
+    doc.setTextColor(17);
+    doc.setFontSize(10.5);
+
+    const rows3 = [
+      { label: "小計",          value: formatNumber(data.sub)   + " 円" },
+      { label: "うち消費税",     value: formatNumber(data.tax)   + " 円" },
+      { label: "合計",          value: formatNumber(data.total) + " 円" },
+    ];
+    rows3.forEach((r, i) => {
+      const y = boxY + lineH * (i + 1) + lineH - 1 + (i * 2);
+      doc.text(r.label, boxX + 4, y);
+      doc.text(r.value, boxX + boxW - 4, y, { align: "right" });
+    });
+  }
 
   doc.save(makeName());
 }
