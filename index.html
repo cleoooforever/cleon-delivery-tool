@@ -297,7 +297,7 @@ document.getElementById("togglePw").addEventListener("click",()=>{
 document.getElementById("copyMailBtn").addEventListener("click",function(){
   navigator.clipboard.writeText("info@cleonarts.com").then(()=>{
     this.textContent="✅ コピーしました"; this.classList.add("copied");
-    setTimeout(()=>{this.textContent="📋 アドレスをコピー"; this.classList.remove("copied");},2500);
+    setTimeout(()=>{this.textContent="📋 メールをコピー"; this.classList.remove("copied");},2500);
   }).catch(()=>{ prompt("メールアドレスをコピーしてください:","info@cleonarts.com"); });
 });
 
