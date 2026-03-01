@@ -437,10 +437,31 @@ async function generatePdfVector(){
   while(ib.length<6)ib.push([String(ib.length+1),"","","","0 円"]);
   const cNo=12,cUnit=32,cQty=20,cAmt=36,cName=(W-M*2)-(cNo+cUnit+cQty+cAmt);
   doc.autoTable({startY:sY,theme:"grid",head:[["No","品名 / 作品名","単価","数量","金額"]],body:ib,styles:{font:"NotoSansJP",fontStyle:"normal",fontSize:11,cellPadding:2.0,lineColor:170,lineWidth:0.2,valign:"middle"},headStyles:{fillColor:[239,239,239],textColor:17,fontStyle:"bold"},columnStyles:{0:{cellWidth:cNo,halign:"center"},1:{cellWidth:cName,halign:"left"},2:{cellWidth:cUnit,halign:"right"},3:{cellWidth:cQty,halign:"right"},4:{cellWidth:cAmt,halign:"right"}},margin:{left:M,right:M}});
-  const lY=doc.lastAutoTable.finalY;
-  const isTN=data.mode==="totalnone";
+
+  // ── 合計ボックス ──────────────────────────────────────────────────
+  // ページ残量をチェックし、収まらなければ改ページする
+  const PAGE_H = 297;       // A4高さ (mm)
+  const BOTTOM_MARGIN = 14; // 下端の余白 (mm)
+  const isTN = data.mode === "totalnone";
+  const lH = 8;
+  const nR = isTN ? 3 : 4;
+  const bH = lH * nR + (nR === 3 ? 6 : 8);
+  const BOX_GAP = 8; // 表との間隔
+
+  let lY = doc.lastAutoTable.finalY;
+
+  // 合計ボックスに必要な高さ = ギャップ + ボックス高さ + 下マージン
+  const neededH = BOX_GAP + bH + BOTTOM_MARGIN;
+
+  // 現在ページの残り高さが足りなければ改ページ
+  if (lY + neededH > PAGE_H) {
+    doc.addPage();
+    lY = M; // 新ページの先頭マージン
+  }
+
   const ml=isTN?"総額（税区分なし）":data.mode==="taxex"?"税抜（10%別）":"税込（10%込）";
-  const bW=86,bX=W-M-bW,bY=lY+8,lH=8,nR=isTN?3:4,bH=lH*nR+(nR===3?6:8);
+  const bW=86,bX=W-M-bW,bY=lY+BOX_GAP;
+
   doc.setDrawColor(204);doc.roundedRect(bX,bY,bW,bH,2,2);
   doc.setDrawColor(224);doc.line(bX,bY+lH+2,bX+bW,bY+lH+2);
   if(isTN){
@@ -456,6 +477,8 @@ async function generatePdfVector(){
     doc.setTextColor(17);doc.setFontSize(10.5);
     [{label:"小計",value:formatNumber(data.sub)+" 円"},{label:"うち消費税",value:formatNumber(data.tax)+" 円"},{label:"合計",value:formatNumber(data.total)+" 円"}].forEach((r,i)=>{const y=bY+lH*(i+1)+lH-1+(i*2);doc.text(r.label,bX+4,y);doc.text(r.value,bX+bW-4,y,{align:"right"});});
   }
+  // ─────────────────────────────────────────────────────────────────
+
   doc.save(makeName());
 }
 
