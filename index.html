@@ -143,7 +143,7 @@
       body{background:#fff;}
       #loginScreen{display:none !important;}
       .wrap{max-width:none;padding:0;}
-      .actions,.pill,.table-actions,.footer-note,.send-banner,.usage-notice{display:none !important;}
+      .actions,.pill,.table-actions,.footer-note,.send-banner{display:none !important;}
       .card{box-shadow:none;border:0;border-radius:0;padding:0;}
       .grid{display:block !important;}
       .topbar{margin-bottom:14px;border-bottom:1px solid #ccc;padding-bottom:10px;}
@@ -204,16 +204,6 @@
     </div>
   </div>
 
-  <div class="usage-notice" style="background:linear-gradient(135deg,#fefcf8 0%,#f8f2e8 100%);border:1px solid var(--accent2);border-radius:18px;padding:18px 22px;margin-bottom:16px;box-shadow:0 2px 12px rgba(139,111,78,.08);">
-    <div style="display:flex;align-items:flex-start;gap:14px;">
-      <span style="font-size:24px;flex-shrink:0;">📌</span>
-      <div style="flex:1;">
-        <strong style="display:block;font-size:14px;font-weight:900;color:var(--deep);margin-bottom:8px;">使用前説明：</strong>
-        <p style="font-size:13px;color:var(--muted);line-height:1.9;margin:0;">※お手数ですが、LINE・Instagramなどのアプリ内ブラウザでは開かず、<span style="color:#b5651d;font-weight:700;">URLをコピーしてスマートフォンのブラウザ（Safari / Android 標準ブラウザ等）またはPCブラウザで開いていただきますようお願いいたします。</span>アプリ内ブラウザから開いた場合、PDFが正常にダウンロードできないことがございます。</p>
-      </div>
-    </div>
-  </div>
-
   <div class="send-banner">
     <div class="send-banner-icon">📬</div>
     <div class="send-banner-body">
@@ -221,7 +211,8 @@
       <p>✉️ メール：<a href="mailto:info@cleonarts.com">info@cleonarts.com</a>　　💬 LINEにてそのままお送りいただいても大丈夫です。<br>ご不明な点はお気軽にご連絡ください。</p>
     </div>
     <div class="send-banner-actions">
-      <a href="mailto:info@cleonarts.com" style="text-decoration:none;">
+      <button class="copy-btn" id="copyMailBtn" type="button">📋 メールをコピー</button>
+      <a href="mailto:info@cleonarts.com?subject=納品書の送付" style="text-decoration:none;">
         <button class="copy-btn" type="button" style="color:#059669;border-color:#a7f3d0;">✉️ メールを開く</button>
       </a>
       <a href="https://line.me/ti/p/VAi214o7YN" target="_blank" style="text-decoration:none;">
@@ -264,10 +255,6 @@
           <tbody id="tbody"></tbody>
         </table>
       </div>
-      <div style="margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:16px;background:#fdfcfa;">
-        <label style="display:block;color:var(--muted);font-size:13px;font-weight:800;margin-bottom:8px;letter-spacing:.3px;">説明（備考）</label>
-        <textarea id="noteArea" placeholder="例：作品についての補足事項など" data-ph="例：作品についての補足事項など" style="width:100%;min-height:80px;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:10px 13px;font-size:14px;background:#fff;color:var(--text);font-family:'Noto Sans JP',sans-serif;"></textarea>
-      </div>
       <div class="table-actions"><button type="button" class="btn-mini" id="addRowBtn">＋ 追加</button></div>
       <div class="sum">
         <div class="footer-note">
@@ -305,6 +292,13 @@ document.getElementById("loginBtn").addEventListener("click",tryLogin);
 document.getElementById("pwInput").addEventListener("keydown",e=>{if(e.key==="Enter")tryLogin();});
 document.getElementById("togglePw").addEventListener("click",()=>{
   const i=document.getElementById("pwInput"); i.type=i.type==="password"?"text":"password";
+});
+
+document.getElementById("copyMailBtn").addEventListener("click",function(){
+  navigator.clipboard.writeText("info@cleonarts.com").then(()=>{
+    this.textContent="✅ コピーしました"; this.classList.add("copied");
+    setTimeout(()=>{this.textContent="📋 メールをコピー"; this.classList.remove("copied");},2500);
+  }).catch(()=>{ prompt("メールアドレスをコピーしてください:","info@cleonarts.com"); });
 });
 
 const FONT_REG_URL="./NotoSansJP-Regular.ttf";
@@ -365,7 +359,7 @@ modeSel.addEventListener("change",recalc);
 
 document.getElementById("clearBtn").addEventListener("click",()=>{
   if(!confirm("入力内容をリセットします。よろしいですか？"))return;
-  ["docNo","authorName","shopName","tel","addr","noteArea"].forEach(id=>document.getElementById(id).value="");
+  ["docNo","authorName","shopName","tel","addr"].forEach(id=>document.getElementById(id).value="");
   const d=new Date();
   document.getElementById("docDate").value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
   modeSel.value="taxin"; tbody.innerHTML=""; addRows(6);
@@ -396,7 +390,6 @@ function collectPdfData(){
   const shop=(document.getElementById("shopName").value||"").trim();
   const tel=(document.getElementById("tel").value||"").trim();
   const addr=(document.getElementById("addr").value||"").trim();
-  const note=(document.getElementById("noteArea").value||"").trim();
   const rows=[...tbody.querySelectorAll("tr")].map(tr=>({
     no:tr.querySelector(".no").textContent,
     name:(tr.querySelector(".name").value||"").trim(),
@@ -409,7 +402,7 @@ function collectPdfData(){
   if(mode==="totalnone"){total=roundY(sum);sub=total;tax=null;}
   else if(mode==="taxex"){sub=roundY(sum);tax=roundY(sub*rate);total=sub+tax;}
   else{total=roundY(sum);sub=roundY(total/(1+rate));tax=total-sub;}
-  return{company:"澄和創藝合同会社",toZip:"〒185-0032",toAddr:"東京都国分寺市日吉町2-34-14 2G号室",docNo,docDate,author,shop,tel,addr,note,rows,sub,tax,total,mode};
+  return{company:"澄和創藝合同会社",toZip:"〒185-0032",toAddr:"東京都国分寺市日吉町2-34-14 2G号室",docNo,docDate,author,shop,tel,addr,rows,sub,tax,total,mode};
 }
 
 async function generatePdfVector(){
@@ -444,24 +437,6 @@ async function generatePdfVector(){
   while(ib.length<6)ib.push([String(ib.length+1),"","","","0 円"]);
   const cNo=12,cUnit=32,cQty=20,cAmt=36,cName=(W-M*2)-(cNo+cUnit+cQty+cAmt);
   doc.autoTable({startY:sY,theme:"grid",head:[["No","品名 / 作品名","単価","数量","金額"]],body:ib,styles:{font:"NotoSansJP",fontStyle:"normal",fontSize:11,cellPadding:2.0,lineColor:170,lineWidth:0.2,valign:"middle"},headStyles:{fillColor:[239,239,239],textColor:17,fontStyle:"bold"},columnStyles:{0:{cellWidth:cNo,halign:"center"},1:{cellWidth:cName,halign:"left"},2:{cellWidth:cUnit,halign:"right"},3:{cellWidth:cQty,halign:"right"},4:{cellWidth:cAmt,halign:"right"}},margin:{left:M,right:M}});
-
-  // ── 説明（備考）──────────────────────────────────────────────────
-  if(data.note){
-    let noteY=doc.lastAutoTable.finalY+4;
-    const noteW=W-M*2;
-    doc.setFont("NotoSansJP","normal");doc.setFontSize(10);doc.setTextColor(17);
-    const noteLines=doc.splitTextToSize(data.note,noteW-8);
-    const noteLH=5;
-    const noteBlockH=noteLines.length*noteLH+18;
-    if(noteY+noteBlockH>PAGE_H-BOTTOM_MARGIN){doc.addPage();noteY=M;}
-    doc.setFont("NotoSansJP","bold");doc.setFontSize(10);doc.setTextColor(85);
-    doc.text("説明（備考）",M,noteY+4);
-    doc.setDrawColor(204);doc.roundedRect(M,noteY+6,noteW,noteLines.length*noteLH+6,2,2);
-    doc.setFont("NotoSansJP","normal");doc.setFontSize(10);doc.setTextColor(17);
-    noteLines.forEach((line,i)=>{doc.text(line,M+4,noteY+6+4+i*noteLH);});
-    doc.lastAutoTable={finalY:noteY+6+noteLines.length*noteLH+6};
-  }
-  // ─────────────────────────────────────────────────────────────────
 
   // ── 合計ボックス ──────────────────────────────────────────────────
   const PAGE_H = 297;
@@ -521,4 +496,13 @@ async function handlePDF(){
   btn.disabled=true;hint.textContent="PDFを作成中…";clearPH();
   try{await generatePdfVector();hint.textContent="";}
   catch(e){console.error(e);alert("PDF作成に失敗しました。\n\nエラー: "+e.message);}
-  finally{restorePH();btn.disabled=false;setTimeout(()
+  finally{restorePH();btn.disabled=false;setTimeout(()=>{hint.textContent="";},4000);}
+}
+document.getElementById("pdfBtn").addEventListener("click",handlePDF);
+
+const d=new Date();
+document.getElementById("docDate").value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+addRows(6);
+</script>
+</body>
+</html>
