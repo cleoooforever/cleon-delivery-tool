@@ -204,7 +204,6 @@
     </div>
   </div>
 
-  <!-- ✅ 指引：只给核心句上色+加粗 -->
   <div style="background:linear-gradient(135deg,#fdf8f2 0%,#f8f2e8 100%);border:1px solid var(--accent2);border-radius:18px;padding:16px 22px;margin-bottom:14px;box-shadow:0 2px 12px rgba(139,111,78,.08);">
     <div style="font-size:13px;font-weight:900;color:var(--deep);margin-bottom:7px;">📋 ご使用前にお読みください</div>
     <div style="font-size:13px;line-height:1.85;color:var(--muted);">
@@ -214,11 +213,10 @@
     </div>
   </div>
 
-  <!-- ✅ 送付案内：邮箱固定 + mailto 按钮可用 -->
   <div class="send-banner">
     <div class="send-banner-icon">📬</div>
     <div class="send-banner-body">
-      <strong>PDFを作成後、下記いずれかの方法でご送付ください</strong>
+      <strong>PDF作成後は、下記いずれかの方法でお送りいただけますと幸いです</strong>
       <p>
         ✉️ メール：<a href="mailto:info@cleonarts.com">info@cleonarts.com</a>　　💬 LINEにてそのままお送りいただいても大丈夫です。<br>
         ご不明な点はお気軽にご連絡ください。
@@ -581,18 +579,35 @@ async function generatePdfVector(){
       .forEach((r,i)=>{const y=bY+lH*(i+1)+lH-1+(i*2);doc.text(r.label,bX+4,y);doc.text(r.value,bX+bW-4,y,{align:"right"});});
   }
 
+  // ========================================================
+  // 備考欄：ページオーバーフロー対応（修正箇所）
+  // ========================================================
   if(data.remarks){
-    const rY=bY+bH+8;
     const rW=W-M*2;
-    doc.setFont("NotoSansJP","bold");doc.setFontSize(10);doc.setTextColor(85);
-    doc.text("説明（備注）",M,rY);
-    doc.setFont("NotoSansJP","normal");doc.setFontSize(10);doc.setTextColor(17);
+    doc.setFont("NotoSansJP","normal");doc.setFontSize(10);
     const splitRemarks=doc.splitTextToSize(data.remarks,rW-8);
-    const rBoxH=splitRemarks.length*6+10;
-    doc.setDrawColor(204);doc.roundedRect(M,rY+3,rW,rBoxH,2,2);
-    doc.text(splitRemarks,M+4,rY+10);
+    const LINE_H=6;
+    const rBoxH=splitRemarks.length*LINE_H+10;
+    const rLabelH=8;
+    const totalRemarksH=rLabelH+3+rBoxH+4;
+
+    // 合計ボックスの下端から備考欄の開始位置を計算
+    let rStartY=bY+bH+8;
+
+    // ページに収まらない場合は次ページへ移動
+    if(rStartY+totalRemarksH > PAGE_H-BOTTOM_MARGIN){
+      doc.addPage();
+      rStartY=M;
+    }
+
+    doc.setFont("NotoSansJP","bold");doc.setFontSize(10);doc.setTextColor(85);
+    doc.text("説明（備注）",M,rStartY);
+    doc.setFont("NotoSansJP","normal");doc.setFontSize(10);doc.setTextColor(17);
+    doc.setDrawColor(204);doc.roundedRect(M,rStartY+3,rW,rBoxH,2,2);
+    doc.text(splitRemarks,M+4,rStartY+10);
   }
 
+  // ページ番号
   const totalPages = doc.getNumberOfPages();
   for (let p = 1; p <= totalPages; p++) {
     doc.setPage(p);
@@ -640,4 +655,4 @@ document.getElementById("pdfBtn").addEventListener("click", handlePDF);
 </script>
 
 </body>
-</html>
+</html>f
