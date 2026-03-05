@@ -204,22 +204,31 @@
     </div>
   </div>
 
+  <!-- ✅ 指引：只给核心句上色+加粗 -->
   <div style="background:linear-gradient(135deg,#fdf8f2 0%,#f8f2e8 100%);border:1px solid var(--accent2);border-radius:18px;padding:16px 22px;margin-bottom:14px;box-shadow:0 2px 12px rgba(139,111,78,.08);">
     <div style="font-size:13px;font-weight:900;color:var(--deep);margin-bottom:7px;">📋 ご使用前にお読みください</div>
-    <div style="font-size:13px;line-height:1.85;color:var(--muted);">※お手数ですが、LINE・Instagramなどのアプリ内ブラウザでは開かず、URLをコピーして<span style="font-weight:900;color:#7b5ea7;">スマートフォンのブラウザ（Safari / Android 標準ブラウザ等）またはPCブラウザで開いていただきますようお願いいたします。</span>アプリ内ブラウザから開いた場合、PDFが正常にダウンロードできないことがございます。</div>
+    <div style="font-size:13px;line-height:1.85;color:var(--muted);">
+      ※お手数ですが、LINE・Instagramなどのアプリ内ブラウザでは開かず、
+      <span style="font-weight:900;color:#92600a;">URLをコピーしてスマートフォンのブラウザ（Safari / Android 標準ブラウザ等）またはPCブラウザで開いていただきますようお願いいたします。</span>
+      アプリ内ブラウザから開いた場合、PDFが正常にダウンロードできないことがございます。
+    </div>
   </div>
 
+  <!-- ✅ 送付案内：邮箱固定 + mailto 按钮可用 -->
   <div class="send-banner">
     <div class="send-banner-icon">📬</div>
     <div class="send-banner-body">
       <strong>PDFを作成後、下記いずれかの方法でご送付ください</strong>
-      <p>✉️ メール：<a href="/cdn-cgi/l/email-protection#adc4c3cbc2edcec1c8c2c3ccdfd9de83cec2c0"><span class="__cf_email__" data-cfemail="d8b1b6beb798bbb4bdb7b6b9aaacabf6bbb7b5">[email&#160;protected]</span></a>　　💬 LINEにてそのままお送りいただいても大丈夫です。<br>ご不明な点はお気軽にご連絡ください。</p>
+      <p>
+        ✉️ メール：<a href="mailto:info@cleonarts.com">info@cleonarts.com</a>　　💬 LINEにてそのままお送りいただいても大丈夫です。<br>
+        ご不明な点はお気軽にご連絡ください。
+      </p>
     </div>
     <div class="send-banner-actions">
-      <a href="/cdn-cgi/l/email-protection#e980878f86a98a858c8687889b9d9ac78a8684d69a9c8b838c8a9dd40e5d640c7a680f72510a68470069680d5271" style="text-decoration:none;">
+      <a href="mailto:info@cleonarts.com" style="text-decoration:none;">
         <button class="copy-btn" type="button" style="color:#059669;border-color:#a7f3d0;">✉️ メールを開く</button>
       </a>
-      <a href="https://line.me/ti/p/VAi214o7YN" target="_blank" style="text-decoration:none;">
+      <a href="https://line.me/ti/p/VAi214o7YN" target="_blank" rel="noopener" style="text-decoration:none;">
         <button class="copy-btn" type="button" style="color:#06c755;border-color:#06c755;">💬 LINEで送る</button>
       </a>
     </div>
@@ -281,7 +290,6 @@
 </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 <script>
 const PASS = "cleon2026nhtool";
 
@@ -535,7 +543,6 @@ async function generatePdfVector(){
     margin:{left:M,right:M}
   });
 
-  // ── 合計ボックス ──────────────────────────────────────────────────
   const PAGE_H = 297;
   const BOTTOM_MARGIN = 14;
   const isTN = data.mode === "totalnone";
@@ -573,9 +580,7 @@ async function generatePdfVector(){
     [{label:"小計",value:formatNumber(data.sub)+" 円"},{label:"うち消費税",value:formatNumber(data.tax)+" 円"},{label:"合計",value:formatNumber(data.total)+" 円"}]
       .forEach((r,i)=>{const y=bY+lH*(i+1)+lH-1+(i*2);doc.text(r.label,bX+4,y);doc.text(r.value,bX+bW-4,y,{align:"right"});});
   }
-  // ─────────────────────────────────────────────────────────────────
 
-  // ── 説明（備注）─────────────────────────────────────────────────
   if(data.remarks){
     const rY=bY+bH+8;
     const rW=W-M*2;
@@ -587,9 +592,7 @@ async function generatePdfVector(){
     doc.setDrawColor(204);doc.roundedRect(M,rY+3,rW,rBoxH,2,2);
     doc.text(splitRemarks,M+4,rY+10);
   }
-  // ─────────────────────────────────────────────────────────────────
 
-  // ── ページ番号（新規追加）─────────────────────────────────────────
   const totalPages = doc.getNumberOfPages();
   for (let p = 1; p <= totalPages; p++) {
     doc.setPage(p);
@@ -599,7 +602,6 @@ async function generatePdfVector(){
     doc.text(`${p} / ${totalPages}`, M, PAGE_H - 5);
   }
   doc.setTextColor(17);
-  // ─────────────────────────────────────────────────────────────────
 
   doc.save(makeName());
 }
@@ -619,14 +621,12 @@ async function handlePDF(){
   }finally{
     restorePH();
     btn.disabled = false;
-    // hintは少しだけ残してから消します（体感を良くするため）
     setTimeout(()=>{ hint.textContent=""; }, 900);
   }
 }
 
 document.getElementById("pdfBtn").addEventListener("click", handlePDF);
 
-// 初期化：日付を今日にして、明細を6行作る
 (function init(){
   const d=new Date();
   const yyyy=d.getFullYear();
@@ -635,6 +635,7 @@ document.getElementById("pdfBtn").addEventListener("click", handlePDF);
   const dateEl=document.getElementById("docDate");
   if(dateEl && !dateEl.value) dateEl.value = `${yyyy}-${mm}-${dd}`;
   if(tbody && tbody.querySelectorAll("tr").length===0) addRows(6);
+  recalc();
 })();
 </script>
 
