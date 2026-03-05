@@ -204,20 +204,24 @@
     </div>
   </div>
 
+  <div style="background:linear-gradient(135deg,#fdf8f2 0%,#f8f2e8 100%);border:1px solid var(--accent2);border-radius:18px;padding:16px 22px;margin-bottom:14px;box-shadow:0 2px 12px rgba(139,111,78,.08);">
+    <div style="font-size:13px;font-weight:900;color:var(--deep);margin-bottom:7px;">📋 ご使用前にお読みください</div>
+    <div style="font-size:13px;line-height:1.85;color:var(--muted);">※お手数ですが、LINE・Instagramなどのアプリ内ブラウザでは開かず、URLをコピーして<span style="font-weight:900;color:#7b5ea7;">スマートフォンのブラウザ（Safari / Android 標準ブラウザ等）またはPCブラウザで開いていただきますようお願いいたします。</span>アプリ内ブラウザから開いた場合、PDFが正常にダウンロードできないことがございます。</div>
+  </div>
+
   <div class="send-banner">
     <div class="send-banner-icon">📬</div>
     <div class="send-banner-body">
       <strong>PDFを作成後、下記いずれかの方法でご送付ください</strong>
-      <p>✉️ メール：<a href="mailto:info@cleonarts.com">info@cleonarts.com</a>　　💬 LINEにてそのままお送りいただいても大丈夫です。<br>ご不明な点はお気軽にご連絡ください。</p>
+      <p>✉️ メール：<a href="/cdn-cgi/l/email-protection#adc4c3cbc2edcec1c8c2c3ccdfd9de83cec2c0"><span class="__cf_email__" data-cfemail="d8b1b6beb798bbb4bdb7b6b9aaacabf6bbb7b5">[email&#160;protected]</span></a>　　💬 LINEにてそのままお送りいただいても大丈夫です。<br>ご不明な点はお気軽にご連絡ください。</p>
     </div>
     <div class="send-banner-actions">
-      <button class="copy-btn" id="copyMailBtn" type="button">📋 メールをコピー</button>
-      <a href="mailto:info@cleonarts.com?subject=納品書の送付" style="text-decoration:none;">
+      <a href="/cdn-cgi/l/email-protection#e980878f86a98a858c8687889b9d9ac78a8684d69a9c8b838c8a9dd40e5d640c7a680f72510a68470069680d5271" style="text-decoration:none;">
         <button class="copy-btn" type="button" style="color:#059669;border-color:#a7f3d0;">✉️ メールを開く</button>
       </a>
       <a href="https://line.me/ti/p/VAi214o7YN" target="_blank" style="text-decoration:none;">
-  <button class="copy-btn" type="button" style="color:#06c755;border-color:#06c755;">💬 LINEで送る</button>
-     </a>
+        <button class="copy-btn" type="button" style="color:#06c755;border-color:#06c755;">💬 LINEで送る</button>
+      </a>
     </div>
   </div>
 
@@ -255,6 +259,10 @@
           <tbody id="tbody"></tbody>
         </table>
       </div>
+      <div style="margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#fdfcfa;">
+        <div style="font-size:13px;font-weight:900;color:var(--deep);margin-bottom:8px;">説明（備注）</div>
+        <textarea id="remarks" placeholder="備考・説明などご自由にご記入ください" data-ph="備考・説明などご自由にご記入ください" style="min-height:88px;"></textarea>
+      </div>
       <div class="table-actions"><button type="button" class="btn-mini" id="addRowBtn">＋ 追加</button></div>
       <div class="sum">
         <div class="footer-note">
@@ -273,8 +281,10 @@
 </div>
 </div>
 
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 <script>
 const PASS = "cleon2026nhtool";
+
 function tryLogin(){
   if(document.getElementById("pwInput").value===PASS){
     document.getElementById("loginScreen").classList.add("hide");
@@ -288,17 +298,12 @@ function tryLogin(){
     setTimeout(()=>{err.textContent="";},3000);
   }
 }
+
 document.getElementById("loginBtn").addEventListener("click",tryLogin);
 document.getElementById("pwInput").addEventListener("keydown",e=>{if(e.key==="Enter")tryLogin();});
 document.getElementById("togglePw").addEventListener("click",()=>{
-  const i=document.getElementById("pwInput"); i.type=i.type==="password"?"text":"password";
-});
-
-document.getElementById("copyMailBtn").addEventListener("click",function(){
-  navigator.clipboard.writeText("info@cleonarts.com").then(()=>{
-    this.textContent="✅ コピーしました"; this.classList.add("copied");
-    setTimeout(()=>{this.textContent="📋 メールをコピー"; this.classList.remove("copied");},2500);
-  }).catch(()=>{ prompt("メールアドレスをコピーしてください:","info@cleonarts.com"); });
+  const i=document.getElementById("pwInput");
+  i.type = i.type==="password" ? "text" : "password";
 });
 
 const FONT_REG_URL="./NotoSansJP-Regular.ttf";
@@ -309,9 +314,22 @@ const yen=n=>(Number.isFinite(n)?n:0).toLocaleString("ja-JP")+" 円";
 const toInt=v=>{const n=Number(String(v??"").replace(/[^\d.-]/g,""));return Number.isFinite(n)?n:0;};
 const roundY=n=>Math.round(n);
 const _phBackup=new Map();
-function clearPH(){document.querySelectorAll("[data-ph],input.name,input.unit,input.qty").forEach(el=>{_phBackup.set(el,el.getAttribute("placeholder")||"");el.setAttribute("placeholder","");});}
-function restorePH(){_phBackup.forEach((v,el)=>{try{el.setAttribute("placeholder",v);}catch(e){}});_phBackup.clear();}
-function checkMobile(){if(window.innerWidth<=620)document.body.classList.add("is-mobile");else document.body.classList.remove("is-mobile");}
+
+function clearPH(){
+  document.querySelectorAll("[data-ph],input.name,input.unit,input.qty").forEach(el=>{
+    _phBackup.set(el,el.getAttribute("placeholder")||"");
+    el.setAttribute("placeholder","");
+  });
+}
+function restorePH(){
+  _phBackup.forEach((v,el)=>{try{el.setAttribute("placeholder",v);}catch(e){}});
+  _phBackup.clear();
+}
+
+function checkMobile(){
+  if(window.innerWidth<=620) document.body.classList.add("is-mobile");
+  else document.body.classList.remove("is-mobile");
+}
 checkMobile(); window.addEventListener("resize",checkMobile);
 
 const tbody=document.getElementById("tbody");
@@ -323,13 +341,24 @@ const grandTotalEl=document.getElementById("grandTotal");
 
 function makeRow(i){
   const tr=document.createElement("tr");
-  tr.innerHTML=`<td class="center no">${i}</td><td class="namecell"><input class="name" placeholder="例：カップショートケーキ / ブローチ など" /></td><td class="num unitcell"><input class="unit" inputmode="numeric" placeholder="0" /></td><td class="num qtycell"><input class="qty" inputmode="numeric" placeholder="1" value="1" /></td><td class="num amount">0 円</td><td class="center"><button type="button" class="btn-mini del" style="color:#c0392b;border-color:#fad7d7;background:#fff9f9;">×</button></td>`;
+  tr.innerHTML=`<td class="center no">${i}</td>
+    <td class="namecell"><input class="name" placeholder="例：カップショートケーキ / ブローチ など" /></td>
+    <td class="num unitcell"><input class="unit" inputmode="numeric" placeholder="0" /></td>
+    <td class="num qtycell"><input class="qty" inputmode="numeric" placeholder="1" value="1" /></td>
+    <td class="num amount">0 円</td>
+    <td class="center"><button type="button" class="btn-mini del" style="color:#c0392b;border-color:#fad7d7;background:#fff9f9;">×</button></td>`;
   tr.querySelector(".del").addEventListener("click",()=>{tr.remove();renumber();recalc();});
   tr.querySelectorAll("input").forEach(inp=>inp.addEventListener("input",recalc));
   return tr;
 }
-function renumber(){[...tbody.querySelectorAll("tr")].forEach((tr,i)=>{tr.querySelector(".no").textContent=i+1;});}
-function addRows(n){const start=tbody.querySelectorAll("tr").length;for(let k=0;k<n;k++)tbody.appendChild(makeRow(start+k+1));recalc();}
+function renumber(){
+  [...tbody.querySelectorAll("tr")].forEach((tr,i)=>{tr.querySelector(".no").textContent=i+1;});
+}
+function addRows(n){
+  const start=tbody.querySelectorAll("tr").length;
+  for(let k=0;k<n;k++) tbody.appendChild(makeRow(start+k+1));
+  recalc();
+}
 function recalc(){
   let sum=0;
   [...tbody.querySelectorAll("tr")].forEach(tr=>{
@@ -339,32 +368,59 @@ function recalc(){
     tr.querySelector(".amount").textContent=yen(amt);
     sum+=amt;
   });
-  const rate=0.10; const mode=modeSel.value;
+
+  const rate=0.10;
+  const mode=modeSel.value;
   const badge=document.getElementById("modeBadge");
+
   if(mode==="taxex"){badge.textContent="税抜（10%別）";badge.className="mode-badge taxex";}
   else if(mode==="totalnone"){badge.textContent="総額（税区分なし）";badge.className="mode-badge totalnone";}
   else{badge.textContent="税込（10%込）";badge.className="mode-badge";}
+
   if(mode==="totalnone"){
     taxRowEl.style.display="none";
     const total=roundY(sum);
-    subTotalEl.textContent=yen(total); taxEl.textContent=yen(0); grandTotalEl.textContent=yen(total);
+    subTotalEl.textContent=yen(total);
+    taxEl.textContent=yen(0);
+    grandTotalEl.textContent=yen(total);
   } else {
     taxRowEl.style.display="";
-    if(mode==="taxex"){const sub=roundY(sum);const tax=roundY(sub*rate);subTotalEl.textContent=yen(sub);taxEl.textContent=yen(tax);grandTotalEl.textContent=yen(sub+tax);}
-    else{const total=roundY(sum);const sub=roundY(total/(1+rate));const tax=total-sub;subTotalEl.textContent=yen(sub);taxEl.textContent=yen(tax);grandTotalEl.textContent=yen(total);}
+    if(mode==="taxex"){
+      const sub=roundY(sum);
+      const tax=roundY(sub*rate);
+      subTotalEl.textContent=yen(sub);
+      taxEl.textContent=yen(tax);
+      grandTotalEl.textContent=yen(sub+tax);
+    } else {
+      const total=roundY(sum);
+      const sub=roundY(total/(1+rate));
+      const tax=total-sub;
+      subTotalEl.textContent=yen(sub);
+      taxEl.textContent=yen(tax);
+      grandTotalEl.textContent=yen(total);
+    }
   }
 }
+
 document.getElementById("addRowBtn").addEventListener("click",()=>addRows(1));
 modeSel.addEventListener("change",recalc);
 
 document.getElementById("clearBtn").addEventListener("click",()=>{
-  if(!confirm("入力内容をリセットします。よろしいですか？"))return;
+  if(!confirm("入力内容をリセットします。よろしいですか？")) return;
   ["docNo","authorName","shopName","tel","addr"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("remarks").value="";
   const d=new Date();
   document.getElementById("docDate").value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-  modeSel.value="taxin"; tbody.innerHTML=""; addRows(6);
+  modeSel.value="taxin";
+  tbody.innerHTML="";
+  addRows(6);
 });
-document.getElementById("printBtn").addEventListener("click",()=>{clearPH();window.print();setTimeout(restorePH,1200);});
+
+document.getElementById("printBtn").addEventListener("click",()=>{
+  clearPH();
+  window.print();
+  setTimeout(restorePH,1200);
+});
 
 function makeName(){
   const no=(document.getElementById("docNo").value||"").trim();
@@ -372,17 +428,19 @@ function makeName(){
   const dt=(document.getElementById("docDate").value||"").trim();
   const base=no?`納品書_${no}`:"納品書";
   const tail=[au,dt].filter(Boolean).join("_");
-  return(tail?`${base}_${tail}`:base)+".pdf";
+  return (tail?`${base}_${tail}`:base)+".pdf";
 }
 function formatNumber(n){return Number(n||0).toLocaleString("ja-JP");}
+
 async function fetchAsBase64(url){
   const res=await fetch(url,{cache:"force-cache"});
-  if(!res.ok)throw new Error("fetch failed: "+url+" ("+res.status+")");
+  if(!res.ok) throw new Error("fetch failed: "+url+" ("+res.status+")");
   const buf=await res.arrayBuffer();
   let binary=""; const bytes=new Uint8Array(buf); const chunk=0x8000;
-  for(let i=0;i<bytes.length;i+=chunk)binary+=String.fromCharCode.apply(null,bytes.subarray(i,i+chunk));
+  for(let i=0;i<bytes.length;i+=chunk) binary+=String.fromCharCode.apply(null,bytes.subarray(i,i+chunk));
   return btoa(binary);
 }
+
 function collectPdfData(){
   const docNo=(document.getElementById("docNo").value||"").trim();
   const docDate=(document.getElementById("docDate").value||"").trim();
@@ -390,53 +448,92 @@ function collectPdfData(){
   const shop=(document.getElementById("shopName").value||"").trim();
   const tel=(document.getElementById("tel").value||"").trim();
   const addr=(document.getElementById("addr").value||"").trim();
+  const remarks=(document.getElementById("remarks").value||"").trim();
+
   const rows=[...tbody.querySelectorAll("tr")].map(tr=>({
     no:tr.querySelector(".no").textContent,
     name:(tr.querySelector(".name").value||"").trim(),
     unit:toInt(tr.querySelector(".unit").value),
     qty:Math.max(0,toInt(tr.querySelector(".qty").value||0)),
   })).map(r=>({...r,amt:roundY(r.unit*r.qty)}));
+
   const mode=modeSel.value; const rate=0.10;
   const sum=roundY(rows.reduce((a,r)=>a+r.amt,0));
+
   let sub=0,tax=null,total=0;
   if(mode==="totalnone"){total=roundY(sum);sub=total;tax=null;}
   else if(mode==="taxex"){sub=roundY(sum);tax=roundY(sub*rate);total=sub+tax;}
   else{total=roundY(sum);sub=roundY(total/(1+rate));tax=total-sub;}
-  return{company:"澄和創藝合同会社",toZip:"〒185-0032",toAddr:"東京都国分寺市日吉町2-34-14 2G号室",docNo,docDate,author,shop,tel,addr,rows,sub,tax,total,mode};
+
+  return{company:"澄和創藝合同会社",toZip:"〒185-0032",toAddr:"東京都国分寺市日吉町2-34-14 2G号室",docNo,docDate,author,shop,tel,addr,remarks,rows,sub,tax,total,mode};
 }
 
 async function generatePdfVector(){
-  const{jsPDF}=window.jspdf;
+  const {jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:"mm",format:"a4"});
-  try{const r=await fetchAsBase64(FONT_REG_URL);doc.addFileToVFS("NotoSansJP-Regular.ttf",r);doc.addFont("NotoSansJP-Regular.ttf","NotoSansJP","normal","Identity-H");}
-  catch(e){throw new Error("Regular font load failed: "+e.message);}
-  try{const b=await fetchAsBase64(FONT_BOLD_URL);doc.addFileToVFS("NotoSansJP-Bold.ttf",b);doc.addFont("NotoSansJP-Bold.ttf","NotoSansJP","bold","Identity-H");}
-  catch(e){console.warn("Bold font not available:",e);}
+
+  try{
+    const r=await fetchAsBase64(FONT_REG_URL);
+    doc.addFileToVFS("NotoSansJP-Regular.ttf",r);
+    doc.addFont("NotoSansJP-Regular.ttf","NotoSansJP","normal","Identity-H");
+  }catch(e){ throw new Error("Regular font load failed: "+e.message); }
+
+  try{
+    const b=await fetchAsBase64(FONT_BOLD_URL);
+    doc.addFileToVFS("NotoSansJP-Bold.ttf",b);
+    doc.addFont("NotoSansJP-Bold.ttf","NotoSansJP","bold","Identity-H");
+  }catch(e){ console.warn("Bold font not available:",e); }
+
   doc.setFont("NotoSansJP","normal");
   const M=12,W=210;
   let logoLoaded=false;
+
   try{
     const lb=await fetchAsBase64(LOGO_URL);
     const fmt=LOGO_URL.split('.').pop().toUpperCase()==="PNG"?"PNG":"JPEG";
     await new Promise(resolve=>{
       const img=new Image();
-      img.onload=()=>{const tH=14;const tW=(img.naturalWidth/img.naturalHeight)*tH;doc.addImage("data:image/"+fmt.toLowerCase()+";base64,"+lb,fmt,M,10,tW,tH);logoLoaded=true;resolve();};
+      img.onload=()=>{
+        const tH=14;
+        const tW=(img.naturalWidth/img.naturalHeight)*tH;
+        doc.addImage("data:image/"+fmt.toLowerCase()+";base64,"+lb,fmt,M,10,tW,tH);
+        logoLoaded=true;
+        resolve();
+      };
       img.onerror=()=>resolve();
       img.src="data:image/"+fmt.toLowerCase()+";base64,"+lb;
     });
-  }catch(e){console.warn("Logo embed failed:",e);}
+  }catch(e){ console.warn("Logo embed failed:",e); }
+
   const hX=logoLoaded?50:M;
   doc.setFont("NotoSansJP","bold");doc.setFontSize(22);doc.text("納品書",hX,18);
   doc.setFont("NotoSansJP","normal");doc.setFontSize(12);doc.setTextColor(85);doc.text("澄和創藝合同会社",hX,24);doc.setTextColor(17);
+
   const data=collectPdfData();
   const infoBody=[["宛先",data.company+"\n"+data.toZip+" "+data.toAddr],["納品書番号",data.docNo||"—"],["納品日",data.docDate||"—"],["姓名",data.author||"—"],["屋号",data.shop||"—"],["TEL",data.tel||"—"]];
   if(data.addr)infoBody.push(["住所",data.addr]);
-  doc.autoTable({startY:32,theme:"grid",head:[],body:infoBody,styles:{font:"NotoSansJP",fontStyle:"normal",fontSize:11,cellPadding:2.2,lineColor:170,lineWidth:0.2,valign:"top"},columnStyles:{0:{cellWidth:36,textColor:[85,85,85],fontStyle:"bold"},1:{cellWidth:W-M*2-36}},margin:{left:M,right:M}});
+
+  doc.autoTable({
+    startY:32,theme:"grid",head:[],body:infoBody,
+    styles:{font:"NotoSansJP",fontStyle:"normal",fontSize:11,cellPadding:2.2,lineColor:170,lineWidth:0.2,valign:"top"},
+    columnStyles:{0:{cellWidth:36,textColor:[85,85,85],fontStyle:"bold"},1:{cellWidth:W-M*2-36}},
+    margin:{left:M,right:M}
+  });
+
   const sY=doc.lastAutoTable.finalY+6;
   const ib=data.rows.map(r=>([String(r.no),r.name||"",formatNumber(r.unit),formatNumber(r.qty),formatNumber(r.amt)+" 円"]));
   while(ib.length<6)ib.push([String(ib.length+1),"","","","0 円"]);
+
   const cNo=12,cUnit=32,cQty=20,cAmt=36,cName=(W-M*2)-(cNo+cUnit+cQty+cAmt);
-  doc.autoTable({startY:sY,theme:"grid",head:[["No","品名 / 作品名","単価","数量","金額"]],body:ib,styles:{font:"NotoSansJP",fontStyle:"normal",fontSize:11,cellPadding:2.0,lineColor:170,lineWidth:0.2,valign:"middle"},headStyles:{fillColor:[239,239,239],textColor:17,fontStyle:"bold"},columnStyles:{0:{cellWidth:cNo,halign:"center"},1:{cellWidth:cName,halign:"left"},2:{cellWidth:cUnit,halign:"right"},3:{cellWidth:cQty,halign:"right"},4:{cellWidth:cAmt,halign:"right"}},margin:{left:M,right:M}});
+  doc.autoTable({
+    startY:sY,theme:"grid",
+    head:[["No","品名 / 作品名","単価","数量","金額"]],
+    body:ib,
+    styles:{font:"NotoSansJP",fontStyle:"normal",fontSize:11,cellPadding:2.0,lineColor:170,lineWidth:0.2,valign:"middle"},
+    headStyles:{fillColor:[239,239,239],textColor:17,fontStyle:"bold"},
+    columnStyles:{0:{cellWidth:cNo,halign:"center"},1:{cellWidth:cName,halign:"left"},2:{cellWidth:cUnit,halign:"right"},3:{cellWidth:cQty,halign:"right"},4:{cellWidth:cAmt,halign:"right"}},
+    margin:{left:M,right:M}
+  });
 
   // ── 合計ボックス ──────────────────────────────────────────────────
   const PAGE_H = 297;
@@ -448,7 +545,6 @@ async function generatePdfVector(){
   const BOX_GAP = 8;
 
   let lY = doc.lastAutoTable.finalY;
-
   const neededH = BOX_GAP + bH + BOTTOM_MARGIN;
 
   if (lY + neededH > PAGE_H) {
@@ -461,18 +557,35 @@ async function generatePdfVector(){
 
   doc.setDrawColor(204);doc.roundedRect(bX,bY,bW,bH,2,2);
   doc.setDrawColor(224);doc.line(bX,bY+lH+2,bX+bW,bY+lH+2);
+
   if(isTN){
     doc.line(bX,bY+lH*2+4,bX+bW,bY+lH*2+4);
     doc.setFont("NotoSansJP","bold");doc.setTextColor(120);doc.setFontSize(9.5);
     doc.text("単価入力方式",bX+4,bY+lH-1);doc.text(ml,bX+bW-4,bY+lH-1,{align:"right"});
     doc.setTextColor(17);doc.setFontSize(10.5);
-    [{label:"お支払い金額",value:formatNumber(data.sub)+" 円"},{label:"合計",value:formatNumber(data.total)+" 円"}].forEach((r,i)=>{const y=bY+lH*(i+1)+lH-1+(i*2);doc.text(r.label,bX+4,y);doc.text(r.value,bX+bW-4,y,{align:"right"});});
+    [{label:"お支払い金額",value:formatNumber(data.sub)+" 円"},{label:"合計",value:formatNumber(data.total)+" 円"}]
+      .forEach((r,i)=>{const y=bY+lH*(i+1)+lH-1+(i*2);doc.text(r.label,bX+4,y);doc.text(r.value,bX+bW-4,y,{align:"right"});});
   } else {
     doc.line(bX,bY+lH*2+4,bX+bW,bY+lH*2+4);doc.line(bX,bY+lH*3+6,bX+bW,bY+lH*3+6);
     doc.setFont("NotoSansJP","bold");doc.setTextColor(120);doc.setFontSize(9.5);
     doc.text("単価入力方式",bX+4,bY+lH-1);doc.text(ml,bX+bW-4,bY+lH-1,{align:"right"});
     doc.setTextColor(17);doc.setFontSize(10.5);
-    [{label:"小計",value:formatNumber(data.sub)+" 円"},{label:"うち消費税",value:formatNumber(data.tax)+" 円"},{label:"合計",value:formatNumber(data.total)+" 円"}].forEach((r,i)=>{const y=bY+lH*(i+1)+lH-1+(i*2);doc.text(r.label,bX+4,y);doc.text(r.value,bX+bW-4,y,{align:"right"});});
+    [{label:"小計",value:formatNumber(data.sub)+" 円"},{label:"うち消費税",value:formatNumber(data.tax)+" 円"},{label:"合計",value:formatNumber(data.total)+" 円"}]
+      .forEach((r,i)=>{const y=bY+lH*(i+1)+lH-1+(i*2);doc.text(r.label,bX+4,y);doc.text(r.value,bX+bW-4,y,{align:"right"});});
+  }
+  // ─────────────────────────────────────────────────────────────────
+
+  // ── 説明（備注）─────────────────────────────────────────────────
+  if(data.remarks){
+    const rY=bY+bH+8;
+    const rW=W-M*2;
+    doc.setFont("NotoSansJP","bold");doc.setFontSize(10);doc.setTextColor(85);
+    doc.text("説明（備注）",M,rY);
+    doc.setFont("NotoSansJP","normal");doc.setFontSize(10);doc.setTextColor(17);
+    const splitRemarks=doc.splitTextToSize(data.remarks,rW-8);
+    const rBoxH=splitRemarks.length*6+10;
+    doc.setDrawColor(204);doc.roundedRect(M,rY+3,rW,rBoxH,2,2);
+    doc.text(splitRemarks,M+4,rY+10);
   }
   // ─────────────────────────────────────────────────────────────────
 
@@ -492,17 +605,38 @@ async function generatePdfVector(){
 }
 
 async function handlePDF(){
-  const btn=document.getElementById("pdfBtn"),hint=document.getElementById("pdfHint");
-  btn.disabled=true;hint.textContent="PDFを作成中…";clearPH();
-  try{await generatePdfVector();hint.textContent="";}
-  catch(e){console.error(e);alert("PDF作成に失敗しました。\n\nエラー: "+e.message);}
-  finally{restorePH();btn.disabled=false;setTimeout(()=>{hint.textContent="";},4000);}
+  const btn=document.getElementById("pdfBtn");
+  const hint=document.getElementById("pdfHint");
+  btn.disabled=true;
+  hint.textContent="PDFを作成中…";
+  clearPH();
+  try{
+    await generatePdfVector();
+    hint.textContent="";
+  }catch(e){
+    console.error(e);
+    alert("PDF作成に失敗しました。\n\nエラー: "+e.message);
+  }finally{
+    restorePH();
+    btn.disabled = false;
+    // hintは少しだけ残してから消します（体感を良くするため）
+    setTimeout(()=>{ hint.textContent=""; }, 900);
+  }
 }
-document.getElementById("pdfBtn").addEventListener("click",handlePDF);
 
-const d=new Date();
-document.getElementById("docDate").value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-addRows(6);
+document.getElementById("pdfBtn").addEventListener("click", handlePDF);
+
+// 初期化：日付を今日にして、明細を6行作る
+(function init(){
+  const d=new Date();
+  const yyyy=d.getFullYear();
+  const mm=String(d.getMonth()+1).padStart(2,"0");
+  const dd=String(d.getDate()).padStart(2,"0");
+  const dateEl=document.getElementById("docDate");
+  if(dateEl && !dateEl.value) dateEl.value = `${yyyy}-${mm}-${dd}`;
+  if(tbody && tbody.querySelectorAll("tr").length===0) addRows(6);
+})();
 </script>
+
 </body>
 </html>
