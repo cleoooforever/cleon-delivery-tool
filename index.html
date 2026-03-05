@@ -345,22 +345,26 @@ const taxEl=document.getElementById("tax");
 const taxRowEl=document.getElementById("taxRow");
 const grandTotalEl=document.getElementById("grandTotal");
 
-/* ✅ 备注清洗：解决复制粘贴导致的“空行/空格占行高” */
+// ✅ 修正版 normalizeRemarks：コピペ由来の不可視文字・連続空行・末尾余白を完全除去
 function normalizeRemarks(s){
   if(!s) return "";
   let t = String(s);
 
-  // 统一换行
+  // 不可視文字・ゼロ幅文字・BOM・制御文字（改行・タブ以外）を除去
+  t = t.replace(/[\u200B-\u200D\uFEFF\u00AD\u2060]/g, "");
+  t = t.replace(/[^\S\n\r\t]/g, " ");  // 全角スペース含む非改行空白を半角スペースに統一
+
+  // 改行コード統一
   t = t.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 
-  // 去掉行尾空格（包括全角空格）
-  t = t.split("\n").map(line => line.replace(/[ \t\u3000]+$/g, "")).join("\n");
+  // 行ごとに処理：各行の末尾スペース（半角・全角・タブ）を除去
+  t = t.split("\n").map(line => line.replace(/[\s\u3000]+$/g, "")).join("\n");
 
-  // 压缩连续空行：3行以上 -> 2行（保留一点段落感，不让它无限变高）
-  t = t.replace(/\n{3,}/g, "\n\n");
+  // 連続する空行を最大1行に圧縮（2行以上の空行 → 1行）
+  t = t.replace(/\n{2,}/g, "\n\n");
 
-  // 去掉首尾空白换行与空格
-  t = t.replace(/^[ \t\u3000\n]+/, "").replace(/[ \t\u3000\n]+$/, "");
+  // 先頭・末尾の空白・空行を完全除去
+  t = t.replace(/^[\s\u3000\n]+/, "").replace(/[\s\u3000\n]+$/, "");
 
   return t;
 }
@@ -475,7 +479,7 @@ function collectPdfData(){
   const tel=(document.getElementById("tel").value||"").trim();
   const addr=(document.getElementById("addr").value||"").trim();
 
-  // ✅ 备注先清洗
+  // ✅ 備考：取得時に強力正規化を適用
   const rawRemarks=(document.getElementById("remarks").value||"");
   const remarks=normalizeRemarks(rawRemarks);
 
@@ -603,46 +607,61 @@ async function generatePdfVector(){
   }
 
   // ========================================================
-  // ✅ 備考欄：空白過多の根治（テキスト正規化 + 余白最小化）
+  // ✅ 備考欄：空白過多の根治（強化版）
   // ========================================================
   if(data.remarks){
     const rW=W-M*2;
 
-    // splitTextToSize は \n を含むと空行扱いが増えるので、事前に normalize 済み data.remarks を使う
     doc.setFont("NotoSansJP","normal");
     doc.setFontSize(10);
 
-    const splitRemarks = doc.splitTextToSize(data.remarks, rW - 8);
+    // ✅ splitTextToSize に渡す前に、\n を含む文字列を行ごとに分割してから各行を wrap する
+    const inputLines = data.remarks.split("\n");
+    const splitRemarks = [];
+    for(const line of inputLines){
+      if(line.trim() === ""){
+        // 空行はそのまま1行として追加（連続空行は normalizeRemarks で既に1行に圧縮済み）
+        splitRemarks.push("");
+      } else {
+        const wrapped = doc.splitTextToSize(line, rW - 8);
+        splitRemarks.push(...wrapped);
+      }
+    }
 
-    // ✅ ここで「末尾の空行」だけは保険で削る（copy/paste 由来の最後の空行が高さに効く）
+    // ✅ 末尾の空行を全て削除（念のため二重対策）
     while(splitRemarks.length && String(splitRemarks[splitRemarks.length-1]).trim()===""){
       splitRemarks.pop();
     }
-
-    const LINE_H = 5.6;               // 少し詰めて“貼り付き”に
-    const PAD_TOP = 4;                // 上余白を小さく
-    const PAD_BOTTOM = 4;             // 下余白を小さく
-    const rBoxH = Math.max(14, splitRemarks.length * LINE_H + PAD_TOP + PAD_BOTTOM);
-
-    const rLabelH = 6.5;
-    const totalRemarksH = rLabelH + 3 + rBoxH + 2;
-
-    let rStartY = bY + bH + 8;
-    if(rStartY + totalRemarksH > PAGE_H - BOTTOM_MARGIN){
-      doc.addPage();
-      rStartY = M;
+    // ✅ 先頭の空行も削除
+    while(splitRemarks.length && String(splitRemarks[0]).trim()===""){
+      splitRemarks.shift();
     }
 
-    doc.setFont("NotoSansJP","bold");doc.setFontSize(10);doc.setTextColor(85);
-    doc.text("説明（備注）", M, rStartY);
+    if(splitRemarks.length > 0){
+      const LINE_H = 5.6;
+      const PAD_TOP = 4;
+      const PAD_BOTTOM = 4;
+      const rBoxH = Math.max(14, splitRemarks.length * LINE_H + PAD_TOP + PAD_BOTTOM);
 
-    doc.setFont("NotoSansJP","normal");doc.setFontSize(10);doc.setTextColor(17);
-    doc.setDrawColor(204);
-    doc.roundedRect(M, rStartY + 3, rW, rBoxH, 2, 2);
+      const rLabelH = 6.5;
+      const totalRemarksH = rLabelH + 3 + rBoxH + 2;
 
-    // テキスト描画位置：枠の上から PAD_TOP 分だけ下げる
-    const textY = rStartY + 3 + PAD_TOP + 3;
-    doc.text(splitRemarks, M + 4, textY, {baseline:"top"});
+      let rStartY = bY + bH + 8;
+      if(rStartY + totalRemarksH > PAGE_H - BOTTOM_MARGIN){
+        doc.addPage();
+        rStartY = M;
+      }
+
+      doc.setFont("NotoSansJP","bold");doc.setFontSize(10);doc.setTextColor(85);
+      doc.text("説明（備注）", M, rStartY);
+
+      doc.setFont("NotoSansJP","normal");doc.setFontSize(10);doc.setTextColor(17);
+      doc.setDrawColor(204);
+      doc.roundedRect(M, rStartY + 3, rW, rBoxH, 2, 2);
+
+      const textY = rStartY + 3 + PAD_TOP + 3;
+      doc.text(splitRemarks, M + 4, textY, {baseline:"top"});
+    }
   }
 
   // ページ番号
