@@ -345,6 +345,26 @@ const taxEl=document.getElementById("tax");
 const taxRowEl=document.getElementById("taxRow");
 const grandTotalEl=document.getElementById("grandTotal");
 
+/* ✅ 备注清洗：解决复制粘贴导致的“空行/空格占行高” */
+function normalizeRemarks(s){
+  if(!s) return "";
+  let t = String(s);
+
+  // 统一换行
+  t = t.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+
+  // 去掉行尾空格（包括全角空格）
+  t = t.split("\n").map(line => line.replace(/[ \t\u3000]+$/g, "")).join("\n");
+
+  // 压缩连续空行：3行以上 -> 2行（保留一点段落感，不让它无限变高）
+  t = t.replace(/\n{3,}/g, "\n\n");
+
+  // 去掉首尾空白换行与空格
+  t = t.replace(/^[ \t\u3000\n]+/, "").replace(/[ \t\u3000\n]+$/, "");
+
+  return t;
+}
+
 function makeRow(i){
   const tr=document.createElement("tr");
   tr.innerHTML=`<td class="center no">${i}</td>
@@ -454,7 +474,10 @@ function collectPdfData(){
   const shop=(document.getElementById("shopName").value||"").trim();
   const tel=(document.getElementById("tel").value||"").trim();
   const addr=(document.getElementById("addr").value||"").trim();
-  const remarks=(document.getElementById("remarks").value||"").trim();
+
+  // ✅ 备注先清洗
+  const rawRemarks=(document.getElementById("remarks").value||"");
+  const remarks=normalizeRemarks(rawRemarks);
 
   const rows=[...tbody.querySelectorAll("tr")].map(tr=>({
     no:tr.querySelector(".no").textContent,
@@ -580,31 +603,46 @@ async function generatePdfVector(){
   }
 
   // ========================================================
-  // 備考欄：ページオーバーフロー対応（修正箇所）
+  // ✅ 備考欄：空白過多の根治（テキスト正規化 + 余白最小化）
   // ========================================================
   if(data.remarks){
     const rW=W-M*2;
-    doc.setFont("NotoSansJP","normal");doc.setFontSize(10);
-    const splitRemarks=doc.splitTextToSize(data.remarks,rW-8);
-    const LINE_H=6;
-    const rBoxH=splitRemarks.length*LINE_H+10;
-    const rLabelH=8;
-    const totalRemarksH=rLabelH+3+rBoxH+4;
 
-    // 合計ボックスの下端から備考欄の開始位置を計算
-    let rStartY=bY+bH+8;
+    // splitTextToSize は \n を含むと空行扱いが増えるので、事前に normalize 済み data.remarks を使う
+    doc.setFont("NotoSansJP","normal");
+    doc.setFontSize(10);
 
-    // ページに収まらない場合は次ページへ移動
-    if(rStartY+totalRemarksH > PAGE_H-BOTTOM_MARGIN){
+    const splitRemarks = doc.splitTextToSize(data.remarks, rW - 8);
+
+    // ✅ ここで「末尾の空行」だけは保険で削る（copy/paste 由来の最後の空行が高さに効く）
+    while(splitRemarks.length && String(splitRemarks[splitRemarks.length-1]).trim()===""){
+      splitRemarks.pop();
+    }
+
+    const LINE_H = 5.6;               // 少し詰めて“貼り付き”に
+    const PAD_TOP = 4;                // 上余白を小さく
+    const PAD_BOTTOM = 4;             // 下余白を小さく
+    const rBoxH = Math.max(14, splitRemarks.length * LINE_H + PAD_TOP + PAD_BOTTOM);
+
+    const rLabelH = 6.5;
+    const totalRemarksH = rLabelH + 3 + rBoxH + 2;
+
+    let rStartY = bY + bH + 8;
+    if(rStartY + totalRemarksH > PAGE_H - BOTTOM_MARGIN){
       doc.addPage();
-      rStartY=M;
+      rStartY = M;
     }
 
     doc.setFont("NotoSansJP","bold");doc.setFontSize(10);doc.setTextColor(85);
-    doc.text("説明（備注）",M,rStartY);
+    doc.text("説明（備注）", M, rStartY);
+
     doc.setFont("NotoSansJP","normal");doc.setFontSize(10);doc.setTextColor(17);
-    doc.setDrawColor(204);doc.roundedRect(M,rStartY+3,rW,rBoxH,2,2);
-    doc.text(splitRemarks,M+4,rStartY+10);
+    doc.setDrawColor(204);
+    doc.roundedRect(M, rStartY + 3, rW, rBoxH, 2, 2);
+
+    // テキスト描画位置：枠の上から PAD_TOP 分だけ下げる
+    const textY = rStartY + 3 + PAD_TOP + 3;
+    doc.text(splitRemarks, M + 4, textY, {baseline:"top"});
   }
 
   // ページ番号
@@ -655,4 +693,4 @@ document.getElementById("pdfBtn").addEventListener("click", handlePDF);
 </script>
 
 </body>
-</html>f
+</html>
