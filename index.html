@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>納品書 | 澄和創藝合同会社</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
@@ -31,7 +31,7 @@
     .login-field input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(201,169,122,.3);border-radius:14px;padding:16px 48px 16px 20px;font-size:15px;color:#f0ebe3;font-family:'Noto Sans JP',sans-serif;letter-spacing:2px;outline:none;transition:border-color .2s,background .2s;}
     .login-field input::placeholder{color:rgba(240,235,227,.25);letter-spacing:0;}
     .login-field input:focus{border-color:rgba(201,169,122,.7);background:rgba(255,255,255,.09);}
-    .toggle-pw{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(240,235,227,.4);font-size:18px;padding:4px;}
+    .toggle-pw{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none !important;border:none !important;box-shadow:none !important;cursor:pointer;color:rgba(240,235,227,.4);font-size:18px;padding:8px;z-index:10;line-height:1;}
     .login-btn{width:100%;background:linear-gradient(135deg,var(--accent2) 0%,var(--accent) 100%);border:none;border-radius:14px;padding:16px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;letter-spacing:2px;font-family:'Noto Sans JP',sans-serif;transition:opacity .2s,transform .15s;box-shadow:0 4px 20px rgba(139,111,78,.35);}
     .login-btn:active{transform:translateY(1px);opacity:.9;}
     .login-error{margin-top:12px;font-size:13px;color:#e8917a;min-height:20px;}
@@ -228,7 +228,7 @@
   <div class="send-banner">
     <div class="send-banner-icon">📬</div>
     <div class="send-banner-body">
-      <strong>PDF作成後は、下記いずれかの方法でお送りいただけますと幸いです</strong>
+      <strong>PDFを作成後、下記いずれかの方法でご送付ください</strong>
       <p>✉️ メール：<a href="/cdn-cgi/l/email-protection#bad3d4dcd5fad9d6dfd5d4dbc8cec994d9d5d7"><span class="__cf_email__" data-cfemail="a4cdcac2cbe4c7c8c1cbcac5d6d0d78ac7cbc9">[email&#160;protected]</span></a>　　💬 LINEにてそのままお送りいただいても大丈夫です。<br>ご不明な点はお気軽にご連絡ください。</p>
     </div>
     <div class="send-banner-actions">
@@ -318,8 +318,11 @@ function tryLogin(){
 }
 document.getElementById("loginBtn").addEventListener("click",tryLogin);
 document.getElementById("pwInput").addEventListener("keydown",e=>{if(e.key==="Enter")tryLogin();});
-document.getElementById("togglePw").addEventListener("click",()=>{
-  const i=document.getElementById("pwInput"); i.type=i.type==="password"?"text":"password";
+document.getElementById("togglePw").addEventListener("click",function(e){
+  e.stopPropagation();
+  const i=document.getElementById("pwInput");
+  i.type=(i.type==="password")?"text":"password";
+  this.textContent=(i.type==="password")?"👁":"🙈";
 });
 
 const FONT_REG_URL="./NotoSansJP-Regular.ttf";
